@@ -1,0 +1,35 @@
+{
+  "xiaohongshu": {
+    "name": "小红书",
+    "icon": "xiaohongshu.png",
+    "cookie_domains": [
+      "xiaohongshu.com",
+      ".xiaohongshu.com"
+    ],
+    "login_url": "https://www.xiaohongshu.com/login",
+    "session_validity_days": 30,
+    "requires_login": true
+  },
+  "weibo": {
+    "name": "微博",
+    "icon": "weibo.png",
+    "cookie_domains": [
+      "weibo.com",
+      ".weibo.com"
+    ],
+    "login_url": "https://weibo.com/login.php",
+    "session_validity_days": 15,
+    "requires_login": true
+  },
+  "bilibili": {
+    "name": "哔哩哔哩",
+    "icon": "bilibili.png",
+    "cookie_domains": [
+      "bilibili.com",
+      ".bilibili.com"
+    ],
+    "login_url": "https://passport.bilibili.com/login",
+    "session_validity_days": 30,
+    "requires_login": true
+  }
+}

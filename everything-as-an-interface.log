@@ -1,0 +1,596 @@
+2025-08-08 00:10:34,702 - plugin_manager - INFO - 发现插件: xiaohongshu (XiaohongshuPlugin)
+2025-08-08 00:10:34,702 - captcha_center - INFO - 注册验证码处理器: image
+2025-08-08 00:10:34,702 - captcha_center - INFO - 注册验证码处理器: slide
+2025-08-08 00:10:34,702 - captcha_center - INFO - 注册验证码处理器: human
+2025-08-08 00:10:34,703 - notification - INFO - 注册通知渠道: console (控制台通知)
+2025-08-08 00:10:34,734 - account_manager - INFO - 加密系统已初始化
+2025-08-08 00:10:34,736 - account_manager - INFO - 平台定义已保存
+2025-08-08 00:10:34,736 - everything_as_interface - INFO - Everything As Interface 初始化完成
+2025-08-08 00:10:34,737 - account_manager - INFO - 会话信息已保存
+2025-08-08 00:10:34,737 - account_manager - INFO - 创建会话: ecd034cc-4d51-4394-8b01-865cb75e5d6b (平台: xiaohongshu)
+2025-08-08 00:10:34,737 - subscription - INFO - 创建主题: d58fa4bb-bd31-429b-b475-525e1bea4f96 (小红书收藏夹更新)
+2025-08-08 00:10:34,738 - subscription - INFO - 主题 d58fa4bb-bd31-429b-b475-525e1bea4f96 添加订阅者: cdc428bc-32c7-415e-93f3-373ec8555c84
+2025-08-08 00:10:34,738 - scheduler - INFO - 添加任务: 33f3731b-e78a-4fd2-bb9c-666cb86d25bc (插件: xiaohongshu, 间隔: 300秒)
+2025-08-08 00:10:34,738 - scheduler - INFO - 调度器已启动
+2025-08-08 00:10:34,738 - scheduler - INFO - 执行任务: 33f3731b-e78a-4fd2-bb9c-666cb86d25bc (插件: xiaohongshu)
+2025-08-08 00:10:34,738 - plugin - INFO - 插件 xiaohongshu 已配置
+2025-08-08 00:10:34,738 - account_manager - WARNING - 会话 ecd034cc-4d51-4394-8b01-865cb75e5d6b 需要重新登录: 会话未登录
+2025-08-08 00:10:34,739 - account_manager - INFO - 会话信息已保存
+2025-08-08 00:10:34,739 - plugin - INFO - 插件 xiaohongshu 已选择账号: ecd034cc-4d51-4394-8b01-865cb75e5d6b
+2025-08-08 00:10:34,739 - account_manager - INFO - 会话信息已保存
+2025-08-08 00:10:34,739 - scheduler - WARNING - 会话 ecd034cc-4d51-4394-8b01-865cb75e5d6b 无效: 无Cookie信息
+2025-08-08 00:10:34,739 - plugin.xiaohongshu - INFO - 启动小红书插件
+2025-08-08 00:10:34,739 - plugin - INFO - 插件 xiaohongshu 已启动
+2025-08-08 00:10:37,471 - scheduler - ERROR - 任务执行失败: 33f3731b-e78a-4fd2-bb9c-666cb86d25bc, 错误: BrowserType.launch: Executable doesn't exist at C:\Users\Administrator\AppData\Local\ms-playwright\chromium-1140\chrome-win\chrome.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2025-08-08 00:10:37,471 - notification - ERROR - 
+===== ERROR NOTIFICATION =====
+Title: 任务执行失败: 33f3731b-e78a-4fd2-bb9c-666cb86d25bc
+Time: 2025-08-08 00:10:37
+Message: BrowserType.launch: Executable doesn't exist at C:\Users\Administrator\AppData\Local\ms-playwright\chromium-1140\chrome-win\chrome.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+Data: {
+  "task_id": "33f3731b-e78a-4fd2-bb9c-666cb86d25bc",
+  "plugin_id": "xiaohongshu",
+  "error": "BrowserType.launch: Executable doesn't exist at C:\\Users\\Administrator\\AppData\\Local\\ms-playwright\\chromium-1140\\chrome-win\\chrome.exe\n╔════════════════════════════════════════════════════════════╗\n║ Looks like Playwright was just installed or updated.       ║\n║ Please run the following command to download new browsers: ║\n║                                                            ║\n║     playwright install                                     ║\n║                                                            ║\n║ <3 Playwright Team                                         ║\n╚════════════════════════════════════════════════════════════╝"
+}
+================================
+
+2025-08-08 00:10:56,721 - scheduler - INFO - 调度器已停止
+2025-08-08 00:14:48,535 - plugin_manager - INFO - 发现插件: xiaohongshu (XiaohongshuPlugin)
+2025-08-08 00:14:48,535 - captcha_center - INFO - 注册验证码处理器: image
+2025-08-08 00:14:48,535 - captcha_center - INFO - 注册验证码处理器: slide
+2025-08-08 00:14:48,535 - captcha_center - INFO - 注册验证码处理器: human
+2025-08-08 00:14:48,535 - notification - INFO - 注册通知渠道: console (控制台通知)
+2025-08-08 00:14:48,568 - account_manager - INFO - 加密系统已初始化
+2025-08-08 00:14:48,568 - account_manager - INFO - 已加载 3 个平台定义
+2025-08-08 00:14:48,569 - account_manager - INFO - 已加载 1 个登录会话
+2025-08-08 00:14:48,569 - everything_as_interface - INFO - Everything As Interface 初始化完成
+2025-08-08 00:14:48,570 - account_manager - INFO - 会话信息已保存
+2025-08-08 00:14:48,570 - account_manager - INFO - 创建会话: ecdf9999-5bb0-4fbf-b65d-c5ac48acdf23 (平台: xiaohongshu)
+2025-08-08 00:14:48,570 - subscription - INFO - 创建主题: 1bce76b3-4965-44cb-be2a-0f2791edc351 (小红书收藏夹更新)
+2025-08-08 00:14:48,570 - subscription - INFO - 主题 1bce76b3-4965-44cb-be2a-0f2791edc351 添加订阅者: 453f1bb7-f4a6-4b3c-95f9-b5dc30028e35
+2025-08-08 00:14:48,570 - scheduler - INFO - 添加任务: be716d51-feb3-44bf-857f-dbc22b82042a (插件: xiaohongshu, 间隔: 300秒)
+2025-08-08 00:14:48,570 - scheduler - INFO - 调度器已启动
+2025-08-08 00:14:48,571 - scheduler - INFO - 执行任务: be716d51-feb3-44bf-857f-dbc22b82042a (插件: xiaohongshu)
+2025-08-08 00:14:48,571 - plugin - INFO - 插件 xiaohongshu 已配置
+2025-08-08 00:14:48,571 - account_manager - WARNING - 会话 ecdf9999-5bb0-4fbf-b65d-c5ac48acdf23 需要重新登录: 会话未登录
+2025-08-08 00:14:48,571 - account_manager - INFO - 会话信息已保存
+2025-08-08 00:14:48,572 - plugin - INFO - 插件 xiaohongshu 已选择账号: ecdf9999-5bb0-4fbf-b65d-c5ac48acdf23
+2025-08-08 00:14:48,572 - account_manager - INFO - 会话信息已保存
+2025-08-08 00:14:48,572 - scheduler - WARNING - 会话 ecdf9999-5bb0-4fbf-b65d-c5ac48acdf23 无效: 无Cookie信息
+2025-08-08 00:14:48,572 - plugin.xiaohongshu - INFO - 启动小红书插件
+2025-08-08 00:14:48,572 - plugin - INFO - 插件 xiaohongshu 已启动
+2025-08-08 00:14:49,396 - browser - INFO - 浏览器已启动
+2025-08-08 00:14:49,396 - plugin.xiaohongshu - INFO - 需要手动登录，正在打开浏览器...
+2025-08-08 00:14:49,396 - browser - INFO - 导航到: https://www.xiaohongshu.com/login
+2025-08-08 00:14:52,952 - plugin.xiaohongshu - INFO - 请在浏览器中手动登录小红书...
+2025-08-08 00:14:52,952 - plugin.xiaohongshu - INFO - 登录成功后，系统将自动获取Cookie
+2025-08-08 00:14:54,969 - browser - ERROR - 等待元素 .user-avatar, .avatar-img 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".user-avatar, .avatar-img") to be visible
+
+2025-08-08 00:14:56,986 - browser - ERROR - 等待元素 .user-avatar, .avatar-img 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".user-avatar, .avatar-img") to be visible
+
+2025-08-08 00:14:58,972 - browser - ERROR - 等待元素 .user-avatar, .avatar-img 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".user-avatar, .avatar-img") to be visible
+
+2025-08-08 00:15:00,991 - browser - ERROR - 等待元素 .user-avatar, .avatar-img 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".user-avatar, .avatar-img") to be visible
+
+2025-08-08 00:15:03,027 - browser - ERROR - 等待元素 .user-avatar, .avatar-img 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".user-avatar, .avatar-img") to be visible
+
+2025-08-08 00:15:05,042 - browser - ERROR - 等待元素 .user-avatar, .avatar-img 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".user-avatar, .avatar-img") to be visible
+
+2025-08-08 00:15:07,070 - browser - ERROR - 等待元素 .user-avatar, .avatar-img 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".user-avatar, .avatar-img") to be visible
+
+2025-08-08 00:15:09,100 - browser - ERROR - 等待元素 .user-avatar, .avatar-img 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".user-avatar, .avatar-img") to be visible
+
+2025-08-08 00:15:11,120 - browser - ERROR - 等待元素 .user-avatar, .avatar-img 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".user-avatar, .avatar-img") to be visible
+
+2025-08-08 00:15:13,155 - browser - ERROR - 等待元素 .user-avatar, .avatar-img 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".user-avatar, .avatar-img") to be visible
+
+2025-08-08 00:15:15,163 - browser - ERROR - 等待元素 .user-avatar, .avatar-img 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".user-avatar, .avatar-img") to be visible
+
+2025-08-08 00:15:17,194 - browser - ERROR - 等待元素 .user-avatar, .avatar-img 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".user-avatar, .avatar-img") to be visible
+
+2025-08-08 00:15:19,221 - browser - ERROR - 等待元素 .user-avatar, .avatar-img 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".user-avatar, .avatar-img") to be visible
+
+2025-08-08 00:15:20,485 - browser - ERROR - 等待元素 .user-avatar, .avatar-img 失败: Page.wait_for_selector: Target page, context or browser has been closed
+Call log:
+waiting for locator(".user-avatar, .avatar-img") to be visible
+
+2025-08-08 00:15:21,492 - browser - ERROR - 等待元素 .user-avatar, .avatar-img 失败: Page.wait_for_selector: Target page, context or browser has been closed
+2025-08-08 00:15:22,514 - browser - ERROR - 等待元素 .user-avatar, .avatar-img 失败: Page.wait_for_selector: Target page, context or browser has been closed
+2025-08-08 00:15:23,524 - browser - ERROR - 等待元素 .user-avatar, .avatar-img 失败: Page.wait_for_selector: Target page, context or browser has been closed
+2025-08-08 00:15:24,543 - browser - ERROR - 等待元素 .user-avatar, .avatar-img 失败: Page.wait_for_selector: Target page, context or browser has been closed
+2025-08-08 00:15:25,554 - browser - ERROR - 等待元素 .user-avatar, .avatar-img 失败: Page.wait_for_selector: Target page, context or browser has been closed
+2025-08-08 00:15:26,394 - scheduler - INFO - 调度器已停止
+2025-08-08 00:15:36,561 - asyncio - ERROR - Task was destroyed but it is pending!
+task: <Task cancelling name='Task-3' coro=<Scheduler._execute_task() running at D:\AIProject\everything-as-an-interface\src\core\scheduler.py:270> wait_for=<Future pending cb=[Task.task_wakeup()]> cb=[ProtocolCallback.__init__.<locals>.cb() at D:\Anaconda\envs\everything-as-interface\Lib\site-packages\playwright\_impl\_connection.py:195, <1 more>, ProtocolCallback.__init__.<locals>.cb() at D:\Anaconda\envs\everything-as-interface\Lib\site-packages\playwright\_impl\_connection.py:195]>
+2025-08-09 12:09:51,502 - plugin_manager - INFO - 发现插件: xiaohongshu (XiaohongshuPlugin)
+2025-08-09 12:09:51,502 - captcha_center - INFO - 注册验证码处理器: image
+2025-08-09 12:09:51,502 - captcha_center - INFO - 注册验证码处理器: slide
+2025-08-09 12:09:51,502 - captcha_center - INFO - 注册验证码处理器: human
+2025-08-09 12:09:51,502 - notification - INFO - 注册通知渠道: console (控制台通知)
+2025-08-09 12:09:51,539 - account_manager - INFO - 加密系统已初始化
+2025-08-09 12:09:51,539 - account_manager - INFO - 已加载 3 个平台定义
+2025-08-09 12:09:51,539 - everything_as_interface - INFO - Everything As Interface 初始化完成
+2025-08-09 12:09:51,539 - subscription - INFO - 创建主题: 0111870c-18a9-4ed1-ad8b-27f722699920 (小红书收藏夹更新)
+2025-08-09 12:09:51,539 - subscription - INFO - 主题 0111870c-18a9-4ed1-ad8b-27f722699920 添加订阅者: e1611903-ddbc-46d4-9e4e-2ed673178247
+2025-08-09 12:09:51,539 - scheduler - INFO - 添加任务: 887ccfe7-6a14-41ba-a29b-d949e97ffc86 (插件: xiaohongshu, 间隔: 300秒)
+2025-08-09 12:09:51,539 - scheduler - INFO - 调度器已启动
+2025-08-09 12:09:51,539 - scheduler - INFO - 执行任务: 887ccfe7-6a14-41ba-a29b-d949e97ffc86 (插件: xiaohongshu)
+2025-08-09 12:09:51,540 - plugin - INFO - 插件 xiaohongshu 已配置
+2025-08-09 12:09:51,540 - plugin.xiaohongshu - INFO - 启动小红书插件
+2025-08-09 12:09:51,540 - plugin - INFO - 插件 xiaohongshu 已启动
+2025-08-09 12:09:52,067 - browser - INFO - 浏览器已启动
+2025-08-09 12:09:52,068 - plugin.xiaohongshu - INFO - 需要手动登录，正在打开登录页…
+2025-08-09 12:09:52,068 - browser - INFO - 导航到: https://www.xiaohongshu.com/login
+2025-08-09 12:09:54,493 - plugin.xiaohongshu - INFO - 请在浏览器中手动登录小红书，系统会自动检测登录状态…
+2025-08-09 12:09:55,505 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Target page, context or browser has been closed
+2025-08-09 12:09:55,866 - scheduler - INFO - 调度器已停止
+2025-08-09 12:10:30,242 - plugin_manager - INFO - 发现插件: xiaohongshu (XiaohongshuPlugin)
+2025-08-09 12:10:30,243 - captcha_center - INFO - 注册验证码处理器: image
+2025-08-09 12:10:30,243 - captcha_center - INFO - 注册验证码处理器: slide
+2025-08-09 12:10:30,243 - captcha_center - INFO - 注册验证码处理器: human
+2025-08-09 12:10:30,243 - notification - INFO - 注册通知渠道: console (控制台通知)
+2025-08-09 12:10:30,277 - account_manager - INFO - 加密系统已初始化
+2025-08-09 12:10:30,277 - account_manager - INFO - 已加载 3 个平台定义
+2025-08-09 12:10:30,277 - everything_as_interface - INFO - Everything As Interface 初始化完成
+2025-08-09 12:10:30,277 - subscription - INFO - 创建主题: 009bcab9-b7b8-49cc-be5e-9e487db44624 (小红书收藏夹更新)
+2025-08-09 12:10:30,277 - subscription - INFO - 主题 009bcab9-b7b8-49cc-be5e-9e487db44624 添加订阅者: 9db1640e-ac7b-4a51-acfd-c2b3321951c9
+2025-08-09 12:10:30,277 - scheduler - INFO - 添加任务: 8c1375a0-7bc9-4085-9b78-5552cec157c6 (插件: xiaohongshu, 间隔: 300秒)
+2025-08-09 12:10:30,277 - scheduler - INFO - 调度器已启动
+2025-08-09 12:10:30,278 - scheduler - INFO - 执行任务: 8c1375a0-7bc9-4085-9b78-5552cec157c6 (插件: xiaohongshu)
+2025-08-09 12:10:30,278 - plugin - INFO - 插件 xiaohongshu 已配置
+2025-08-09 12:10:30,278 - plugin.xiaohongshu - INFO - 启动小红书插件
+2025-08-09 12:10:30,278 - plugin - INFO - 插件 xiaohongshu 已启动
+2025-08-09 12:10:30,778 - browser - INFO - 浏览器已启动
+2025-08-09 12:10:30,779 - plugin.xiaohongshu - INFO - 需要手动登录，正在打开登录页…
+2025-08-09 12:10:30,779 - browser - INFO - 导航到: https://www.xiaohongshu.com/login
+2025-08-09 12:10:33,208 - plugin.xiaohongshu - INFO - 请在浏览器中手动登录小红书，系统会自动检测登录状态…
+2025-08-09 12:10:35,219 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:10:37,242 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:10:39,259 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:10:41,283 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:10:43,295 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:10:45,300 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:10:47,323 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:10:49,324 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:10:51,346 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:10:53,361 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:10:55,392 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:10:57,409 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:10:59,428 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:11:01,445 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:11:03,455 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:11:05,488 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:11:07,505 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:11:09,517 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:11:11,528 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:11:13,541 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:11:15,557 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:11:17,581 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:11:19,595 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:11:21,635 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:11:23,641 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:11:25,654 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:11:27,674 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:11:29,704 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:11:31,722 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:11:33,744 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:11:35,758 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:11:35,758 - plugin.xiaohongshu - INFO - 等待登录中… (0分30秒)
+2025-08-09 12:11:37,777 - browser - ERROR - 等待元素 .reds-avatar-border 失败: Page.wait_for_selector: Timeout 1000ms exceeded.
+Call log:
+waiting for locator(".reds-avatar-border") to be visible
+
+2025-08-09 12:11:38,791 - plugin.xiaohongshu - INFO - 检测到登录成功
+2025-08-09 12:11:38,795 - account_manager - INFO - Cookie 存储已保存
+2025-08-09 12:11:38,795 - account_manager - INFO - 新增 Cookie 组: 1f2a15fd-5027-43ab-ba84-b82785cc6b08 (平台: xiaohongshu)
+2025-08-09 12:11:38,795 - plugin.xiaohongshu - INFO - Cookie 已保存: 1f2a15fd-5027-43ab-ba84-b82785cc6b08
+2025-08-09 12:11:47,525 - browser - ERROR - 等待元素 .note-detail-mask 失败: Page.wait_for_selector: Timeout 5000ms exceeded.
+Call log:
+waiting for locator(".note-detail-mask") to be visible
+
+2025-08-09 12:11:47,525 - plugin.xiaohongshu - ERROR - 获取收藏夹失败: 'NoneType' object has no attribute 'query_selector'
+2025-08-09 12:11:47,639 - browser - INFO - 截图已保存至: error_xiaohongshu_favorites.png
+2025-08-09 12:11:47,815 - browser - INFO - 浏览器已关闭
+2025-08-09 12:11:47,815 - plugin.xiaohongshu - INFO - 停止小红书插件
+2025-08-09 12:11:47,815 - plugin - INFO - 插件 xiaohongshu 已停止
+2025-08-09 12:11:47,815 - scheduler - INFO - 任务执行成功: 8c1375a0-7bc9-4085-9b78-5552cec157c6
+2025-08-09 12:12:41,892 - scheduler - INFO - 调度器已停止
+2025-08-09 12:12:45,086 - plugin_manager - INFO - 发现插件: xiaohongshu (XiaohongshuPlugin)
+2025-08-09 12:12:45,086 - captcha_center - INFO - 注册验证码处理器: image
+2025-08-09 12:12:45,086 - captcha_center - INFO - 注册验证码处理器: slide
+2025-08-09 12:12:45,086 - captcha_center - INFO - 注册验证码处理器: human
+2025-08-09 12:12:45,086 - notification - INFO - 注册通知渠道: console (控制台通知)
+2025-08-09 12:12:45,204 - account_manager - INFO - 加密系统已初始化
+2025-08-09 12:12:45,204 - account_manager - INFO - 已加载 3 个平台定义
+2025-08-09 12:12:45,205 - account_manager - INFO - 已加载 1 组 Cookie, dict_keys(['1f2a15fd-5027-43ab-ba84-b82785cc6b08'])
+2025-08-09 12:12:45,205 - everything_as_interface - INFO - Everything As Interface 初始化完成
+2025-08-09 12:12:45,206 - subscription - INFO - 创建主题: da5e85da-791c-46d1-9e49-5a4622a6f44a (小红书收藏夹更新)
+2025-08-09 12:12:45,206 - subscription - INFO - 主题 da5e85da-791c-46d1-9e49-5a4622a6f44a 添加订阅者: b1f44c9c-b57d-4567-8edb-2c24514d9688
+2025-08-09 12:12:45,206 - scheduler - INFO - 添加任务: 330be490-f4c3-48c9-b28b-9630923dfd32 (插件: xiaohongshu, 间隔: 300秒)
+2025-08-09 12:12:45,206 - scheduler - INFO - 调度器已启动
+2025-08-09 12:12:45,206 - scheduler - INFO - 执行任务: 330be490-f4c3-48c9-b28b-9630923dfd32 (插件: xiaohongshu)
+2025-08-09 12:12:45,206 - plugin - INFO - 插件 xiaohongshu 已配置
+2025-08-09 12:12:45,207 - account_manager - INFO - Cookie 存储已保存
+2025-08-09 12:12:45,207 - account_manager - INFO - Cookie 存储已保存
+2025-08-09 12:12:45,207 - plugin.xiaohongshu - INFO - 启动小红书插件
+2025-08-09 12:12:45,207 - plugin - INFO - 插件 xiaohongshu 已启动
+2025-08-09 12:12:45,730 - browser - INFO - 浏览器已启动
+2025-08-09 12:12:45,735 - browser - INFO - 导航到: https://www.xiaohongshu.com
+2025-08-09 12:12:51,238 - plugin.xiaohongshu - INFO - 使用配置的 Cookie 登录成功
+2025-08-09 12:17:42,464 - asyncio - ERROR - Exception in callback AsyncIOEventEmitter._emit_run.<locals>.callback(<Task finishe...rdInterrupt()>) at D:\Anaconda\envs\everything-as-interface\Lib\site-packages\pyee\asyncio.py:69
+handle: <Handle AsyncIOEventEmitter._emit_run.<locals>.callback(<Task finishe...rdInterrupt()>) at D:\Anaconda\envs\everything-as-interface\Lib\site-packages\pyee\asyncio.py:69>
+Traceback (most recent call last):
+  File "D:\PyCharm 2024.3.1.1\plugins\python\helpers-pro\pydevd_asyncio\pydevd_nest_asyncio.py", line 138, in run
+    return loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\PyCharm 2024.3.1.1\plugins\python\helpers-pro\pydevd_asyncio\pydevd_nest_asyncio.py", line 234, in run_until_complete
+    self._run_once()
+  File "D:\PyCharm 2024.3.1.1\plugins\python\helpers-pro\pydevd_asyncio\pydevd_nest_asyncio.py", line 286, in _run_once
+    handle._run()
+  File "D:\Anaconda\envs\everything-as-interface\Lib\asyncio\events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "D:\PyCharm 2024.3.1.1\plugins\python\helpers-pro\pydevd_asyncio\pydevd_nest_asyncio.py", line 394, in step
+    step_orig(task, exc)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\asyncio\tasks.py", line 303, in __step
+    self.__step_run_and_handle_result(exc)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\asyncio\tasks.py", line 314, in __step_run_and_handle_result
+    result = coro.send(None)
+             ^^^^^^^^^^^^^^^
+  File "D:\AIProject\everything-as-an-interface\src\plugins\xiaohongshu.py", line 406, in handle_response
+    note_data = response.json()
+    ^^^^^^
+  File "_pydevd_bundle\\pydevd_pep_669_tracing_cython.pyx", line 471, in _pydevd_bundle.pydevd_pep_669_tracing_cython.py_line_callback
+  File "_pydevd_bundle\\pydevd_pep_669_tracing_cython.pyx", line 465, in _pydevd_bundle.pydevd_pep_669_tracing_cython.py_line_callback
+  File "D:\PyCharm 2024.3.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1220, in do_wait_suspend
+    self._do_wait_suspend(thread, frame, event, arg, suspend_type, from_this_thread)
+  File "D:\PyCharm 2024.3.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1235, in _do_wait_suspend
+    time.sleep(0.01)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Anaconda\envs\everything-as-interface\Lib\asyncio\events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\site-packages\pyee\asyncio.py", line 77, in callback
+    self.emit("error", exc)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\site-packages\pyee\base.py", line 215, in emit
+    self._emit_handle_potential_error(event, args[0] if args else None)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\site-packages\pyee\base.py", line 175, in _emit_handle_potential_error
+    raise PyeeError(f"Uncaught, unspecified 'error' event: {error}")
+pyee.base.PyeeError: Uncaught, unspecified 'error' event: 
+2025-08-09 12:17:42,474 - scheduler - INFO - 调度器已停止
+2025-08-09 12:17:45,705 - plugin_manager - INFO - 发现插件: xiaohongshu (XiaohongshuPlugin)
+2025-08-09 12:17:45,706 - captcha_center - INFO - 注册验证码处理器: image
+2025-08-09 12:17:45,706 - captcha_center - INFO - 注册验证码处理器: slide
+2025-08-09 12:17:45,706 - captcha_center - INFO - 注册验证码处理器: human
+2025-08-09 12:17:45,706 - notification - INFO - 注册通知渠道: console (控制台通知)
+2025-08-09 12:17:45,750 - account_manager - INFO - 加密系统已初始化
+2025-08-09 12:17:45,751 - account_manager - INFO - 已加载 3 个平台定义
+2025-08-09 12:17:45,752 - account_manager - INFO - 已加载 1 组 Cookie, dict_keys(['1f2a15fd-5027-43ab-ba84-b82785cc6b08'])
+2025-08-09 12:17:45,752 - everything_as_interface - INFO - Everything As Interface 初始化完成
+2025-08-09 12:17:45,752 - subscription - INFO - 创建主题: 5b324392-452b-47a1-971c-c484f493a3df (小红书收藏夹更新)
+2025-08-09 12:17:45,752 - subscription - INFO - 主题 5b324392-452b-47a1-971c-c484f493a3df 添加订阅者: 37db4f61-d1bc-4d19-b95c-ac0a1b98a0b9
+2025-08-09 12:17:45,752 - scheduler - INFO - 添加任务: c91a1efb-5efc-4a3a-90ac-f5a6fc66f6ff (插件: xiaohongshu, 间隔: 300秒)
+2025-08-09 12:17:45,752 - scheduler - INFO - 调度器已启动
+2025-08-09 12:17:45,753 - scheduler - INFO - 执行任务: c91a1efb-5efc-4a3a-90ac-f5a6fc66f6ff (插件: xiaohongshu)
+2025-08-09 12:17:45,753 - plugin - INFO - 插件 xiaohongshu 已配置
+2025-08-09 12:17:45,753 - account_manager - INFO - Cookie 存储已保存
+2025-08-09 12:17:45,754 - account_manager - INFO - Cookie 存储已保存
+2025-08-09 12:17:45,754 - plugin.xiaohongshu - INFO - 启动小红书插件
+2025-08-09 12:17:45,754 - plugin - INFO - 插件 xiaohongshu 已启动
+2025-08-09 12:17:46,266 - browser - INFO - 浏览器已启动
+2025-08-09 12:17:46,272 - browser - INFO - 导航到: https://www.xiaohongshu.com
+2025-08-09 12:17:51,589 - plugin.xiaohongshu - INFO - 使用配置的 Cookie 登录成功
+2025-08-09 12:18:07,249 - asyncio - ERROR - Exception in callback AsyncIOEventEmitter._emit_run.<locals>.callback(<Task finishe...rdInterrupt()>) at D:\Anaconda\envs\everything-as-interface\Lib\site-packages\pyee\asyncio.py:69
+handle: <Handle AsyncIOEventEmitter._emit_run.<locals>.callback(<Task finishe...rdInterrupt()>) at D:\Anaconda\envs\everything-as-interface\Lib\site-packages\pyee\asyncio.py:69>
+Traceback (most recent call last):
+  File "D:\PyCharm 2024.3.1.1\plugins\python\helpers-pro\pydevd_asyncio\pydevd_nest_asyncio.py", line 138, in run
+    return loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\PyCharm 2024.3.1.1\plugins\python\helpers-pro\pydevd_asyncio\pydevd_nest_asyncio.py", line 234, in run_until_complete
+    self._run_once()
+  File "D:\PyCharm 2024.3.1.1\plugins\python\helpers-pro\pydevd_asyncio\pydevd_nest_asyncio.py", line 286, in _run_once
+    handle._run()
+  File "D:\Anaconda\envs\everything-as-interface\Lib\asyncio\events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "D:\PyCharm 2024.3.1.1\plugins\python\helpers-pro\pydevd_asyncio\pydevd_nest_asyncio.py", line 394, in step
+    step_orig(task, exc)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\asyncio\tasks.py", line 303, in __step
+    self.__step_run_and_handle_result(exc)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\asyncio\tasks.py", line 314, in __step_run_and_handle_result
+    result = coro.send(None)
+             ^^^^^^^^^^^^^^^
+  File "D:\AIProject\everything-as-an-interface\src\plugins\xiaohongshu.py", line 407, in handle_response
+    logger.info(f"[发现笔记api] node_data={note_data} url={url}")
+    ^^^^^^
+  File "_pydevd_bundle\\pydevd_pep_669_tracing_cython.pyx", line 471, in _pydevd_bundle.pydevd_pep_669_tracing_cython.py_line_callback
+  File "_pydevd_bundle\\pydevd_pep_669_tracing_cython.pyx", line 465, in _pydevd_bundle.pydevd_pep_669_tracing_cython.py_line_callback
+  File "D:\PyCharm 2024.3.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1220, in do_wait_suspend
+    self._do_wait_suspend(thread, frame, event, arg, suspend_type, from_this_thread)
+  File "D:\PyCharm 2024.3.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1235, in _do_wait_suspend
+    time.sleep(0.01)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Anaconda\envs\everything-as-interface\Lib\asyncio\events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\site-packages\pyee\asyncio.py", line 77, in callback
+    self.emit("error", exc)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\site-packages\pyee\base.py", line 215, in emit
+    self._emit_handle_potential_error(event, args[0] if args else None)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\site-packages\pyee\base.py", line 175, in _emit_handle_potential_error
+    raise PyeeError(f"Uncaught, unspecified 'error' event: {error}")
+pyee.base.PyeeError: Uncaught, unspecified 'error' event: 
+2025-08-09 12:18:07,252 - scheduler - INFO - 调度器已停止
+2025-08-09 12:18:09,591 - plugin_manager - INFO - 发现插件: xiaohongshu (XiaohongshuPlugin)
+2025-08-09 12:18:09,591 - captcha_center - INFO - 注册验证码处理器: image
+2025-08-09 12:18:09,592 - captcha_center - INFO - 注册验证码处理器: slide
+2025-08-09 12:18:09,592 - captcha_center - INFO - 注册验证码处理器: human
+2025-08-09 12:18:09,592 - notification - INFO - 注册通知渠道: console (控制台通知)
+2025-08-09 12:18:09,637 - account_manager - INFO - 加密系统已初始化
+2025-08-09 12:18:09,638 - account_manager - INFO - 已加载 3 个平台定义
+2025-08-09 12:18:09,639 - account_manager - INFO - 已加载 1 组 Cookie, dict_keys(['1f2a15fd-5027-43ab-ba84-b82785cc6b08'])
+2025-08-09 12:18:09,639 - everything_as_interface - INFO - Everything As Interface 初始化完成
+2025-08-09 12:18:09,639 - subscription - INFO - 创建主题: d581547f-caf5-45b9-8599-e6638fb103ee (小红书收藏夹更新)
+2025-08-09 12:18:09,639 - subscription - INFO - 主题 d581547f-caf5-45b9-8599-e6638fb103ee 添加订阅者: 9a0674ba-f74d-4e5c-b74a-70aef95f67d7
+2025-08-09 12:18:09,639 - scheduler - INFO - 添加任务: 0cd468ef-faac-484f-bd05-75764e28675b (插件: xiaohongshu, 间隔: 300秒)
+2025-08-09 12:18:09,639 - scheduler - INFO - 调度器已启动
+2025-08-09 12:18:09,640 - scheduler - INFO - 执行任务: 0cd468ef-faac-484f-bd05-75764e28675b (插件: xiaohongshu)
+2025-08-09 12:18:09,640 - plugin - INFO - 插件 xiaohongshu 已配置
+2025-08-09 12:18:09,640 - account_manager - INFO - Cookie 存储已保存
+2025-08-09 12:18:09,641 - account_manager - INFO - Cookie 存储已保存
+2025-08-09 12:18:09,641 - plugin.xiaohongshu - INFO - 启动小红书插件
+2025-08-09 12:18:09,641 - plugin - INFO - 插件 xiaohongshu 已启动
+2025-08-09 12:18:10,123 - browser - INFO - 浏览器已启动
+2025-08-09 12:18:10,127 - browser - INFO - 导航到: https://www.xiaohongshu.com
+2025-08-09 12:18:15,366 - plugin.xiaohongshu - INFO - 使用配置的 Cookie 登录成功
+2025-08-09 12:18:46,435 - asyncio - ERROR - Exception in callback AsyncIOEventEmitter._emit_run.<locals>.callback(<Task finishe...rdInterrupt()>) at D:\Anaconda\envs\everything-as-interface\Lib\site-packages\pyee\asyncio.py:69
+handle: <Handle AsyncIOEventEmitter._emit_run.<locals>.callback(<Task finishe...rdInterrupt()>) at D:\Anaconda\envs\everything-as-interface\Lib\site-packages\pyee\asyncio.py:69>
+Traceback (most recent call last):
+  File "D:\PyCharm 2024.3.1.1\plugins\python\helpers-pro\pydevd_asyncio\pydevd_nest_asyncio.py", line 138, in run
+    return loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\PyCharm 2024.3.1.1\plugins\python\helpers-pro\pydevd_asyncio\pydevd_nest_asyncio.py", line 234, in run_until_complete
+    self._run_once()
+  File "D:\PyCharm 2024.3.1.1\plugins\python\helpers-pro\pydevd_asyncio\pydevd_nest_asyncio.py", line 286, in _run_once
+    handle._run()
+  File "D:\Anaconda\envs\everything-as-interface\Lib\asyncio\events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\asyncio\tasks.py", line 396, in __wakeup
+    self.__step()
+  File "D:\PyCharm 2024.3.1.1\plugins\python\helpers-pro\pydevd_asyncio\pydevd_nest_asyncio.py", line 394, in step
+    step_orig(task, exc)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\asyncio\tasks.py", line 303, in __step
+    self.__step_run_and_handle_result(exc)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\asyncio\tasks.py", line 314, in __step_run_and_handle_result
+    result = coro.send(None)
+             ^^^^^^^^^^^^^^^
+  File "D:\AIProject\everything-as-an-interface\src\plugins\xiaohongshu.py", line 407, in handle_response
+    logger.info(f"[发现笔记api] node_data={note_data} url={url}")
+    ^^^^^^
+  File "_pydevd_bundle\\pydevd_pep_669_tracing_cython.pyx", line 471, in _pydevd_bundle.pydevd_pep_669_tracing_cython.py_line_callback
+  File "_pydevd_bundle\\pydevd_pep_669_tracing_cython.pyx", line 465, in _pydevd_bundle.pydevd_pep_669_tracing_cython.py_line_callback
+  File "D:\PyCharm 2024.3.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1220, in do_wait_suspend
+    self._do_wait_suspend(thread, frame, event, arg, suspend_type, from_this_thread)
+  File "D:\PyCharm 2024.3.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1235, in _do_wait_suspend
+    time.sleep(0.01)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Anaconda\envs\everything-as-interface\Lib\asyncio\events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\site-packages\pyee\asyncio.py", line 77, in callback
+    self.emit("error", exc)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\site-packages\pyee\base.py", line 215, in emit
+    self._emit_handle_potential_error(event, args[0] if args else None)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\site-packages\pyee\base.py", line 175, in _emit_handle_potential_error
+    raise PyeeError(f"Uncaught, unspecified 'error' event: {error}")
+pyee.base.PyeeError: Uncaught, unspecified 'error' event: 
+2025-08-09 12:18:46,438 - scheduler - INFO - 调度器已停止
+2025-08-09 12:18:48,354 - plugin_manager - INFO - 发现插件: xiaohongshu (XiaohongshuPlugin)
+2025-08-09 12:18:48,354 - captcha_center - INFO - 注册验证码处理器: image
+2025-08-09 12:18:48,354 - captcha_center - INFO - 注册验证码处理器: slide
+2025-08-09 12:18:48,354 - captcha_center - INFO - 注册验证码处理器: human
+2025-08-09 12:18:48,354 - notification - INFO - 注册通知渠道: console (控制台通知)
+2025-08-09 12:18:48,399 - account_manager - INFO - 加密系统已初始化
+2025-08-09 12:18:48,400 - account_manager - INFO - 已加载 3 个平台定义
+2025-08-09 12:18:48,401 - account_manager - INFO - 已加载 1 组 Cookie, dict_keys(['1f2a15fd-5027-43ab-ba84-b82785cc6b08'])
+2025-08-09 12:18:48,401 - everything_as_interface - INFO - Everything As Interface 初始化完成
+2025-08-09 12:18:48,401 - subscription - INFO - 创建主题: ec1029b6-f478-40ad-ad57-f414ce520c91 (小红书收藏夹更新)
+2025-08-09 12:18:48,401 - subscription - INFO - 主题 ec1029b6-f478-40ad-ad57-f414ce520c91 添加订阅者: a50c7fa6-3b0b-4f60-9951-c6200110fd6b
+2025-08-09 12:18:48,401 - scheduler - INFO - 添加任务: 6f3379f4-cbb0-4b74-9f44-22c590153c8b (插件: xiaohongshu, 间隔: 300秒)
+2025-08-09 12:18:48,401 - scheduler - INFO - 调度器已启动
+2025-08-09 12:18:48,402 - scheduler - INFO - 执行任务: 6f3379f4-cbb0-4b74-9f44-22c590153c8b (插件: xiaohongshu)
+2025-08-09 12:18:48,402 - plugin - INFO - 插件 xiaohongshu 已配置
+2025-08-09 12:18:48,402 - account_manager - INFO - Cookie 存储已保存
+2025-08-09 12:18:48,403 - account_manager - INFO - Cookie 存储已保存
+2025-08-09 12:18:48,403 - plugin.xiaohongshu - INFO - 启动小红书插件
+2025-08-09 12:18:48,403 - plugin - INFO - 插件 xiaohongshu 已启动
+2025-08-09 12:18:48,888 - browser - INFO - 浏览器已启动
+2025-08-09 12:18:48,893 - browser - INFO - 导航到: https://www.xiaohongshu.com
+2025-08-09 12:18:54,299 - plugin.xiaohongshu - INFO - 使用配置的 Cookie 登录成功
+2025-08-09 12:25:02,056 - asyncio - ERROR - Exception in callback AsyncIOEventEmitter._emit_run.<locals>.callback(<Task finishe...rdInterrupt()>) at D:\Anaconda\envs\everything-as-interface\Lib\site-packages\pyee\asyncio.py:69
+handle: <Handle AsyncIOEventEmitter._emit_run.<locals>.callback(<Task finishe...rdInterrupt()>) at D:\Anaconda\envs\everything-as-interface\Lib\site-packages\pyee\asyncio.py:69>
+Traceback (most recent call last):
+  File "D:\PyCharm 2024.3.1.1\plugins\python\helpers-pro\pydevd_asyncio\pydevd_nest_asyncio.py", line 138, in run
+    return loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\PyCharm 2024.3.1.1\plugins\python\helpers-pro\pydevd_asyncio\pydevd_nest_asyncio.py", line 234, in run_until_complete
+    self._run_once()
+  File "D:\PyCharm 2024.3.1.1\plugins\python\helpers-pro\pydevd_asyncio\pydevd_nest_asyncio.py", line 286, in _run_once
+    handle._run()
+  File "D:\Anaconda\envs\everything-as-interface\Lib\asyncio\events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\asyncio\tasks.py", line 396, in __wakeup
+    self.__step()
+  File "D:\PyCharm 2024.3.1.1\plugins\python\helpers-pro\pydevd_asyncio\pydevd_nest_asyncio.py", line 394, in step
+    step_orig(task, exc)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\asyncio\tasks.py", line 303, in __step
+    self.__step_run_and_handle_result(exc)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\asyncio\tasks.py", line 314, in __step_run_and_handle_result
+    result = coro.send(None)
+             ^^^^^^^^^^^^^^^
+  File "D:\AIProject\everything-as-an-interface\src\plugins\xiaohongshu.py", line 407, in handle_response
+    logger.info(f"[发现笔记api] node_data={note_data} url={url}")
+    ^^^^^^
+  File "_pydevd_bundle\\pydevd_pep_669_tracing_cython.pyx", line 471, in _pydevd_bundle.pydevd_pep_669_tracing_cython.py_line_callback
+  File "_pydevd_bundle\\pydevd_pep_669_tracing_cython.pyx", line 465, in _pydevd_bundle.pydevd_pep_669_tracing_cython.py_line_callback
+  File "D:\PyCharm 2024.3.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1220, in do_wait_suspend
+    self._do_wait_suspend(thread, frame, event, arg, suspend_type, from_this_thread)
+  File "D:\PyCharm 2024.3.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1235, in _do_wait_suspend
+    time.sleep(0.01)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Anaconda\envs\everything-as-interface\Lib\asyncio\events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\site-packages\pyee\asyncio.py", line 77, in callback
+    self.emit("error", exc)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\site-packages\pyee\base.py", line 215, in emit
+    self._emit_handle_potential_error(event, args[0] if args else None)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\site-packages\pyee\base.py", line 175, in _emit_handle_potential_error
+    raise PyeeError(f"Uncaught, unspecified 'error' event: {error}")
+pyee.base.PyeeError: Uncaught, unspecified 'error' event: 
+2025-08-09 12:25:02,059 - scheduler - INFO - 调度器已停止
