@@ -5,6 +5,8 @@ from typing import Dict, Any, List, Optional, Callable, Coroutine
 from datetime import datetime
 import uuid
 
+from .orchestrator import Orchestrator
+
 logger = logging.getLogger("scheduler")
 
 class Task:
@@ -73,11 +75,12 @@ class Scheduler:
     def __init__(self):
         """初始化调度器"""
         self.tasks: Dict[str, Task] = {}
-        self.plugin_manager = None  # 将在外部设置
+        self.plugin_manager = None  # 将在外部设置（注册表驱动）
         self.account_manager = None  # 将在外部设置
         self.notification_center = None  # 将在外部设置
         self.running = False
         self._task_loop: Optional[asyncio.Task] = None
+        self._orchestrator: Optional[Orchestrator] = None
     
     def set_plugin_manager(self, plugin_manager) -> None:
         """设置插件管理器"""
@@ -90,6 +93,10 @@ class Scheduler:
     def set_notification_center(self, notification_center) -> None:
         """设置通知中心"""
         self.notification_center = notification_center
+    
+    def set_orchestrator(self, orchestrator: Orchestrator) -> None:
+        """注入 Orchestrator（外部创建与启动）。"""
+        self._orchestrator = orchestrator
     
     def add_task(self, 
                 plugin_id: str, 
@@ -112,12 +119,10 @@ class Scheduler:
         """
         if not self.plugin_manager:
             raise RuntimeError("未设置插件管理器")
-            
-        # 检查插件是否存在
-        if not self.plugin_manager.get_plugin_class(plugin_id):
+        # 检查插件是否存在（注册表）
+        available = self.plugin_manager.get_all_plugins().keys()
+        if plugin_id not in available:
             raise ValueError(f"插件不存在: {plugin_id}")
-        
-        # 生成任务ID
         task_id = task_id or str(uuid.uuid4())
         
         # 创建任务
@@ -180,11 +185,10 @@ class Scheduler:
         
         if not self.plugin_manager:
             raise RuntimeError("未设置插件管理器")
-            
+        if self._orchestrator is None:
+            raise RuntimeError("未设置 Orchestrator，请先调用 set_orchestrator() 并在外部启动")
         self.running = True
         logger.info("调度器已启动")
-        
-        # 创建调度循环
         self._task_loop = asyncio.create_task(self._scheduler_loop())
     
     async def stop(self) -> None:
@@ -192,9 +196,7 @@ class Scheduler:
         if not self.running:
             logger.warning("调度器未在运行")
             return
-            
         self.running = False
-        
         if self._task_loop:
             self._task_loop.cancel()
             try:
@@ -202,11 +204,9 @@ class Scheduler:
             except asyncio.CancelledError:
                 pass
             self._task_loop = None
-            
         logger.info("调度器已停止")
     
     async def _scheduler_loop(self) -> None:
-        """调度循环，负责定期执行任务"""
         while self.running:
             await self._check_and_run_tasks()
             await asyncio.sleep(1)  # 每秒检查一次
@@ -237,42 +237,33 @@ class Scheduler:
         logger.info(f"执行任务: {task.task_id} (插件: {task.plugin_id})")
         
         try:
-            # 实例化插件
-            plugin = self.plugin_manager.instantiate_plugin(task.plugin_id)
-            
-            # 配置插件
-            plugin.configure(task.config)
-            
-            # 如果插件需要账号且账号管理器可用，支持 cookie_ids 注入
-            if plugin.needs_account() and self.account_manager:
-                cookie_ids = task.config.get("cookie_ids") or []
-                # 过滤无效/过期 Cookie
-                valid_cookie_ids = []
+            # 从任务配置准备 cookie
+            cookie_ids = (task.config or {}).get("cookie_ids") or []
+            valid_cookie_ids: List[str] = []
+            cookie_items = None
+            if self.account_manager and cookie_ids:
                 for cid in cookie_ids:
                     ok, _ = self.account_manager.check_cookie_validity(cid)
                     if ok:
                         valid_cookie_ids.append(cid)
-                # 将账号管理器与有效的 cookie_ids 注入插件
-                setattr(plugin, "account_manager", self.account_manager)
-                # 使用 set_accounts 传递元信息（不含敏感 cookie 详情）
-                accounts_meta = [self.account_manager._safe_cookie_info(self.account_manager.get_cookie_bundle(cid))
-                                 for cid in valid_cookie_ids if self.account_manager.get_cookie_bundle(cid)]
-                plugin.set_accounts(accounts_meta)
-                # 同时把 cookie_ids 直接放入配置，供插件自行合并注入浏览器
-                plugin.config["cookie_ids"] = valid_cookie_ids
-            
-            # 启动插件
+                if valid_cookie_ids:
+                    cookie_items = self.account_manager.merge_cookies(valid_cookie_ids)
+            # 为此执行分配上下文与页面
+            ctx = await self._orchestrator.allocate_context_page(
+                cookie_items=cookie_items,
+                account_manager=self.account_manager,
+                settings={"plugin": task.plugin_id, "task_id": task.task_id},
+            )
+            # 实例化插件（注册表）
+            plugin = self.plugin_manager.instantiate_plugin(task.plugin_id, ctx, task.config or {})
             success = plugin.start()
             if not success:
                 raise RuntimeError(f"插件启动失败: {task.plugin_id}")
-            
-            # 获取数据
             data = await plugin.fetch()
-            
-            # 停止插件
             plugin.stop()
-            
-            # 处理数据
+            # 释放上下文
+            await self._orchestrator.release_context_page(ctx)
+            # 回调与统计
             task.last_data = data
             task.success_count += 1
             
@@ -281,7 +272,6 @@ class Scheduler:
                 await task.callback(data)
                 
             logger.info(f"任务执行成功: {task.task_id}")
-            
         except Exception as e:
             task.error_count += 1
             task.last_error = e
@@ -299,6 +289,5 @@ class Scheduler:
                         "error": str(e)
                     }
                 )
-                
         finally:
-            task.running = False 
+            task.running = False

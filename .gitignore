@@ -1,5 +1,7 @@
 __pycache__/
 **/__pycache__/
-
-
-
+.idea/
+.vscode/
+videos_data/
+# SpecStory explanation file
+.specstory/.what-is-this.md

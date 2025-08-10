@@ -12,6 +12,7 @@ import sys
 from typing import Dict, Any
 
 from . import EverythingAsInterface, __version__
+from .core.orchestrator import Orchestrator
 
 def setup_logging(level: str) -> None:
     """
@@ -40,18 +41,10 @@ async def run_plugin(args: argparse.Namespace) -> None:
     Args:
         args: 命令行参数
     """
-    # 初始化系统
     system = EverythingAsInterface()
-    
-    # 检查插件是否存在
-    if args.plugin_id not in system.plugin_manager.plugins:
-        available_plugins = list(system.plugin_manager.plugins.keys())
-        print(f"错误: 插件 '{args.plugin_id}' 不存在")
-        print(f"可用插件: {', '.join(available_plugins)}")
-        return
-    
+
     # 加载配置
-    config = {}
+    config: Dict[str, Any] = {}
     if args.config:
         try:
             with open(args.config, "r", encoding="utf-8") as f:
@@ -59,22 +52,36 @@ async def run_plugin(args: argparse.Namespace) -> None:
         except Exception as e:
             print(f"加载配置文件失败: {str(e)}")
             return
-    
-    # 实例化插件
-    plugin = system.plugin_manager.instantiate_plugin(args.plugin_id)
-    plugin.configure(config)
 
-    # 基于 Cookie 的账号管理：支持通过 --cookies 传入多个 cookie_id
-    if plugin.needs_account() and getattr(args, "cookies", None):
+    # 准备 Cookie（如需要）
+    cookie_items = None
+    if getattr(args, "cookies", None):
         try:
             cookie_ids = [c for c in args.cookies.split(",") if c]
-            plugin.configure({**config, "cookie_ids": cookie_ids})
-            setattr(plugin, "account_manager", system.account_manager)
+            cookie_items = system.account_manager.merge_cookies(cookie_ids)
         except Exception as e:
             print(f"处理 Cookie 参数失败: {str(e)}")
             return
-    
-    # 设置输入参数
+
+    # 启动编排器并分配上下文
+    orch = Orchestrator()
+    await orch.start(headless=config.get("headless", False))
+    ctx = await orch.allocate_context_page(
+        cookie_items=cookie_items,
+        settings={"plugin": args.plugin_id},
+        account_manager=system.account_manager,
+    )
+
+    # 创建插件实例（注册表）
+    try:
+        plugin = system.plugin_manager.instantiate_plugin(args.plugin_id, ctx, config)
+    except ValueError as e:
+        await orch.release_context_page(ctx)
+        await orch.stop()
+        print(str(e))
+        return
+
+    # 输入参数
     input_payload: Dict[str, Any] = {}
     if getattr(args, "text", None):
         input_payload["text"] = args.text
@@ -85,35 +92,24 @@ async def run_plugin(args: argparse.Namespace) -> None:
     if input_payload:
         plugin.set_input(input_payload)
 
-    # 启动插件
     print(f"正在运行插件: {args.plugin_id}")
     plugin.start()
-    
     try:
-        # 获取数据
         result = await plugin.fetch()
-        
-        # 输出结果
         if args.output:
             with open(args.output, "w", encoding="utf-8") as f:
                 json.dump(result, f, ensure_ascii=False, indent=2)
             print(f"结果已保存至: {args.output}")
         else:
             print(json.dumps(result, ensure_ascii=False, indent=2))
-            
     except Exception as e:
         print(f"插件执行失败: {str(e)}")
     finally:
-        # 停止插件
         plugin.stop()
+        await orch.release_context_page(ctx)
+        await orch.stop()
 
 async def run_server(args: argparse.Namespace) -> None:
-    """
-    运行API服务器
-    
-    Args:
-        args: 命令行参数
-    """
     try:
         from fastapi import FastAPI
         import uvicorn
@@ -126,42 +122,24 @@ async def run_server(args: argparse.Namespace) -> None:
     # TODO: 实现API服务器
 
 def list_plugins(args: argparse.Namespace) -> None:
-    """
-    列出可用的插件
-    
-    Args:
-        args: 命令行参数
-    """
-    # 初始化系统
     system = EverythingAsInterface()
     plugins = system.plugin_manager.get_all_plugins()
-    
     if not plugins:
         print("没有可用的插件")
         return
-    
-    # 显示插件列表
     print(f"可用插件 ({len(plugins)}):")
     print("-" * 60)
-    
-    for plugin_id, plugin_class in plugins.items():
+    for plugin_id in plugins.keys():
         print(f"插件ID: {plugin_id}")
-        print(f"名称: {plugin_class.PLUGIN_NAME}")
-        print(f"描述: {plugin_class.PLUGIN_DESCRIPTION}")
-        print(f"版本: {plugin_class.PLUGIN_VERSION}")
-        print(f"作者: {plugin_class.PLUGIN_AUTHOR}")
-        print("-" * 60)
+    print("-" * 60)
 
 def manage_sessions(args: argparse.Namespace) -> None:
-    """管理 Cookie 存储"""
     system = EverythingAsInterface()
-    
     if args.action == "list":
         items = system.account_manager.list_cookies(args.platform) if args.platform else system.account_manager.list_cookies()
         if not items:
             print("没有保存的 Cookie")
             return
-        
         print(f"Cookie 列表 ({len(items)}):")
         print("-" * 60)
         for item in items:
@@ -172,22 +150,15 @@ def manage_sessions(args: argparse.Namespace) -> None:
             if item.get('detected_accounts'):
                 print(f"检测账号: {item['detected_accounts']}")
             print("-" * 60)
-    
     elif args.action == "remove":
         if not args.id:
             print("错误: 删除 Cookie 时需要指定 ID")
             return
-        
         success = system.account_manager.remove_cookie(args.id)
-        if success:
-            print(f"Cookie {args.id} 已删除")
-        else:
-            print(f"Cookie {args.id} 不存在或删除失败")
-    
+        print(f"Cookie {args.id} {'已删除' if success else '不存在或删除失败'}")
     elif args.action == "prune":
         removed = system.account_manager.prune_expired_cookies()
         print(f"已清理过期 Cookie 数量: {removed}")
-    
     else:
         print(f"错误: 未知的 Cookie 操作 '{args.action}'")
 
@@ -223,7 +194,7 @@ def main() -> None:
     session_parser.add_argument("action", choices=["list", "remove", "prune"], help="Cookie 操作")
     session_parser.add_argument("--platform", help="平台ID (筛选时使用)")
     session_parser.add_argument("--id", help="Cookie ID (删除时使用)")
-    
+
     args = parser.parse_args()
     setup_logging(args.log_level)
     

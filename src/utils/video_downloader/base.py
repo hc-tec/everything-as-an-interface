@@ -3,6 +3,7 @@ import logging
 import os
 import re
 import time
+import httpx
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
@@ -293,7 +294,6 @@ class BaseMediaDownloader(ABC):
         return None
 
     async def _prepare_httpx_client(self, context: Any, url: str, headers: Dict[str, str]):
-        import httpx  # type: ignore
         cookies_list = await context.cookies([url])
         jar = httpx.Cookies()
         for c in cookies_list:
@@ -386,7 +386,6 @@ class BaseMediaDownloader(ABC):
         logger.info("[httpx] 并发分段下载完成")
 
     async def _proactive_via_httpx(self, context: Any, url: str, *, active: _ActiveDownload, response_headers: Optional[Dict[str, str]], base_headers: Dict[str, str], chunk_size_bytes: int, max_concurrency: int, rate_limit_bps: Optional[int] = None, read_size: Optional[int] = None) -> str:
-        import httpx  # type: ignore
         async with await self._prepare_httpx_client(context, url, base_headers) as client:  # type: ignore[attr-defined]
             logger.info(f"[httpx] 启动主动下载: {url}")
             total_size = await self._ensure_total_size_httpx(client, url, response_headers=response_headers, active=active)

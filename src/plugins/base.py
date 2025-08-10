@@ -2,6 +2,8 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Dict, Any, List, Optional
 
+from src.core.plugin_context import PluginContext
+
 logger = logging.getLogger("plugin")
 
 class BasePlugin(ABC):
@@ -34,6 +36,11 @@ class BasePlugin(ABC):
         self.selected_account: Optional[Dict[str, Any]] = None
         self._last_data: Any = None
         self.input_data: Dict[str, Any] = {}
+        # 注入的 Playwright Page（或等价对象）
+        self.page: Optional[Any] = None
+        # 注入的运行上下文（可选）
+        self.ctx: Optional[PluginContext] = None
+        self.account_manager = None
     
     def configure(self, config: Dict[str, Any]) -> None:
         """
@@ -44,6 +51,15 @@ class BasePlugin(ABC):
         """
         self.config = config
         logger.info(f"插件 {self.PLUGIN_ID} 已配置")
+    
+    def set_context(self, ctx: PluginContext) -> None:
+        """
+        注入外部上下文，内含 page、browser_context、account_manager 等。
+        """
+        self.ctx = ctx
+        self.page = self.ctx.page
+        self.account_manager = self.ctx.account_manager
+        logger.info(f"插件 {self.PLUGIN_ID} 已注入 Context")
     
     def set_input(self, input_data: Dict[str, Any]) -> None:
         """

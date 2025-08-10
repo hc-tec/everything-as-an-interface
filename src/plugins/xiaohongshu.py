@@ -12,6 +12,8 @@ from ..utils.browser import BrowserAutomation
 from ..utils.async_utils import wait_until_result
 from ..utils.net_rules import net_rule_match, bind_network_rules, ResponseView, RuleContext
 from ..utils import Mp4DownloadSession
+from .registry import register_plugin
+from ..core.plugin_context import PluginContext
 
 logger = logging.getLogger("plugin.xiaohongshu")
 
@@ -21,20 +23,6 @@ logger = logging.getLogger("plugin.xiaohongshu")
 # -----------------------------
 BASE_URL = "https://www.xiaohongshu.com"
 LOGIN_URL = f"{BASE_URL}/login"
-
-TITLE_SELECTORS: List[str] = [
-    ".title",
-    ".name",
-    ".note-content",
-    "h3",
-    "h4",
-]
-
-AUTHOR_SELECTORS: List[str] = [
-    ".author",
-    ".nickname",
-    ".user-name",
-]
 
 @dataclass
 class AuthorInfo:
@@ -79,12 +67,12 @@ class XiaohongshuPlugin(BasePlugin):
 
     def __init__(self) -> None:
         super().__init__()
-        self.browser: Optional[BrowserAutomation] = None
+        # 页面注入：使用 self.page
         self.last_favorites: List[Dict[str, Any]] = []
         self._unbind_net_rules: Optional[Callable[[], None]] = None
         self._net_results: List[Dict[str, Any]] = []
-        # 通用视频下载会话（被动+主动）
         self._video_session: Optional[Mp4DownloadSession] = None
+        self.ctx: Optional[PluginContext] = None
 
     # -----------------------------
     # 生命周期
@@ -99,24 +87,18 @@ class XiaohongshuPlugin(BasePlugin):
         return super().stop()
 
     async def _cleanup(self) -> None:
-        if self._unbind_net_rules:
+        if self._unbind_net_rules and self.page:
             try:
                 self._unbind_net_rules()
             except Exception:
                 pass
             self._unbind_net_rules = None
-        if self.browser:
-            await self.browser.close()
-            self.browser = None
 
     # -----------------------------
     # 公共流程入口
     # -----------------------------
     async def fetch(self) -> Dict[str, Any]:
-        await self._ensure_browser_started()
-
-
-
+        await self._ensure_page_ready()
         try:
             if not await self._ensure_logged_in():
                 return {
@@ -134,12 +116,6 @@ class XiaohongshuPlugin(BasePlugin):
                 }
 
             new_items = favorites
-            # new_items: List[Dict[str, Any]] = []
-            # previous_ids = {item["id"] for item in self.last_favorites}
-            # for item in favorites:
-            #     if item["id"] not in previous_ids:
-            #         new_items.append(item)
-
             self.last_favorites = favorites
 
             return {
@@ -154,10 +130,6 @@ class XiaohongshuPlugin(BasePlugin):
         except Exception as exc:  # noqa: BLE001
             logger.error(f"获取数据失败: {exc}")
             return {"success": False, "message": str(exc)}
-        finally:
-            if self.browser:
-                await self.browser.close()
-                self.browser = None
 
     # -----------------------------
     # 配置校验
@@ -183,48 +155,58 @@ class XiaohongshuPlugin(BasePlugin):
         return {"valid": len(errors) == 0, "errors": errors}
 
     # -----------------------------
-    # 内部工具方法（保持 DOM 解析逻辑不变）
+    # 内部工具方法（使用注入的 Page）
     # -----------------------------
-    async def _ensure_browser_started(self) -> None:
-        if self.browser is None:
-            headless: bool = bool(self.config.get("headless", False))
-            self.browser = BrowserAutomation(headless=headless)
-            await self.browser.start()
-            # 视频下载会话
+    async def _ensure_page_ready(self) -> None:
+        if not self.page:
+            raise RuntimeError("插件未注入 Page，请先调用 set_page(page)")
+        # 初始化视频下载会话与网络规则绑定
+        if not self._video_session:
             self._video_session = Mp4DownloadSession(
                 output_dir=self.config.get("video_output_dir", "videos"),
                 proactive_on_first_seen=True,
             )
-            # 绑定基于装饰器的网络规则（如有）
-            if self.browser.page:
-                self._unbind_net_rules = await bind_network_rules(self.browser.page, self)
+        # 若通过注册工厂注入了 ctx，则把账号管理器透传挂到实例供登录用
+        if self.ctx and hasattr(self, "account_manager") is False:
+            try:
+                setattr(self, "account_manager", self.ctx.account_manager)
+            except Exception:
+                pass
+        if not self._unbind_net_rules:
+            self._unbind_net_rules = await bind_network_rules(self.page, self)
 
     async def _ensure_logged_in(self) -> bool:
-        if not self.browser:
-            logger.error("浏览器未初始化")
+        if not self.page:
             return False
-
-        # 优先尝试 Cookie 登录
+        # 1) 优先尝试 Cookie 登录
         if await self._try_cookie_login():
             return True
-
-        # 回退为手动登录
+        # 2) 回退手动登录
         logger.info("需要手动登录，正在打开登录页…")
         return await self._manual_login()
 
-    async def _try_cookie_login(self) -> bool:
-        if not self.browser:
+    async def _is_logged_in(self) -> bool:
+        if not self.page:
+            return False
+        try:
+            avatar = await wait_until_result(
+                lambda: self.page.query_selector('.reds-img-box'),
+                timeout=1000
+            )
+            return avatar is not None
+        except asyncio.TimeoutError:
             return False
 
+    async def _try_cookie_login(self) -> bool:
+        if not self.page:
+            return False
         cookie_ids: List[str] = list(self.config.get("cookie_ids", []))
-
-        # 配置提供 cookie_ids
         if getattr(self, "account_manager", None) and cookie_ids:
             try:
                 merged = self.account_manager.merge_cookies(cookie_ids)
                 if merged:
-                    await self.browser.set_cookies(merged)
-                    await self.browser.navigate(BASE_URL)
+                    await self.page.context.add_cookies(merged)
+                    await self.page.goto(BASE_URL)
                     await asyncio.sleep(2)
                     if await self._is_logged_in():
                         logger.info("使用配置的 Cookie 登录成功")
@@ -232,35 +214,20 @@ class XiaohongshuPlugin(BasePlugin):
                     logger.warning("提供的 Cookie 未生效")
             except Exception as exc:  # noqa: BLE001
                 logger.error(f"注入 Cookie 失败: {exc}")
-
-        return False
-
-    async def _is_logged_in(self) -> bool:
-        if not self.browser:
-            return False
-        try:
-            avatar = await wait_until_result(
-                lambda: self.browser.page.query_selector('.reds-img-box'),
-                timeout=1000
-            )
-            if avatar:
-                return True
-        except asyncio.TimeoutError:
-            pass
         return False
 
     async def _manual_login(self) -> bool:
-        if not self.browser:
+        if not self.page:
             return False
         try:
-            await self.browser.navigate(LOGIN_URL)
+            await self.page.goto(LOGIN_URL)
             await asyncio.sleep(1)
             logger.info("请在浏览器中手动登录小红书，系统会自动检测登录状态…")
             async def check_login():
                 if await self._is_logged_in():
                     logger.info("检测到登录成功")
                     try:
-                        cookies = await self.browser.get_cookies()
+                        cookies = await self.page.context.cookies()
                         if cookies and hasattr(self, "account_manager"):
                             cookie_id = self.account_manager.add_cookies(
                                 "xiaohongshu", cookies, name="登录获取"
@@ -278,31 +245,26 @@ class XiaohongshuPlugin(BasePlugin):
             return False
 
     async def _to_favorite_page(self) -> None:
-        # 点击“我”进入主页
-        ele_me = await self.browser.page.click('.user, .side-bar-component')
+        await self.page.click('.user, .side-bar-component')
         await asyncio.sleep(1)
-        # 点击“收藏”
-        await self.browser.page.click(".sub-tab-list:nth-child(2)")
+        await self.page.click(".sub-tab-list:nth-child(2)")
 
     async def _get_favorites(self) -> list[FavoriteItem]:
-        if not self.browser or not self.browser.page:
-            logger.error("浏览器未初始化")
+        if not self.page:
+            logger.error("Page 未注入")
             return []
-        # 上次最新的收藏项
-        last_newest_favorite_item = self.input_data.get("last_newest_favorite_item", None)
         try:
             await self._to_favorite_page()
             await asyncio.sleep(1)
 
             notes: List[FavoriteItem] = []
             while True:
-                # 小红书一次性只能获取到有限数量的笔记，需要不断的滚动来获取更多收藏的笔记
-                items = await self.browser.page.query_selector_all(".tab-content-item:nth-child(2) .note-item")
+                items = await self.page.query_selector_all(".tab-content-item:nth-child(2) .note-item")
 
                 if not items:
                     logger.warning("未找到收藏项，可能是DOM结构变化或未登录")
                     try:
-                        await self.browser.screenshot("debug_xiaohongshu_favorites.png")
+                        await self.page.screenshot(path="debug_xiaohongshu_favorites.png")
                     except Exception:  # noqa: BLE001
                         pass
                     return []
@@ -322,10 +284,9 @@ class XiaohongshuPlugin(BasePlugin):
         except Exception as exc:  # noqa: BLE001
             logger.error(f"获取收藏夹失败: {exc}")
             try:
-                await self.browser.screenshot("error_xiaohongshu_favorites.png")
+                await self.page.screenshot(path="error_xiaohongshu_favorites.png")
             except Exception:  # noqa: BLE001
                 pass
-            return await self._get_favorites()
             return []
 
     async def _parse_id(self, item: Any) -> Optional[str]:
@@ -426,19 +387,11 @@ class XiaohongshuPlugin(BasePlugin):
         await asyncio.sleep(0.5)
         logger.info("点击笔记")
 
-        # async def handle_response(response):
-        #     url = response.url
-        #     if "note_id" in url:
-        #         note_data = await response.json()
-        #         logger.info(f"[发现笔记api] node_data={note_data} url={url}")
-
-        # self.browser.page.on("response", handle_response)
-        
         # 1) id
         item_id: Optional[str] = await self._parse_id(item)
 
         note_container = await wait_until_result(
-            lambda: self.browser.page.query_selector(".note-detail-mask"),
+            lambda: self.page.query_selector(".note-detail-mask"),
             timeout=5000
         )
 
@@ -498,21 +451,11 @@ class XiaohongshuPlugin(BasePlugin):
                 "url": getattr(response, "url", None),
                 "data": data,
             })
-            # # 主动下载：如果响应里包含 mp4 链接，尝试触发主动整文件下载
-            # if self._video_session and data is not None:
-            #     mp4_url = self._find_first_mp4_url(data)
-            #     if mp4_url:
-            #         try:
-            #             # 通过该 response 的上下文主动下载完整 mp4
-            #             await self._video_session.proactive_download_from_response(response, filename=None, target_url=mp4_url)
-            #         except Exception as exc:  # noqa: BLE001
-            #             logger.debug(f"proactive download failed: {exc}")
         except Exception as exc:  # noqa: BLE001
             logger.debug(f"_get_note_details failed: {exc}")
 
     @net_rule_match(r".*\.mp4.*", kind="response")
     async def _capture_mp4_ranges(self, rule: RuleContext, response: ResponseView):
-        """被动捕获 .mp4 分段并写入文件。"""
         try:
             if not self._video_session:
                 return
@@ -543,3 +486,12 @@ class XiaohongshuPlugin(BasePlugin):
         except Exception:
             return None
         return None
+
+
+@register_plugin("xiaohongshu")
+def create_xhs(ctx: PluginContext, config: Dict[str, Any]) -> XiaohongshuPlugin:
+    p = XiaohongshuPlugin()
+    p.configure(config)
+    # 注入上下文（包含 page/account_manager）
+    p.set_context(ctx)
+    return p

@@ -37069,3 +37069,245 @@ waiting for locator(".user, .side-bar-component")
 2025-08-10 23:49:15,832 - subscription - INFO - 主题 94a25194-0a2d-4801-a9e6-6a37955f641d 发布数据: 成功 1, 失败 0
 2025-08-10 23:49:15,833 - scheduler - INFO - 任务执行成功: bd8889be-0331-4c3e-a16f-8b38afc2d0c3
 2025-08-10 23:49:25,532 - scheduler - INFO - 调度器已停止
+2025-08-11 00:55:15,861 - captcha_center - INFO - 注册验证码处理器: image
+2025-08-11 00:55:15,861 - captcha_center - INFO - 注册验证码处理器: slide
+2025-08-11 00:55:15,861 - captcha_center - INFO - 注册验证码处理器: human
+2025-08-11 00:55:15,861 - notification - INFO - 注册通知渠道: console (控制台通知)
+2025-08-11 00:55:15,893 - account_manager - INFO - 加密系统已初始化
+2025-08-11 00:55:15,894 - account_manager - INFO - 已加载 3 个平台定义
+2025-08-11 00:55:15,895 - account_manager - INFO - 已加载 3 组 Cookie, dict_keys(['1f2a15fd-5027-43ab-ba84-b82785cc6b08', '584f0f66-637b-48dc-82ae-c2e5bf0ac6a5', '3d1ab44f-71ea-48eb-96c7-5dca21cc7987'])
+2025-08-11 00:55:15,895 - everything_as_interface - INFO - Everything As Interface 初始化完成
+2025-08-11 00:55:15,895 - subscription - INFO - 创建主题: c91e87b2-42d6-4ec1-a5bc-b1bb11ec8117 (小红书收藏夹更新)
+2025-08-11 00:55:15,895 - subscription - INFO - 主题 c91e87b2-42d6-4ec1-a5bc-b1bb11ec8117 添加订阅者: 45173b33-b0ea-4cf8-9461-d56b3bd56e8e
+2025-08-11 00:55:53,986 - captcha_center - INFO - 注册验证码处理器: image
+2025-08-11 00:55:53,986 - captcha_center - INFO - 注册验证码处理器: slide
+2025-08-11 00:55:53,986 - captcha_center - INFO - 注册验证码处理器: human
+2025-08-11 00:55:53,986 - notification - INFO - 注册通知渠道: console (控制台通知)
+2025-08-11 00:55:54,020 - account_manager - INFO - 加密系统已初始化
+2025-08-11 00:55:54,021 - account_manager - INFO - 已加载 3 个平台定义
+2025-08-11 00:55:54,021 - account_manager - INFO - 已加载 3 组 Cookie, dict_keys(['1f2a15fd-5027-43ab-ba84-b82785cc6b08', '584f0f66-637b-48dc-82ae-c2e5bf0ac6a5', '3d1ab44f-71ea-48eb-96c7-5dca21cc7987'])
+2025-08-11 00:55:54,021 - everything_as_interface - INFO - Everything As Interface 初始化完成
+2025-08-11 00:55:54,021 - subscription - INFO - 创建主题: 98124691-8c30-4095-9069-2329e1cd7b57 (小红书收藏夹更新)
+2025-08-11 00:55:54,021 - subscription - INFO - 主题 98124691-8c30-4095-9069-2329e1cd7b57 添加订阅者: 7b9a39c2-9053-4d39-bd40-4065d179175a
+2025-08-11 00:55:54,021 - scheduler - INFO - 添加任务: 327651b1-f392-4c58-8bcf-870368e928fd (插件: xiaohongshu, 间隔: 300秒)
+2025-08-11 00:55:54,445 - scheduler - INFO - 调度器已启动
+2025-08-11 00:55:54,445 - scheduler - INFO - 执行任务: 327651b1-f392-4c58-8bcf-870368e928fd (插件: xiaohongshu)
+2025-08-11 00:55:54,578 - plugin - INFO - 插件 xiaohongshu 已配置
+2025-08-11 00:55:54,578 - plugin - INFO - 插件 xiaohongshu 已注入 Context
+2025-08-11 00:55:54,578 - plugin.xiaohongshu - INFO - 启动小红书插件
+2025-08-11 00:55:54,578 - plugin - INFO - 插件 xiaohongshu 已启动
+2025-08-11 00:55:54,578 - scheduler - ERROR - 任务执行失败: 327651b1-f392-4c58-8bcf-870368e928fd, 错误: 插件未注入 Page，请先调用 set_page(page)
+2025-08-11 00:55:54,578 - notification - ERROR - 
+===== ERROR NOTIFICATION =====
+Title: 任务执行失败: 327651b1-f392-4c58-8bcf-870368e928fd
+Time: 2025-08-11 00:55:54
+Message: 插件未注入 Page，请先调用 set_page(page)
+Data: {
+  "task_id": "327651b1-f392-4c58-8bcf-870368e928fd",
+  "plugin_id": "xiaohongshu",
+  "error": "插件未注入 Page，请先调用 set_page(page)"
+}
+================================
+
+2025-08-11 00:56:00,376 - scheduler - INFO - 调度器已停止
+2025-08-11 00:56:59,720 - captcha_center - INFO - 注册验证码处理器: image
+2025-08-11 00:56:59,720 - captcha_center - INFO - 注册验证码处理器: slide
+2025-08-11 00:56:59,720 - captcha_center - INFO - 注册验证码处理器: human
+2025-08-11 00:56:59,721 - notification - INFO - 注册通知渠道: console (控制台通知)
+2025-08-11 00:56:59,767 - account_manager - INFO - 加密系统已初始化
+2025-08-11 00:56:59,767 - account_manager - INFO - 已加载 3 个平台定义
+2025-08-11 00:56:59,768 - account_manager - INFO - 已加载 3 组 Cookie, dict_keys(['1f2a15fd-5027-43ab-ba84-b82785cc6b08', '584f0f66-637b-48dc-82ae-c2e5bf0ac6a5', '3d1ab44f-71ea-48eb-96c7-5dca21cc7987'])
+2025-08-11 00:56:59,769 - everything_as_interface - INFO - Everything As Interface 初始化完成
+2025-08-11 00:56:59,769 - subscription - INFO - 创建主题: 61a3a6c8-8d9a-4de5-a212-ec0b9c9a1a8d (小红书收藏夹更新)
+2025-08-11 00:56:59,769 - subscription - INFO - 主题 61a3a6c8-8d9a-4de5-a212-ec0b9c9a1a8d 添加订阅者: 4ee356e7-afd0-4d6f-95a3-a160c485a098
+2025-08-11 00:56:59,769 - scheduler - INFO - 添加任务: 7425217b-de3b-4ce0-80d3-6069ea178a16 (插件: xiaohongshu, 间隔: 300秒)
+2025-08-11 00:57:00,147 - scheduler - INFO - 调度器已启动
+2025-08-11 00:57:00,147 - scheduler - INFO - 执行任务: 7425217b-de3b-4ce0-80d3-6069ea178a16 (插件: xiaohongshu)
+2025-08-11 00:58:04,567 - scheduler - INFO - 调度器已停止
+2025-08-11 00:59:26,473 - captcha_center - INFO - 注册验证码处理器: image
+2025-08-11 00:59:26,473 - captcha_center - INFO - 注册验证码处理器: slide
+2025-08-11 00:59:26,473 - captcha_center - INFO - 注册验证码处理器: human
+2025-08-11 00:59:26,473 - notification - INFO - 注册通知渠道: console (控制台通知)
+2025-08-11 00:59:26,507 - account_manager - INFO - 加密系统已初始化
+2025-08-11 00:59:26,507 - account_manager - INFO - 已加载 3 个平台定义
+2025-08-11 00:59:26,508 - account_manager - INFO - 已加载 3 组 Cookie, dict_keys(['1f2a15fd-5027-43ab-ba84-b82785cc6b08', '584f0f66-637b-48dc-82ae-c2e5bf0ac6a5', '3d1ab44f-71ea-48eb-96c7-5dca21cc7987'])
+2025-08-11 00:59:26,508 - everything_as_interface - INFO - Everything As Interface 初始化完成
+2025-08-11 00:59:26,508 - subscription - INFO - 创建主题: f64f0374-4b10-459e-a4d6-17ce481f0e75 (小红书收藏夹更新)
+2025-08-11 00:59:26,508 - subscription - INFO - 主题 f64f0374-4b10-459e-a4d6-17ce481f0e75 添加订阅者: 44763f02-01e4-44ad-a8ac-7ee7caaa98d8
+2025-08-11 00:59:26,508 - scheduler - INFO - 添加任务: b32e4e4c-f365-40e7-a2cf-d614c492b8ff (插件: xiaohongshu, 间隔: 300秒)
+2025-08-11 00:59:26,917 - scheduler - INFO - 调度器已启动
+2025-08-11 00:59:26,917 - scheduler - INFO - 执行任务: b32e4e4c-f365-40e7-a2cf-d614c492b8ff (插件: xiaohongshu)
+2025-08-11 00:59:27,063 - plugin - INFO - 插件 xiaohongshu 已配置
+2025-08-11 00:59:27,063 - plugin - INFO - 插件 xiaohongshu 已注入 Context
+2025-08-11 00:59:27,063 - plugin.xiaohongshu - INFO - 启动小红书插件
+2025-08-11 00:59:27,063 - plugin - INFO - 插件 xiaohongshu 已启动
+2025-08-11 00:59:30,827 - plugin.xiaohongshu - INFO - 使用配置的 Cookie 登录成功
+2025-08-11 00:59:32,945 - plugin.xiaohongshu - INFO - 开始获取收藏夹内容
+2025-08-11 00:59:34,497 - plugin.xiaohongshu - INFO - 点击笔记
+2025-08-11 00:59:34,503 - plugin.xiaohongshu - INFO - 读取笔记ID: 66078367000000001a011151
+2025-08-11 00:59:34,510 - plugin.xiaohongshu - INFO - 读取笔记标题: 能教一个是一个！除甲醛其实很简单！
+2025-08-11 00:59:34,515 - plugin.xiaohongshu - INFO - 读取笔记作者头像: https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30qvahobt1e6g5pa310611fkmms3cfdo?imageView2/2/w/120/format/webp|imageMogr2/strip
+2025-08-11 00:59:34,520 - plugin.xiaohongshu - INFO - 读取笔记作者用户名: 君君改造家
+2025-08-11 00:59:34,559 - plugin.xiaohongshu - INFO - 读取笔记标签: ['#装修除甲醛', '#除甲醛好物推荐', '#除甲醛最有效的方法', '#甲醛吸多了会怎么样', '#去甲醛', '#甲醛超标', '#甲醛检测', '#除甲醛空气净化器', '#光触媒除甲醛喷雾有用吗', '#绿萝能除甲醛吗', '#颗粒板甲醛高吗']
+2025-08-11 00:59:34,566 - plugin.xiaohongshu - INFO - 读取笔记创建时间: 2024-06-05
+2025-08-11 00:59:34,566 - plugin.xiaohongshu - INFO - 读取笔记IP地址: 空
+2025-08-11 00:59:34,571 - plugin.xiaohongshu - INFO - 读取笔记评论数量:  共 49 条评论 
+2025-08-11 00:59:34,595 - plugin.xiaohongshu - INFO - 读取笔记数据：点赞数量=1.2万 收藏数量=2.1万 评论数量=49
+2025-08-11 00:59:34,631 - plugin.xiaohongshu - INFO - 
+
+
+2025-08-11 00:59:36,205 - plugin.xiaohongshu - INFO - 点击笔记
+2025-08-11 00:59:36,210 - plugin.xiaohongshu - INFO - 读取笔记ID: 666bbbb9000000000d00dd55
+2025-08-11 00:59:36,226 - plugin.xiaohongshu - INFO - 读取笔记作者头像: https://sns-avatar-qc.xhscdn.com/avatar/6719ee0c0219370001fa15d2.jpg?imageView2/2/w/120/format/webp|imageMogr2/strip
+2025-08-11 00:59:36,230 - plugin.xiaohongshu - INFO - 读取笔记作者用户名: 南京阿文租房
+2025-08-11 00:59:36,237 - plugin.xiaohongshu - INFO - 读取笔记标签: ['#串串房房甲醛严重超标']
+2025-08-11 00:59:36,242 - plugin.xiaohongshu - INFO - 读取笔记创建时间: 2024-06-14
+2025-08-11 00:59:36,242 - plugin.xiaohongshu - INFO - 读取笔记IP地址: 空
+2025-08-11 00:59:36,247 - plugin.xiaohongshu - INFO - 读取笔记评论数量:  共 330 条评论 
+2025-08-11 00:59:36,265 - plugin.xiaohongshu - INFO - 读取笔记数据：点赞数量=1561 收藏数量=1628 评论数量=330
+2025-08-11 00:59:36,283 - plugin.xiaohongshu - INFO - 
+
+
+2025-08-11 00:59:37,860 - plugin.xiaohongshu - INFO - 点击笔记
+2025-08-11 00:59:37,866 - plugin.xiaohongshu - INFO - 读取笔记ID: 66448caf000000001e03840c
+2025-08-11 00:59:37,872 - plugin.xiaohongshu - INFO - 读取笔记标题: 除甲醛盲目闷放2个月，说点除甲醛的大实话！
+2025-08-11 00:59:37,876 - plugin.xiaohongshu - INFO - 读取笔记作者头像: https://sns-avatar-qc.xhscdn.com/avatar/638744d99cd275d6e92d3e55.jpg?imageView2/2/w/120/format/webp|imageMogr2/strip
+2025-08-11 00:59:37,881 - plugin.xiaohongshu - INFO - 读取笔记作者用户名: 是个怪阿姨
+2025-08-11 00:59:37,904 - plugin.xiaohongshu - INFO - 读取笔记标签: ['#除甲醛', '#新家入住', '#去甲醛的最好方法', '#去甲醛', '#装修除甲醛', '#甲醛', '#除甲醛最有效的方法', '#除甲醛方法', '#活性炭除甲醛推荐', '#活性炭']
+2025-08-11 00:59:37,908 - plugin.xiaohongshu - INFO - 读取笔记创建时间: 2024-08-20
+2025-08-11 00:59:37,908 - plugin.xiaohongshu - INFO - 读取笔记IP地址: 空
+2025-08-11 00:59:37,913 - plugin.xiaohongshu - INFO - 读取笔记评论数量:  共 166 条评论 
+2025-08-11 00:59:37,928 - plugin.xiaohongshu - INFO - 读取笔记数据：点赞数量=2.6万 收藏数量=2.4万 评论数量=166
+2025-08-11 00:59:37,943 - plugin.xiaohongshu - INFO - 
+
+
+2025-08-11 00:59:39,518 - plugin.xiaohongshu - INFO - 点击笔记
+2025-08-11 00:59:39,523 - plugin.xiaohongshu - INFO - 读取笔记ID: 665c45c6000000001401b9e6
+2025-08-11 00:59:39,530 - plugin.xiaohongshu - INFO - 读取笔记标题: 蛙泳的正确示范图
+2025-08-11 00:59:39,535 - plugin.xiaohongshu - INFO - 读取笔记作者头像: https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31bqvcjfbgk005n9l2ms5jqh8turt0lg?imageView2/2/w/120/format/webp|imageMogr2/strip
+2025-08-11 00:59:39,540 - plugin.xiaohongshu - INFO - 读取笔记作者用户名: 王加一
+2025-08-11 00:59:39,546 - plugin.xiaohongshu - INFO - 读取笔记标签: ['#学游泳', '#蛙泳']
+2025-08-11 00:59:39,551 - plugin.xiaohongshu - INFO - 读取笔记创建时间: 2024-06-02
+2025-08-11 00:59:39,551 - plugin.xiaohongshu - INFO - 读取笔记IP地址: 空
+2025-08-11 00:59:39,556 - plugin.xiaohongshu - INFO - 读取笔记评论数量:  共 35 条评论 
+2025-08-11 00:59:39,572 - plugin.xiaohongshu - INFO - 读取笔记数据：点赞数量=1849 收藏数量=2292 评论数量=35
+2025-08-11 00:59:39,588 - plugin.xiaohongshu - INFO - 
+
+
+2025-08-11 00:59:41,188 - plugin.xiaohongshu - INFO - 点击笔记
+2025-08-11 00:59:41,195 - plugin.xiaohongshu - INFO - 读取笔记ID: 66513c630000000005007793
+2025-08-11 00:59:41,202 - plugin.xiaohongshu - INFO - 读取笔记标题: 专为中老年人设计的生活小帮手，爸妈用了都说好
+2025-08-11 00:59:41,217 - plugin.xiaohongshu - INFO - 读取笔记作者头像: https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo313gfk7aag6005pf8de6196tm86dcdvo?imageView2/2/w/120/format/webp|imageMogr2/strip
+2025-08-11 00:59:41,233 - plugin.xiaohongshu - INFO - 读取笔记作者用户名: 阿淳好物
+2025-08-11 00:59:41,237 - plugin.xiaohongshu - INFO - 读取笔记标签: []
+2025-08-11 00:59:41,241 - plugin.xiaohongshu - INFO - 读取笔记创建时间: 2024-05-25
+2025-08-11 00:59:41,241 - plugin.xiaohongshu - INFO - 读取笔记IP地址: 空
+2025-08-11 00:59:41,246 - plugin.xiaohongshu - INFO - 读取笔记评论数量:  共 110 条评论 
+2025-08-11 00:59:41,266 - plugin.xiaohongshu - INFO - 读取笔记数据：点赞数量=2716 收藏数量=2624 评论数量=110
+2025-08-11 00:59:41,283 - plugin.xiaohongshu - INFO - 
+
+
+2025-08-11 00:59:41,624 - utils.video_downloader - INFO - 开始捕获: https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4 -> videos_data\20250811_005941_01e6513c612385490103710390203f1b27_433.mp4
+2025-08-11 00:59:42,092 - utils.video_downloader - INFO - [httpx] 启动主动下载: https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4
+2025-08-11 00:59:42,092 - utils.video_downloader - INFO - [httpx] 并发分段下载开始: url=https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4, 并发=6, 分块=2097152
+2025-08-11 00:59:42,183 - httpx - INFO - HTTP Request: GET https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4 "HTTP/1.1 206 Partial Content"
+2025-08-11 00:59:42,352 - httpx - INFO - HTTP Request: GET https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4 "HTTP/1.1 206 Partial Content"
+2025-08-11 00:59:42,357 - httpx - INFO - HTTP Request: GET https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4 "HTTP/1.1 206 Partial Content"
+2025-08-11 00:59:42,368 - httpx - INFO - HTTP Request: GET https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4 "HTTP/1.1 206 Partial Content"
+2025-08-11 00:59:42,372 - httpx - INFO - HTTP Request: GET https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4 "HTTP/1.1 206 Partial Content"
+2025-08-11 00:59:42,409 - httpx - INFO - HTTP Request: GET https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4 "HTTP/1.1 206 Partial Content"
+2025-08-11 00:59:42,766 - httpx - INFO - HTTP Request: GET https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4 "HTTP/1.1 206 Partial Content"
+2025-08-11 00:59:42,853 - plugin.xiaohongshu - INFO - 点击笔记
+2025-08-11 00:59:43,089 - httpx - INFO - HTTP Request: GET https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4 "HTTP/1.1 206 Partial Content"
+2025-08-11 00:59:43,192 - plugin.xiaohongshu - INFO - 读取笔记ID: 6669698d000000001d015ed2
+2025-08-11 00:59:43,200 - plugin.xiaohongshu - INFO - 读取笔记标题: 都能看懂 下一个升职的就是你
+2025-08-11 00:59:43,208 - plugin.xiaohongshu - INFO - 读取笔记作者头像: https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo312jo3toq0m005pbbc01mdkuj53as9f8?imageView2/2/w/120/format/webp|imageMogr2/strip
+2025-08-11 00:59:43,213 - plugin.xiaohongshu - INFO - 读取笔记作者用户名: 小地瓜
+2025-08-11 00:59:43,240 - plugin.xiaohongshu - INFO - 读取笔记标签: ['#职场思维', '#升职', '#职场风向标', '#职场人生存法则', '#行业', '#职场干货', '#拯救职场不开心', '#职场', '#职场日常']
+2025-08-11 00:59:43,244 - plugin.xiaohongshu - INFO - 读取笔记创建时间: 2024-06-12
+2025-08-11 00:59:43,244 - plugin.xiaohongshu - INFO - 读取笔记IP地址: 空
+2025-08-11 00:59:43,254 - plugin.xiaohongshu - INFO - 读取笔记评论数量:  共 1285 条评论 
+2025-08-11 00:59:43,274 - plugin.xiaohongshu - INFO - 读取笔记数据：点赞数量=1万 收藏数量=2435 评论数量=1285
+2025-08-11 00:59:43,280 - httpx - INFO - HTTP Request: GET https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4 "HTTP/1.1 206 Partial Content"
+2025-08-11 00:59:43,292 - httpx - INFO - HTTP Request: GET https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4 "HTTP/1.1 206 Partial Content"
+2025-08-11 00:59:43,294 - plugin.xiaohongshu - INFO - 
+
+
+2025-08-11 00:59:43,355 - httpx - INFO - HTTP Request: GET https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4 "HTTP/1.1 206 Partial Content"
+2025-08-11 00:59:43,371 - httpx - INFO - HTTP Request: GET https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4 "HTTP/1.1 206 Partial Content"
+2025-08-11 00:59:43,409 - httpx - INFO - HTTP Request: GET https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4 "HTTP/1.1 206 Partial Content"
+2025-08-11 00:59:43,927 - httpx - INFO - HTTP Request: GET https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4 "HTTP/1.1 206 Partial Content"
+2025-08-11 00:59:44,016 - httpx - INFO - HTTP Request: GET https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4 "HTTP/1.1 206 Partial Content"
+2025-08-11 00:59:44,087 - httpx - INFO - HTTP Request: GET https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4 "HTTP/1.1 206 Partial Content"
+2025-08-11 00:59:44,126 - httpx - INFO - HTTP Request: GET https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4 "HTTP/1.1 206 Partial Content"
+2025-08-11 00:59:44,130 - httpx - INFO - HTTP Request: GET https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4 "HTTP/1.1 206 Partial Content"
+2025-08-11 00:59:44,210 - httpx - INFO - HTTP Request: GET https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4 "HTTP/1.1 206 Partial Content"
+2025-08-11 00:59:44,497 - httpx - INFO - HTTP Request: GET https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4 "HTTP/1.1 206 Partial Content"
+2025-08-11 00:59:44,879 - httpx - INFO - HTTP Request: GET https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4 "HTTP/1.1 206 Partial Content"
+2025-08-11 00:59:45,126 - httpx - INFO - HTTP Request: GET https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4 "HTTP/1.1 206 Partial Content"
+2025-08-11 00:59:45,182 - httpx - INFO - HTTP Request: GET https://sns-video-hw.xhscdn.com/stream/110/433/01e6513c612385490103710390203f1b27_433.mp4 "HTTP/1.1 206 Partial Content"
+2025-08-11 00:59:45,480 - utils.video_downloader - INFO - [httpx] 并发分段下载完成
+2025-08-11 00:59:45,480 - utils.video_downloader - INFO - 下载完成: videos_data\20250811_005941_01e6513c612385490103710390203f1b27_433.mp4
+2025-08-11 00:59:45,532 - plugin.xiaohongshu - INFO - 点击笔记
+2025-08-11 00:59:45,537 - plugin.xiaohongshu - INFO - 读取笔记ID: 6651d4e30000000014018384
+2025-08-11 00:59:45,541 - plugin.xiaohongshu - INFO - 读取笔记标题: 无标题
+2025-08-11 00:59:45,546 - plugin.xiaohongshu - INFO - 读取笔记作者头像: https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30pokpdcg70005p7fvtj18ck1onjlv1g?imageView2/2/w/120/format/webp|imageMogr2/strip
+2025-08-11 00:59:45,561 - plugin.xiaohongshu - INFO - 读取笔记标签: ['#租房日常', '#公寓', '#合租单间']
+2025-08-11 00:59:45,565 - plugin.xiaohongshu - INFO - 读取笔记创建时间: 2024-05-25
+2025-08-11 00:59:45,565 - plugin.xiaohongshu - INFO - 读取笔记IP地址: 空
+2025-08-11 00:59:45,569 - plugin.xiaohongshu - INFO - 读取笔记评论数量:  共 32 条评论 
+2025-08-11 00:59:45,585 - plugin.xiaohongshu - INFO - 读取笔记数据：点赞数量=4807 收藏数量=6113 评论数量=32
+2025-08-11 00:59:45,599 - plugin.xiaohongshu - INFO - 
+
+
+2025-08-11 00:59:47,164 - plugin.xiaohongshu - INFO - 点击笔记
+2025-08-11 00:59:47,169 - plugin.xiaohongshu - INFO - 读取笔记ID: 648262a60000000013007f57
+2025-08-11 00:59:47,176 - plugin.xiaohongshu - INFO - 读取笔记标题: 独居判断屋子里有没有藏人的方法
+2025-08-11 00:59:47,181 - plugin.xiaohongshu - INFO - 读取笔记作者头像: https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311jrh8ov6a004a6mlu14hpl9mirtino?imageView2/2/w/120/format/webp|imageMogr2/strip
+2025-08-11 00:59:47,186 - plugin.xiaohongshu - INFO - 读取笔记作者用户名: Quinto
+2025-08-11 00:59:47,216 - plugin.xiaohongshu - INFO - 读取笔记标签: ['#独居生活', '#我的留学生活', '#独居', '#独居女孩', '#监控摄像头', '#独居日常', '#安全', '#留学生', '#宿舍好物', '#卧室好物', '#家用好物', '#好物推荐', '#充电宝']
+2025-08-11 00:59:47,220 - plugin.xiaohongshu - INFO - 读取笔记创建时间: 2023-06-09
+2025-08-11 00:59:47,220 - plugin.xiaohongshu - INFO - 读取笔记IP地址: 空
+2025-08-11 00:59:47,223 - plugin.xiaohongshu - INFO - 读取笔记评论数量:  共 827 条评论 
+2025-08-11 00:59:47,239 - plugin.xiaohongshu - INFO - 读取笔记数据：点赞数量=4.8万 收藏数量=3.9万 评论数量=827
+2025-08-11 00:59:47,254 - plugin.xiaohongshu - INFO - 
+
+
+2025-08-11 00:59:48,680 - utils.video_downloader - INFO - 开始捕获: https://sns-video-hw.xhscdn.com/01e27de1a56301430103700380bbb9b655_259.mp4 -> videos_data\20250811_005948_01e27de1a56301430103700380bbb9b655_259.mp4
+2025-08-11 00:59:49,076 - utils.video_downloader - INFO - [httpx] 启动主动下载: https://sns-video-hw.xhscdn.com/01e27de1a56301430103700380bbb9b655_259.mp4
+2025-08-11 00:59:49,076 - utils.video_downloader - INFO - [httpx] 并发分段下载开始: url=https://sns-video-hw.xhscdn.com/01e27de1a56301430103700380bbb9b655_259.mp4, 并发=6, 分块=2097152
+2025-08-11 00:59:49,076 - plugin.xiaohongshu - INFO - 点击笔记
+2025-08-11 00:59:49,102 - plugin.xiaohongshu - INFO - 读取笔记ID: 627de1a50000000001024aa6
+2025-08-11 00:59:49,110 - plugin.xiaohongshu - INFO - 读取笔记标题: 给男朋友生日的一段小视频
+2025-08-11 00:59:49,114 - plugin.xiaohongshu - INFO - 读取笔记作者头像: https://sns-avatar-qc.xhscdn.com/avatar/6350f8643c4143d08312e607.jpg?imageView2/2/w/120/format/webp|imageMogr2/strip
+2025-08-11 00:59:49,118 - plugin.xiaohongshu - INFO - 读取笔记作者用户名: 悫（que）
+2025-08-11 00:59:49,140 - plugin.xiaohongshu - INFO - 读取笔记标签: ['#男朋友生日', '#男朋友生日礼物', '#送男朋友的生日礼物', '#男朋友', '#异地恋', '#送给男票的礼物', '#生日', '#生日惊喜']
+2025-08-11 00:59:49,145 - plugin.xiaohongshu - INFO - 读取笔记创建时间: 2022-05-13
+2025-08-11 00:59:49,146 - plugin.xiaohongshu - INFO - 读取笔记IP地址: 空
+2025-08-11 00:59:49,150 - plugin.xiaohongshu - INFO - 读取笔记评论数量:  共 822 条评论 
+2025-08-11 00:59:49,166 - plugin.xiaohongshu - INFO - 读取笔记数据：点赞数量=6.1万 收藏数量=4.8万 评论数量=822
+2025-08-11 00:59:49,194 - httpx - INFO - HTTP Request: GET https://sns-video-hw.xhscdn.com/01e27de1a56301430103700380bbb9b655_259.mp4 "HTTP/1.1 206 Partial Content"
+2025-08-11 00:59:49,216 - plugin.xiaohongshu - INFO - 
+
+
+2025-08-11 00:59:49,360 - utils.video_downloader - INFO - [httpx] 并发分段下载完成
+2025-08-11 00:59:49,360 - utils.video_downloader - INFO - 下载完成: videos_data\20250811_005948_01e27de1a56301430103700380bbb9b655_259.mp4
+2025-08-11 00:59:50,775 - plugin.xiaohongshu - INFO - 点击笔记
+2025-08-11 00:59:50,781 - plugin.xiaohongshu - INFO - 读取笔记ID: 62d230a4000000001200fb51
+2025-08-11 00:59:50,788 - plugin.xiaohongshu - INFO - 读取笔记标题: 工科女给好朋友写的一个生日礼物网页
+2025-08-11 00:59:50,793 - plugin.xiaohongshu - INFO - 读取笔记作者头像: https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31k2iv6efiu005n82b7g42bs2et546b8?imageView2/2/w/120/format/webp|imageMogr2/strip
+2025-08-11 00:59:50,797 - plugin.xiaohongshu - INFO - 读取笔记作者用户名: 1个大帅姐-
+2025-08-11 00:59:50,812 - plugin.xiaohongshu - INFO - 读取笔记标签: ['#工科女孩', '#生日礼物', '#好朋友', '#浪漫', '#HTML', '#闺蜜生日礼物']
+2025-08-11 00:59:50,816 - plugin.xiaohongshu - INFO - 读取笔记创建时间: 2022-07-16
+2025-08-11 00:59:50,816 - plugin.xiaohongshu - INFO - 读取笔记IP地址: 空
+2025-08-11 00:59:50,820 - plugin.xiaohongshu - INFO - 读取笔记评论数量:  共 50 条评论 
+2025-08-11 00:59:50,835 - plugin.xiaohongshu - INFO - 读取笔记数据：点赞数量=514 收藏数量=395 评论数量=50
+2025-08-11 00:59:50,854 - plugin.xiaohongshu - INFO - 
+
+
+2025-08-11 00:59:50,855 - plugin.xiaohongshu - INFO - 获取到 10 个收藏项
+2025-08-11 00:59:50,855 - plugin.xiaohongshu - INFO - 停止小红书插件
+2025-08-11 00:59:50,855 - plugin - INFO - 插件 xiaohongshu 已停止
+2025-08-11 00:59:50,890 - subscription - INFO - 主题 f64f0374-4b10-459e-a4d6-17ce481f0e75 发布数据: 成功 1, 失败 0
+2025-08-11 00:59:50,890 - scheduler - INFO - 任务执行成功: b32e4e4c-f365-40e7-a2cf-d614c492b8ff
+2025-08-11 01:00:05,611 - scheduler - INFO - 调度器已停止
