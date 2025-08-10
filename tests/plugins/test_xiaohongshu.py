@@ -23,6 +23,14 @@ def xhs_plugin(mocker, mock_browser):
 #     assert actual_item_id == expect_item_id
 
 @pytest.mark.asyncio
+async def test_xhs_get_span_text(xhs_plugin, page):
+    html = '''<div class="reds-tab-item sub-tab-list" style="padding:0px 16px;margin-right:0px;font-size:16px;" data-v-bb2dbd52=""><!----><!----><span>收藏</span></div>'''
+    await page.set_content(html)
+    element = await page.query_selector("span:text('收藏')")
+    text = await element.text_content()
+    assert text == "收藏"
+
+@pytest.mark.asyncio
 async def test_xhs_parse_id_with_real_dom(xhs_plugin, page):
     html = read_file_with_project_root("tests/plugins/html/note-favorite-card.html")
     await page.set_content(html)
@@ -51,4 +59,6 @@ async def test_xhs_parse_favorite_item_with_real_dom(xhs_plugin, page):
     assert favorite_item.statistic == NoteStatistics(like_num=1627, collect_num=323, chat_num=116)
     assert favorite_item.images is None
     assert favorite_item.video is None
+
+
 

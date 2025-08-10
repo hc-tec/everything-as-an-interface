@@ -25,9 +25,6 @@ async def on_new_favorite(data: Dict[str, Any]) -> None:
     
     for idx, item in enumerate(data['new_items'], 1):
         print(f"\n{idx}. {item['title']}")
-        print(f"   作者: {item['author']}")
-        print(f"   链接: {item['link']}")
-        print(f"   时间: {item['timestamp']}")
     
     print("="*50 + "\n")
 
@@ -70,8 +67,9 @@ async def main():
         interval=300,  # 5分钟检查一次
         config={
             # 可选：填写已保存的 cookie_ids 列表，以跳过手动登录
-            "cookie_ids": ["1f2a15fd-5027-43ab-ba84-b82785cc6b08"],
-            "headless": False,  # 首次登录时建议可视化
+            "cookie_ids": ["3d1ab44f-71ea-48eb-96c7-5dca21cc7987"],
+            "headless": False,  # 首次登录时建议可视化,
+            "video_output_dir": "videos_data",
         }
     )
     
@@ -105,7 +103,7 @@ async def main():
 
 if __name__ == "__main__":
     # 设置日志级别
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     
     # 运行主函数
     asyncio.run(main()) 

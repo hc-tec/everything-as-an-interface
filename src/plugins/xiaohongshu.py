@@ -3,10 +3,15 @@ import logging
 import re
 from dataclasses import asdict, dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Callable
+
+from playwright.async_api import ElementHandle
 
 from ..plugins.base import BasePlugin
 from ..utils.browser import BrowserAutomation
+from ..utils.async_utils import wait_until_result
+from ..utils.net_rules import net_rule_match, bind_network_rules, ResponseView, RuleContext
+from ..utils import Mp4DownloadSession
 
 logger = logging.getLogger("plugin.xiaohongshu")
 
@@ -16,15 +21,6 @@ logger = logging.getLogger("plugin.xiaohongshu")
 # -----------------------------
 BASE_URL = "https://www.xiaohongshu.com"
 LOGIN_URL = f"{BASE_URL}/login"
-
-# 头像出现通常意味着已登录
-AVATAR_SELECTORS: List[str] = [
-    ".reds-avatar-border",
-]
-
-FAVORITE_ITEM_SELECTORS: List[str] = [
-    ".note-item",
-]
 
 TITLE_SELECTORS: List[str] = [
     ".title",
@@ -47,9 +43,9 @@ class AuthorInfo:
 
 @dataclass
 class NoteStatistics:
-    like_num: int      # 点赞数量
-    collect_num: int   # 收藏数量
-    chat_num: int      # 评论数量
+    like_num: str      # 点赞数量
+    collect_num: str   # 收藏数量
+    chat_num: str      # 评论数量
 
 @dataclass
 class VideoInfo:
@@ -64,7 +60,7 @@ class FavoriteItem:
     tags: List[str]
     date: str
     ip_zh: str
-    comment_num: int
+    comment_num: str
     statistic: NoteStatistics
     images: Optional[dict[str, str]]
     video: Optional[VideoInfo]
@@ -85,6 +81,10 @@ class XiaohongshuPlugin(BasePlugin):
         super().__init__()
         self.browser: Optional[BrowserAutomation] = None
         self.last_favorites: List[Dict[str, Any]] = []
+        self._unbind_net_rules: Optional[Callable[[], None]] = None
+        self._net_results: List[Dict[str, Any]] = []
+        # 通用视频下载会话（被动+主动）
+        self._video_session: Optional[Mp4DownloadSession] = None
 
     # -----------------------------
     # 生命周期
@@ -99,6 +99,12 @@ class XiaohongshuPlugin(BasePlugin):
         return super().stop()
 
     async def _cleanup(self) -> None:
+        if self._unbind_net_rules:
+            try:
+                self._unbind_net_rules()
+            except Exception:
+                pass
+            self._unbind_net_rules = None
         if self.browser:
             await self.browser.close()
             self.browser = None
@@ -109,6 +115,8 @@ class XiaohongshuPlugin(BasePlugin):
     async def fetch(self) -> Dict[str, Any]:
         await self._ensure_browser_started()
 
+
+
         try:
             if not await self._ensure_logged_in():
                 return {
@@ -116,7 +124,7 @@ class XiaohongshuPlugin(BasePlugin):
                     "message": "登录失败，请检查网络连接或重试",
                     "need_relogin": True,
                 }
-
+            # await asyncio.sleep(1000)
             favorites = await self._get_favorites()
             if not favorites:
                 return {
@@ -125,15 +133,15 @@ class XiaohongshuPlugin(BasePlugin):
                     "favorites": [],
                 }
 
-            new_items: List[Dict[str, Any]] = []
-            previous_ids = {item["id"] for item in self.last_favorites}
-            for item in favorites:
-                if item["id"] not in previous_ids:
-                    new_items.append(item)
+            new_items = favorites
+            # new_items: List[Dict[str, Any]] = []
+            # previous_ids = {item["id"] for item in self.last_favorites}
+            # for item in favorites:
+            #     if item["id"] not in previous_ids:
+            #         new_items.append(item)
 
             self.last_favorites = favorites
 
-            # 将本次输入也回显在结果中，便于链路使用
             return {
                 "success": True,
                 "timestamp": datetime.now().isoformat(),
@@ -175,13 +183,21 @@ class XiaohongshuPlugin(BasePlugin):
         return {"valid": len(errors) == 0, "errors": errors}
 
     # -----------------------------
-    # 内部工具方法
+    # 内部工具方法（保持 DOM 解析逻辑不变）
     # -----------------------------
     async def _ensure_browser_started(self) -> None:
         if self.browser is None:
             headless: bool = bool(self.config.get("headless", False))
             self.browser = BrowserAutomation(headless=headless)
             await self.browser.start()
+            # 视频下载会话
+            self._video_session = Mp4DownloadSession(
+                output_dir=self.config.get("video_output_dir", "videos"),
+                proactive_on_first_seen=True,
+            )
+            # 绑定基于装饰器的网络规则（如有）
+            if self.browser.page:
+                self._unbind_net_rules = await bind_network_rules(self.browser.page, self)
 
     async def _ensure_logged_in(self) -> bool:
         if not self.browser:
@@ -201,7 +217,6 @@ class XiaohongshuPlugin(BasePlugin):
             return False
 
         cookie_ids: List[str] = list(self.config.get("cookie_ids", []))
-        try_local: bool = not cookie_ids
 
         # 配置提供 cookie_ids
         if getattr(self, "account_manager", None) and cookie_ids:
@@ -218,32 +233,20 @@ class XiaohongshuPlugin(BasePlugin):
             except Exception as exc:  # noqa: BLE001
                 logger.error(f"注入 Cookie 失败: {exc}")
 
-        # 未提供 cookie_ids，则尝试本地已保存的该平台 Cookie
-        if getattr(self, "account_manager", None) and try_local:
-            try:
-                metas = self.account_manager.list_cookies("xiaohongshu")
-                valid_ids = [m["id"] for m in metas if m.get("status", "valid") == "valid"]
-                if valid_ids:
-                    merged = self.account_manager.merge_cookies(valid_ids)
-                    if merged:
-                        await self.browser.set_cookies(merged)
-                        await self.browser.navigate(BASE_URL)
-                        await asyncio.sleep(2)
-                        if await self._is_logged_in():
-                            logger.info("使用本地已保存的 Cookie 登录成功")
-                            return True
-            except Exception as exc:  # noqa: BLE001
-                logger.error(f"加载本地 Cookie 失败: {exc}")
-
         return False
 
     async def _is_logged_in(self) -> bool:
         if not self.browser:
             return False
-        for selector in AVATAR_SELECTORS:
-            avatar = await self.browser.wait_for_selector(selector, timeout=1000)
+        try:
+            avatar = await wait_until_result(
+                lambda: self.browser.page.query_selector('.reds-img-box'),
+                timeout=1000
+            )
             if avatar:
                 return True
+        except asyncio.TimeoutError:
+            pass
         return False
 
     async def _manual_login(self) -> bool:
@@ -253,9 +256,7 @@ class XiaohongshuPlugin(BasePlugin):
             await self.browser.navigate(LOGIN_URL)
             await asyncio.sleep(1)
             logger.info("请在浏览器中手动登录小红书，系统会自动检测登录状态…")
-
-            for i in range(300):  # 最多等待 5 分钟
-                await asyncio.sleep(1)
+            async def check_login():
                 if await self._is_logged_in():
                     logger.info("检测到登录成功")
                     try:
@@ -269,11 +270,8 @@ class XiaohongshuPlugin(BasePlugin):
                     except Exception as exc:  # noqa: BLE001
                         logger.warning(f"获取或保存 Cookie 失败: {exc}")
                     return True
-
-                if i % 30 == 0 and i > 0:
-                    logger.info(f"等待登录中… ({i // 60}分{i % 60}秒)")
-
-            logger.error("登录超时，请重试")
+                return None
+            await wait_until_result(check_login, timeout=120000)
             return False
         except Exception as exc:  # noqa: BLE001
             logger.error(f"手动登录过程异常: {exc}")
@@ -281,11 +279,12 @@ class XiaohongshuPlugin(BasePlugin):
 
     async def _to_favorite_page(self) -> None:
         # 点击“我”进入主页
-        ele_me = await self.browser.click('.user, .side-bar-component')
+        ele_me = await self.browser.page.click('.user, .side-bar-component')
+        await asyncio.sleep(1)
         # 点击“收藏”
-        await self.browser.click("span:text('收藏')")
+        await self.browser.page.click(".sub-tab-list:nth-child(2)")
 
-    async def _get_favorites(self) -> List[Dict[str, Any]]:
+    async def _get_favorites(self) -> list[FavoriteItem]:
         if not self.browser or not self.browser.page:
             logger.error("浏览器未初始化")
             return []
@@ -293,12 +292,12 @@ class XiaohongshuPlugin(BasePlugin):
         last_newest_favorite_item = self.input_data.get("last_newest_favorite_item", None)
         try:
             await self._to_favorite_page()
-            await asyncio.sleep(2)
+            await asyncio.sleep(1)
 
             notes: List[FavoriteItem] = []
             while True:
                 # 小红书一次性只能获取到有限数量的笔记，需要不断的滚动来获取更多收藏的笔记
-                items = await self.browser.page.query_selector_all(FAVORITE_ITEM_SELECTORS[0])
+                items = await self.browser.page.query_selector_all(".tab-content-item:nth-child(2) .note-item")
 
                 if not items:
                     logger.warning("未找到收藏项，可能是DOM结构变化或未登录")
@@ -308,11 +307,15 @@ class XiaohongshuPlugin(BasePlugin):
                         pass
                     return []
 
+                logger.info("开始获取收藏夹内容")
                 for item in items:
                     await asyncio.sleep(1)
                     parsed = await self._parse_favorite_item(item)
                     if parsed:
-                        notes.append(parsed)
+                        notes.append(asdict(parsed))
+
+                # 下一步应该滚动，还没写完
+                break
 
             logger.info(f"获取到 {len(notes)} 个收藏项")
             return notes
@@ -322,6 +325,7 @@ class XiaohongshuPlugin(BasePlugin):
                 await self.browser.screenshot("error_xiaohongshu_favorites.png")
             except Exception:  # noqa: BLE001
                 pass
+            return await self._get_favorites()
             return []
 
     async def _parse_id(self, item: Any) -> Optional[str]:
@@ -330,6 +334,7 @@ class XiaohongshuPlugin(BasePlugin):
         if item_anchor:
             item_link = await item_anchor.get_attribute("href")
             item_id = item_link.split("/")[-1]
+        logger.info(f"读取笔记ID: {item_id}")
         return item_id
 
     async def _parse_title(self, note_container: Any) -> Optional[str]:
@@ -337,6 +342,7 @@ class XiaohongshuPlugin(BasePlugin):
         title_ele = await note_container.query_selector("#detail-title")
         if title_ele:
             title_val = await title_ele.text_content()
+        logger.info(f"读取笔记标题: {title_val}")
         return title_val
 
     async def _parse_author(self, note_container: Any) -> tuple[str | Any, str | Any]:
@@ -344,22 +350,24 @@ class XiaohongshuPlugin(BasePlugin):
         author_avatar_ele = await note_container.query_selector(".avatar-item")
         if author_avatar_ele:
             author_avatar_val = await author_avatar_ele.get_attribute("src")
+        logger.info(f"读取笔记作者头像: {author_avatar_val}")
 
         author_username_val = "空用户名"
         author_username_ele = await note_container.query_selector(".username")
         if author_username_ele:
             author_username_val = await author_username_ele.text_content()
+        logger.info(f"读取笔记作者用户名: {author_username_val}")
 
         return author_avatar_val, author_username_val
 
     async def _parse_tag_list(self, note_container: Any) -> list[Any]:
-        tag_ele_list = await note_container.query_selector_all(".tag")
+        tag_ele_list = await note_container.query_selector_all(".note-text > .tag")
         tag_val_list = []
         if tag_ele_list:
             for tag_ele in tag_ele_list:
                 tag_val = await tag_ele.text_content()
                 tag_val_list.append(tag_val)
-
+        logger.info(f"读取笔记标签: {tag_val_list}")
         return tag_val_list
 
     async def _parse_date_ip(self, note_container: Any) -> tuple[str | Any, str | Any]:
@@ -368,8 +376,18 @@ class XiaohongshuPlugin(BasePlugin):
         ip_zh_val = "空"
         if date_ip_ele:
             date_ip_val = await date_ip_ele.text_content()
-            date_val, ip_zh_val = date_ip_val.split()
+            datas = date_ip_val.split()
+            if len(datas) == 1:
+                date_val = datas[0]
+            elif len(datas) == 2:
+                if "创建" in datas[0] or "编辑" in datas[0]:
+                    date_val = datas[1]
+                else:
+                    date_val = datas[0]
+                    ip_zh_val = datas[1]
 
+        logger.info(f"读取笔记创建时间: {date_val}")
+        logger.info(f"读取笔记IP地址: {ip_zh_val}")
         return date_val, ip_zh_val
 
     async def _parse_comment_num(self, note_container: Any) -> int:
@@ -377,13 +395,17 @@ class XiaohongshuPlugin(BasePlugin):
         comment_num_ele = await note_container.query_selector(".total")
         if comment_num_ele:
             comment_num_val = await comment_num_ele.text_content()
+        logger.info(f"读取笔记评论数量: {comment_num_val}")
         return comment_num_val
 
     async def _parse_statistic(self, note_container: Any) -> tuple[int | Any, int | Any, int | Any]:
         like_num_val = 0
         collect_num_val = 0
         chat_num_val = 0
-        statistic_container = await note_container.wait_for_selector(".left", timeout=1000)
+        statistic_container = await wait_until_result(
+            lambda: note_container.query_selector(".engage-bar-style"),
+            timeout=1000
+        )
         if statistic_container:
             like_num_ele = await statistic_container.query_selector(".like-wrapper > .count")
             if like_num_ele:
@@ -394,24 +416,31 @@ class XiaohongshuPlugin(BasePlugin):
             chat_num_ele = await statistic_container.query_selector(".chat-wrapper > .count")
             if chat_num_ele:
                 chat_num_val = await chat_num_ele.text_content()
-        return int(like_num_val), int(collect_num_val), int(chat_num_val)
+        logger.info(f"读取笔记数据：点赞数量={like_num_val} 收藏数量={collect_num_val} 评论数量={chat_num_val}")
+        return like_num_val, collect_num_val, chat_num_val
 
-    async def _parse_favorite_item(self, item: Any) -> Optional[FavoriteItem]:
-        # 点击帖子，查看帖子详情
-        await item.click()
+    async def _parse_favorite_item(self, item: ElementHandle) -> Optional[FavoriteItem]:
+        # 点击笔记，查看笔记详情
+        cover_ele = await item.query_selector(".title")
+        await cover_ele.click()
+        await asyncio.sleep(0.5)
+        logger.info("点击笔记")
 
-        async def handle_response(response):
-            url = response.url
-            if "note_id" in url:
-                note_data = await response.json()
-                logger.info(f"[发现笔记api] node_data={note_data} url={url}")
+        # async def handle_response(response):
+        #     url = response.url
+        #     if "note_id" in url:
+        #         note_data = await response.json()
+        #         logger.info(f"[发现笔记api] node_data={note_data} url={url}")
 
-        self.browser.page.on("response", handle_response)
+        # self.browser.page.on("response", handle_response)
         
         # 1) id
         item_id: Optional[str] = await self._parse_id(item)
 
-        note_container = await self.browser.wait_for_selector(".note-detail-mask", timeout=5000)
+        note_container = await wait_until_result(
+            lambda: self.browser.page.query_selector(".note-detail-mask"),
+            timeout=5000
+        )
 
         # 2) title
         title_val = await self._parse_title(note_container)
@@ -437,6 +466,12 @@ class XiaohongshuPlugin(BasePlugin):
         # 9) vedio
 
 
+        # 10) close note
+        close_ele = await note_container.query_selector(".close-circle")
+        await close_ele.click()
+
+        logger.info("\n\n")
+
         return FavoriteItem(
             id=item_id,
             title=title_val,
@@ -450,3 +485,61 @@ class XiaohongshuPlugin(BasePlugin):
             video=None,
             timestamp=datetime.now().isoformat(),
         )
+
+    # -----------------------------
+    # 基于装饰器的网络规则示例（可按需新增多个，互相独立）
+    # -----------------------------
+    @net_rule_match(r".*note_id.*", kind="response")
+    async def _get_note_details(self, rule: RuleContext, response: ResponseView):
+        try:
+            data = response.data()
+            self._net_results.append({
+                "rule": {"pattern": rule.pattern.pattern, "kind": rule.kind, "handler": rule.func_name},
+                "url": getattr(response, "url", None),
+                "data": data,
+            })
+            # # 主动下载：如果响应里包含 mp4 链接，尝试触发主动整文件下载
+            # if self._video_session and data is not None:
+            #     mp4_url = self._find_first_mp4_url(data)
+            #     if mp4_url:
+            #         try:
+            #             # 通过该 response 的上下文主动下载完整 mp4
+            #             await self._video_session.proactive_download_from_response(response, filename=None, target_url=mp4_url)
+            #         except Exception as exc:  # noqa: BLE001
+            #             logger.debug(f"proactive download failed: {exc}")
+        except Exception as exc:  # noqa: BLE001
+            logger.debug(f"_get_note_details failed: {exc}")
+
+    @net_rule_match(r".*\.mp4.*", kind="response")
+    async def _capture_mp4_ranges(self, rule: RuleContext, response: ResponseView):
+        """被动捕获 .mp4 分段并写入文件。"""
+        try:
+            if not self._video_session:
+                return
+            done_path = await self._video_session.on_response(rule, response)
+            if done_path:
+                logger.info(f"视频已下载完成: {done_path}")
+        except Exception as exc:  # noqa: BLE001
+            logger.debug(f"_capture_mp4_ranges failed: {exc}")
+
+    # -----------------------------
+    # 辅助：从任意 dict/list 结构里提取第一个 mp4 链接
+    # -----------------------------
+    def _find_first_mp4_url(self, data: Any) -> Optional[str]:
+        try:
+            if isinstance(data, str):
+                m = re.search(r"https?://[^\s'\"]+?\.mp4(?:\?[^'\"]*)?", data, re.IGNORECASE)
+                return m.group(0) if m else None
+            if isinstance(data, dict):
+                for v in data.values():
+                    url = self._find_first_mp4_url(v)
+                    if url:
+                        return url
+            if isinstance(data, list):
+                for v in data:
+                    url = self._find_first_mp4_url(v)
+                    if url:
+                        return url
+        except Exception:
+            return None
+        return None

@@ -1,9 +1,7 @@
 import asyncio
 import logging
 from typing import Dict, Any, Optional, List, Callable, Union, Tuple
-from playwright.async_api import async_playwright, Browser, Page, BrowserContext, Request, Response
-
-from .network_capture import NetworkRule
+from playwright.async_api import async_playwright, Browser, Page, BrowserContext, Request, Response, ElementHandle
 
 logger = logging.getLogger("browser")
 
@@ -23,10 +21,6 @@ class BrowserAutomation:
         self.browser: Optional[Browser] = None
         self.context: Optional[BrowserContext] = None
         self.page: Optional[Page] = None
-        
-        # Network capture extensions
-        self._network_rules: Dict[str, NetworkRule] = {}
-        self._network_events: List[Dict[str, Any]] = []
     
     async def __aenter__(self):
         """
@@ -52,7 +46,7 @@ class BrowserAutomation:
             "headless": self.headless,
         }
         
-        self.browser = await playwright.chromium.launch(**launch_args)
+        self.browser = await playwright.chromium.launch(channel="msedge", **launch_args)
         
         # 创建浏览器上下文
         context_args = {
@@ -71,34 +65,12 @@ class BrowserAutomation:
         # 设置默认超时
         self.page.set_default_timeout(30000)
         
-        # 配置请求拦截器（保持可覆盖性）
-        await self.context.route("**/*", self._route_handler)
-
-        # Attach network listeners
-        self.page.on("request", self._on_request)
-        self.page.on("response", self._on_response)
-        
         logger.info("浏览器已启动")
-    
-    async def _route_handler(self, route, request):
-        """
-        请求拦截器，用于过滤、修改请求等
-        """
-        # 默认放行所有请求，子类可以覆盖此方法实现自定义拦截
-        await route.continue_()
     
     async def close(self) -> None:
         """
         关闭浏览器
         """
-        # detach listeners to avoid memory leaks
-        try:
-            if self.page:
-                self.page.off("request", self._on_request)
-                self.page.off("response", self._on_response)
-        except Exception:
-            pass
-        
         if self.context:
             await self.context.close()
             self.context = None
@@ -109,7 +81,7 @@ class BrowserAutomation:
             
         logger.info("浏览器已关闭")
     
-    async def navigate(self, url: str, wait_until: str = "networkidle") -> None:
+    async def navigate(self, url: str, wait_until: str = "load") -> None:
         """
         导航到指定URL
         
@@ -136,7 +108,7 @@ class BrowserAutomation:
         await self.page.screenshot(path=path)
         logger.info(f"截图已保存至: {path}")
     
-    async def wait_for_selector(self, selector: str, timeout: int = 30000) -> Optional[Any]:
+    async def wait_for_selector(self, selector: str, timeout: int = 30000) -> Optional[ElementHandle]:
         """
         等待指定元素出现
         
@@ -156,7 +128,7 @@ class BrowserAutomation:
         except Exception as e:
             logger.error(f"等待元素 {selector} 失败: {str(e)}")
             return None
-    
+
     async def click(self, selector: str, timeout: int = 30000) -> bool:
         """
         点击指定元素
@@ -276,67 +248,4 @@ class BrowserAutomation:
             }
         except Exception as e:
             logger.error(f"处理验证码失败: {str(e)}")
-            return {"success": False, "message": str(e)}
-
-    # ---------------------
-    # Network capture APIs
-    # ---------------------
-    def register_network_rule(self, rule: NetworkRule) -> None:
-        """注册一条网络请求/响应规则。"""
-        self._network_rules[rule.rule_id] = rule
-
-    def remove_network_rule(self, rule_id: str) -> bool:
-        """移除规则。"""
-        return self._network_rules.pop(rule_id, None) is not None
-
-    def clear_network_rules(self) -> None:
-        """清空所有规则。"""
-        self._network_rules.clear()
-
-    def get_network_rules(self) -> List[NetworkRule]:
-        """获取当前注册的规则列表。"""
-        return list(self._network_rules.values())
-
-    def get_captured_network_events(self, clear: bool = False) -> List[Dict[str, Any]]:
-        """获取捕获到的网络事件结果，可选清空缓存。"""
-        events = list(self._network_events)
-        if clear:
-            self._network_events.clear()
-        return events
-
-    async def _on_request(self, request: Request) -> None:
-        await self._dispatch_network(request, kind="request")
-
-    async def _on_response(self, response: Response) -> None:
-        await self._dispatch_network(response, kind="response")
-
-    async def _dispatch_network(self, obj: Union[Request, Response], kind: str) -> None:
-        # Iterate rules and apply independently
-        for rule in list(self._network_rules.values()):
-            try:
-                if not rule.enabled or rule.kind != kind:
-                    continue
-                if await rule.matches(obj):
-                    processed = await rule.run_process(obj)
-                    payload: Dict[str, Any] = {
-                        "rule_id": rule.rule_id,
-                        "rule_name": rule.name,
-                        "kind": kind,
-                        "url": getattr(obj, "url", None),
-                        "data": processed,
-                    }
-                    # Enrich minimal metadata for debug
-                    if kind == "request":
-                        payload["method"] = getattr(obj, "method", None)
-                        try:
-                            payload["post_data"] = await obj.post_data()  # type: ignore[attr-defined]
-                        except Exception:
-                            payload["post_data"] = None
-                    else:  # response
-                        try:
-                            payload["status"] = obj.status
-                        except Exception:
-                            payload["status"] = None
-                    self._network_events.append(payload)
-            except Exception as exc:
-                logger.debug(f"Network rule '{rule.rule_id}' dispatch error: {exc}") 
+            return {"success": False, "message": str(e)} 
