@@ -16,6 +16,12 @@ from ..utils.net_rules import net_rule_match, bind_network_rules, ResponseView, 
 from ..utils import Mp4DownloadSession
 from .registry import register_plugin
 from ..core.plugin_context import PluginContext
+from ..utils.feed_collection import (
+    FeedCollectionConfig,
+    FeedCollectionState,
+    run_network_collection,
+    record_response as feed_record_response,
+)
 
 logger = logging.getLogger("plugin.xiaohongshu")
 
@@ -73,9 +79,15 @@ class XiaohongshuPlugin(BasePlugin):
         # 页面注入：使用 self.page
         self.last_favorites: List[Dict[str, Any]] = []
         self._unbind_net_rules: Optional[Callable[[], None]] = None
-        self._net_results: List[Dict[str, Any]] = []
+        self._net_note_items: List[FavoriteItem] = []
         self._video_session: Optional[Mp4DownloadSession] = None
         self.ctx: Optional[PluginContext] = None
+        self._net_note_event: Optional[asyncio.Event] = None
+        # 用户可插入的停止判定函数与网络原始响应记录
+        self._stop_decider: Optional[Callable[[Any, List[Any], Optional[Any], List[FavoriteItem], List[FavoriteItem], float, Dict[str, Any], Optional[ResponseView]], Any]] = None
+        self._net_responses: List[Any] = []
+        self._net_last_response: Optional[Any] = None
+        self._net_last_response_view: Optional[ResponseView] = None
 
     # -----------------------------
     # 生命周期
@@ -176,6 +188,7 @@ class XiaohongshuPlugin(BasePlugin):
             except Exception:
                 pass
         if self.config.need_sniff_network and not self._unbind_net_rules:
+            self._net_note_event = asyncio.Event()
             self._unbind_net_rules = await bind_network_rules(self.page, self)
 
     async def _ensure_logged_in(self) -> bool:
@@ -252,38 +265,118 @@ class XiaohongshuPlugin(BasePlugin):
         await asyncio.sleep(1)
         await self.page.click(".sub-tab-list:nth-child(2)")
 
+    async def _scroll_page_once(self, *, pause_ms: int = 800) -> bool:
+        """Scroll the page down once and return whether the scroll height increased.
+
+        Args:
+            pause_ms: pause after scroll to allow content/network to load.
+        """
+        try:
+            last_height = await self.page.evaluate("document.documentElement.scrollHeight")
+            await self.page.evaluate("window.scrollTo(0, document.documentElement.scrollHeight)")
+            await asyncio.sleep(max(0.05, float(pause_ms) / 1000.0))
+            new_height = await self.page.evaluate("document.documentElement.scrollHeight")
+            return bool(new_height and last_height and new_height > last_height)
+        except Exception:
+            return False
+
+    def set_stop_decider(self, decider: Callable[[Any, List[Any], Optional[Any], List[FavoriteItem], List[FavoriteItem], float, Dict[str, Any], Optional[ResponseView]], Any]) -> None:
+        """Set a custom stop-decider callback for network-driven collection.
+
+        The callback signature:
+            async def decider(
+                page: Any,
+                all_raw_responses: List[Any],
+                last_raw_response: Optional[Any],
+                all_parsed_items: List[FavoriteItem],
+                last_batch_parsed_items: List[FavoriteItem],
+                elapsed_seconds: float,
+                extra_config: Dict[str, Any],
+                last_response_view: Optional[ResponseView],
+            ) -> bool
+
+        Return True to stop collection; False to continue.
+        """
+        self._stop_decider = decider
+
+    def _feed_state_like(self):
+        class _State:
+            def __init__(self, outer: "XiaohongshuPlugin") -> None:
+                self.page = outer.page
+                self.event = outer._net_note_event
+                self.items = outer._net_note_items
+                self.raw_responses = outer._net_responses
+                self.last_raw_response = outer._net_last_response
+                self.last_response_view = outer._net_last_response_view
+        return _State(self)
+
+    async def _collect_favorites_via_network(self) -> list[FavoriteItem]:
+        # Build config/state and reuse shared collector
+        extra = (self.config.extra if isinstance(self.config, TaskConfig) else {}) or {}
+        cfg = FeedCollectionConfig(
+            max_items=int(extra.get("max_items", 1000)),
+            max_seconds=int(extra.get("max_seconds", 600)),
+            max_idle_rounds=int(extra.get("max_idle_rounds", 2)),
+            auto_scroll=bool(extra.get("auto_scroll", True)),
+            scroll_pause_ms=int(extra.get("scroll_pause_ms", 800)),
+        )
+        state = FeedCollectionState[FavoriteItem](
+            page=self.page,
+            event=self._net_note_event or asyncio.Event(),
+            items=self._net_note_items,
+            raw_responses=self._net_responses,
+            last_raw_response=self._net_last_response,
+            last_response_view=self._net_last_response_view,
+            stop_decider=self._stop_decider,
+        )
+
+        async def goto_first() -> None:
+            await self._to_favorite_page()
+
+        async def on_scroll() -> None:
+            await self._scroll_page_once(pause_ms=cfg.scroll_pause_ms)
+
+        results = await run_network_collection(
+            state,
+            cfg,
+            extra_config=extra,
+            goto_first=goto_first,
+            on_scroll=on_scroll,
+            key_fn=lambda it: getattr(it, "id", None),
+        )
+        # Keep the shared event linked back
+        self._net_note_event = state.event
+        return results
+
     async def _get_favorites(self) -> list[FavoriteItem]:
         if not self.page:
             logger.error("Page 未注入")
             return []
         try:
-            await self._to_favorite_page()
-            await asyncio.sleep(1)
-
             notes: List[FavoriteItem] = []
-            if self.config.need_scrapy_dom:
-                while True:
-                    items = await self.page.query_selector_all(".tab-content-item:nth-child(2) .note-item")
-
-                    if not items:
-                        logger.warning("未找到收藏项，可能是DOM结构变化或未登录")
-                        try:
-                            await self.page.screenshot(path="debug_xiaohongshu_favorites.png")
-                        except Exception:  # noqa: BLE001
-                            pass
-                        return []
-
-                    logger.info("开始获取收藏夹内容")
-                    for item in items:
-                        await asyncio.sleep(1)
-                        parsed = await self._parse_note_from_dom(item)
-                        if parsed:
-                            notes.append(asdict(parsed))
-
-                    # 下一步应该滚动，还没写完
-                    break
+            if getattr(self.config, "need_sniff_network", True):
+                # Network-driven collection with stop conditions
+                collected = await self._collect_favorites_via_network()
+                notes = [asdict(n) if not isinstance(n, dict) else n for n in collected]
             else:
-                pass
+                # DOM scraping with a single pass fallback
+                await self._to_favorite_page()
+                await asyncio.sleep(1)
+                items = await self.page.query_selector_all(".tab-content-item:nth-child(2) .note-item")
+                if not items:
+                    logger.warning("未找到收藏项，可能是DOM结构变化或未登录")
+                    try:
+                        await self.page.screenshot(path="debug_xiaohongshu_favorites.png")
+                    except Exception:  # noqa: BLE001
+                        pass
+                    return []
+                logger.info("开始获取收藏夹内容")
+                for item in items:
+                    await asyncio.sleep(1)
+                    parsed = await self._parse_note_from_dom(item)
+                    if parsed:
+                        notes.append(asdict(parsed))
+
             logger.info(f"获取到 {len(notes)} 个收藏项")
             return notes
         except Exception as exc:  # noqa: BLE001
@@ -421,7 +514,7 @@ class XiaohongshuPlugin(BasePlugin):
         # 8) image
 
 
-        # 9) vedio
+        # 9) video
 
 
         # 10) close note
@@ -445,36 +538,51 @@ class XiaohongshuPlugin(BasePlugin):
         )
 
     async def _parse_note_from_network(self, resp_data: Dict[str, Any]) -> Optional[FavoriteItem]:
-        if resp_data is None or len(resp_data) == 0:
+        if not resp_data:
             return None
-        note_item = resp_data[0]
-        id = note_item["id"]
-        note_card = note_item["note_card"]
-        title = note_card["title"]
-        author_info = AuthorInfo(username=note_card["user"]["nickname"],
-                                 avatar=note_card["user"]["avatar"],
-                                 user_id=note_card["user"]["user_id"])
-        tag_list = [tag["name"] for tag in note_card["tag_list"]]
-        date = note_card["time"]
-        last_update_time = note_card["last_update_time"]
-        ip_zh = note_card["ip_location"]
-        comment_num = note_card["interact_info"]["comment_count"]
-        statistic = NoteStatistics(like_num=int(note_card["interact_info"]["liked_count"]),
-                                   collect_num=int(note_card["interact_info"]["collected_count"]),
-                                   chat_num=int(comment_num))
-        images = [image["url_default"] for image in note_card["image_list"]]
-        return FavoriteItem(id=id,
-                            title=title,
-                            author_info=author_info,
-                            tags=tag_list,
-                            date=date,
-                            ip_zh=ip_zh,
-                            comment_num=comment_num,
-                            statistic=statistic,
-                            images=images,
-                            video=None,
-                            timestamp=datetime.now().isoformat(),
-        )
+        items = resp_data if isinstance(resp_data, list) else [resp_data]
+        for note_item in items:
+            try:
+                id = note_item["id"]
+                note_card = note_item["note_card"]
+                title = note_card.get("title")
+                user = note_card.get("user", {})
+                author_info = AuthorInfo(
+                    username=user.get("nickname"),
+                    avatar=user.get("avatar"),
+                    user_id=user.get("user_id"),
+                )
+                tag_list = [tag.get("name") for tag in note_card.get("tag_list", [])]
+                date = note_card.get("time")
+                ip_zh = note_card.get("ip_location")
+                interact = note_card.get("interact_info", {})
+                comment_num = str(interact.get("comment_count", 0))
+                statistic = NoteStatistics(
+                    like_num=int(interact.get("liked_count", 0)),
+                    collect_num=int(interact.get("collected_count", 0)),
+                    chat_num=int(comment_num or 0),
+                )
+                images = [image.get("url_default") for image in note_card.get("image_list", [])]
+                self._net_note_items.append(FavoriteItem(
+                    id=id,
+                    title=title,
+                    author_info=author_info,
+                    tags=tag_list,
+                    date=date,
+                    ip_zh=ip_zh,
+                    comment_num=comment_num,
+                    statistic=statistic,
+                    images=images,
+                    video=None,
+                    timestamp=datetime.now().isoformat(),
+                ))
+            except Exception:
+                continue
+        if self._net_note_event:
+            try:
+                self._net_note_event.set()
+            except Exception:
+                pass
 
     # -----------------------------
     # 基于装饰器的网络规则示例（可按需新增多个，互相独立）
@@ -483,11 +591,10 @@ class XiaohongshuPlugin(BasePlugin):
     async def _get_note_details(self, rule: RuleContext, response: ResponseView):
         try:
             data = response.data()
-            self._net_results.append({
-                "rule": {"pattern": rule.pattern.pattern, "kind": rule.kind, "handler": rule.func_name},
-                "url": response.url,
-                "data": data,
-            })
+            if data and data.get("code") == 0:
+                # 记录原始响应并唤醒
+                feed_record_response(self._feed_state_like(), data, response)
+                asyncio.create_task(self._parse_note_from_network(data["data"]["items"]))
         except Exception as exc:  # noqa: BLE001
             logger.debug(f"_get_note_details failed: {exc}")
 

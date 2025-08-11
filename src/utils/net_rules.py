@@ -120,7 +120,18 @@ async def _snapshot_request_payload(req: Request) -> Dict[str, Any]:
         "headers": dict(req.headers) if hasattr(req, "headers") else {},
     }
     try:
-        snap["post_data"] = await req.post_data  # type: ignore[attr-defined]
+        data = None
+        try:
+            data = await req.post_data()  # type: ignore[attr-defined]
+        except Exception:
+            data = None
+        # Try JSON if available
+        if data is None:
+            try:
+                data = await req.post_data_json()  # type: ignore[attr-defined]
+            except Exception:
+                pass
+        snap["post_data"] = data
     except Exception:
         snap["post_data"] = None
     return snap

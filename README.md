@@ -126,7 +126,6 @@ everything-as-an-interface/
 │   │   └── browser.py             # 浏览器自动化工具
 │   └── __init__.py         # 包入口
 ├── example.py              # 示例程序
-├── pyproject.toml          # 项目配置
 └── README.md               # 项目说明
 ```
 

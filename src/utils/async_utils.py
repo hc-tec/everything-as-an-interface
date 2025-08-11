@@ -4,7 +4,7 @@ import time
 import asyncio
 from typing import Callable, Any, Awaitable
 
-async def wait_until_result(func: Callable[[], Any], timeout: float) -> Any:
+async def wait_until_result(func: Callable[[], Any], timeout: float, poll_interval_ms: float = 500) -> Any:
     """
     周期性调用 func，直到返回非 None 结果或超时。
 
@@ -19,7 +19,7 @@ async def wait_until_result(func: Callable[[], Any], timeout: float) -> Any:
         TimeoutError: 在超时时间内未获得非 None 结果。
     """
     start = time.monotonic()
-    poll_interval = 0.5  # 轮询间隔（秒）
+    poll_interval = poll_interval_ms / 1000.0  # 轮询间隔（秒）
 
     while True:
         result = func()
