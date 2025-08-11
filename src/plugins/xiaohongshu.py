@@ -121,7 +121,7 @@ class XiaohongshuPlugin(BasePlugin):
                     "message": "登录失败，请检查网络连接或重试",
                     "need_relogin": True,
                 }
-            await asyncio.sleep(1000)
+            # await asyncio.sleep(1000)
             favorites = await self._get_favorites()
             if not favorites:
                 return {

@@ -25,3 +25,5 @@ You provide code snippets and explanations tailored to these principles, optimiz
 API设计：REST
 
 
+目前项目还处于早期阶段，一定要注意程序的抽象，哪些东西能够复用的就抽离出来
+比如我正在写的小红书插件，其中很多功能其他插件可能也需要，所以一定要想想看功能是否可以抽离成独立模块
