@@ -28,6 +28,7 @@ LOGIN_URL = f"{BASE_URL}/login"
 
 @dataclass
 class AuthorInfo:
+    user_id: str
     username: str
     avatar: str
 
@@ -52,7 +53,7 @@ class FavoriteItem:
     ip_zh: str
     comment_num: str
     statistic: NoteStatistics
-    images: Optional[dict[str, str]]
+    images: Optional[list[str]]
     video: Optional[VideoInfo]
     timestamp: str
 
@@ -174,7 +175,7 @@ class XiaohongshuPlugin(BasePlugin):
                 self.account_manager = self.ctx.account_manager
             except Exception:
                 pass
-        if not self._unbind_net_rules:
+        if self.config.need_sniff_network and not self._unbind_net_rules:
             self._unbind_net_rules = await bind_network_rules(self.page, self)
 
     async def _ensure_logged_in(self) -> bool:
@@ -260,27 +261,29 @@ class XiaohongshuPlugin(BasePlugin):
             await asyncio.sleep(1)
 
             notes: List[FavoriteItem] = []
-            while True:
-                items = await self.page.query_selector_all(".tab-content-item:nth-child(2) .note-item")
+            if self.config.need_scrapy_dom:
+                while True:
+                    items = await self.page.query_selector_all(".tab-content-item:nth-child(2) .note-item")
 
-                if not items:
-                    logger.warning("未找到收藏项，可能是DOM结构变化或未登录")
-                    try:
-                        await self.page.screenshot(path="debug_xiaohongshu_favorites.png")
-                    except Exception:  # noqa: BLE001
-                        pass
-                    return []
+                    if not items:
+                        logger.warning("未找到收藏项，可能是DOM结构变化或未登录")
+                        try:
+                            await self.page.screenshot(path="debug_xiaohongshu_favorites.png")
+                        except Exception:  # noqa: BLE001
+                            pass
+                        return []
 
-                logger.info("开始获取收藏夹内容")
-                for item in items:
-                    await asyncio.sleep(1)
-                    parsed = await self._parse_favorite_item(item)
-                    if parsed:
-                        notes.append(asdict(parsed))
+                    logger.info("开始获取收藏夹内容")
+                    for item in items:
+                        await asyncio.sleep(1)
+                        parsed = await self._parse_note_from_dom(item)
+                        if parsed:
+                            notes.append(asdict(parsed))
 
-                # 下一步应该滚动，还没写完
-                break
-
+                    # 下一步应该滚动，还没写完
+                    break
+            else:
+                pass
             logger.info(f"获取到 {len(notes)} 个收藏项")
             return notes
         except Exception as exc:  # noqa: BLE001
@@ -382,7 +385,7 @@ class XiaohongshuPlugin(BasePlugin):
         logger.info(f"读取笔记数据：点赞数量={like_num_val} 收藏数量={collect_num_val} 评论数量={chat_num_val}")
         return like_num_val, collect_num_val, chat_num_val
 
-    async def _parse_favorite_item(self, item: ElementHandle) -> Optional[FavoriteItem]:
+    async def _parse_note_from_dom(self, item: ElementHandle) -> Optional[FavoriteItem]:
         # 点击笔记，查看笔记详情
         cover_ele = await item.query_selector(".title")
         await cover_ele.click()
@@ -441,10 +444,42 @@ class XiaohongshuPlugin(BasePlugin):
             timestamp=datetime.now().isoformat(),
         )
 
+    async def _parse_note_from_network(self, resp_data: Dict[str, Any]) -> Optional[FavoriteItem]:
+        if resp_data is None or len(resp_data) == 0:
+            return None
+        note_item = resp_data[0]
+        id = note_item["id"]
+        note_card = note_item["note_card"]
+        title = note_card["title"]
+        author_info = AuthorInfo(username=note_card["user"]["nickname"],
+                                 avatar=note_card["user"]["avatar"],
+                                 user_id=note_card["user"]["user_id"])
+        tag_list = [tag["name"] for tag in note_card["tag_list"]]
+        date = note_card["time"]
+        last_update_time = note_card["last_update_time"]
+        ip_zh = note_card["ip_location"]
+        comment_num = note_card["interact_info"]["comment_count"]
+        statistic = NoteStatistics(like_num=int(note_card["interact_info"]["like_count"]),
+                                   collect_num=int(note_card["interact_info"]["collect_count"]),
+                                   chat_num=int(comment_num))
+        images = [image["url_default"] for image in note_card["image_list"]]
+        return FavoriteItem(id=id,
+                            title=title,
+                            author_info=author_info,
+                            tags=tag_list,
+                            date=date,
+                            ip_zh=ip_zh,
+                            comment_num=comment_num,
+                            statistic=statistic,
+                            images=images,
+                            video=None,
+                            timestamp=datetime.now().isoformat(),
+        )
+
     # -----------------------------
     # 基于装饰器的网络规则示例（可按需新增多个，互相独立）
     # -----------------------------
-    @net_rule_match(r".*note_id.*", kind="response")
+    @net_rule_match(r".*/feed", kind="response")
     async def _get_note_details(self, rule: RuleContext, response: ResponseView):
         try:
             data = response.data()

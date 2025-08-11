@@ -6,7 +6,7 @@ from playwright.async_api import ElementHandle
 from tests.plugins.mock_browser import page, mock_page, mock_context, mock_browser
 from tests.test_utils import read_file_with_project_root
 from src.plugins.xiaohongshu import XiaohongshuPlugin, AuthorInfo, NoteStatistics
-
+from tests.plugins.xiaohongshu.note_card_details import NOTE_CARD_DETAILS
 
 @pytest.fixture
 def xhs_plugin(mocker, mock_browser):
@@ -32,7 +32,7 @@ async def test_xhs_get_span_text(xhs_plugin, page):
 
 @pytest.mark.asyncio
 async def test_xhs_parse_id_with_real_dom(xhs_plugin, page):
-    html = read_file_with_project_root("tests/plugins/html/note-favorite-card.html")
+    html = read_file_with_project_root("tests/plugins/xiaohongshu/html/note-favorite-card.html")
     await page.set_content(html)
     element = await page.query_selector('.note-item')
     item_id = await xhs_plugin._parse_id(element)
@@ -44,10 +44,10 @@ async def test_xhs_parse_favorite_item_with_real_dom(xhs_plugin, page):
     xhs_plugin.browser.page = page
     xhs_plugin.browser.browser = page.context.browser
 
-    html = read_file_with_project_root("tests/plugins/html/note-details.html")
+    html = read_file_with_project_root("tests/plugins/xiaohongshu/html/note-details.html")
     await page.set_content(html)
     element = await page.query_selector('.note-detail-mask')
-    favorite_item = await xhs_plugin._parse_favorite_item(element)
+    favorite_item = await xhs_plugin._parse_note_from_dom(element)
     assert favorite_item.title == "🎆"
     assert favorite_item.author_info.username == "tama酱"
     assert favorite_item.author_info.avatar == "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo313qhhegphk004004q3srikigbhfnvtg?imageView2/2/w/120/format/webp|imageMogr2/strip"
@@ -58,6 +58,24 @@ async def test_xhs_parse_favorite_item_with_real_dom(xhs_plugin, page):
     assert favorite_item.comment_num == " 共 116 条评论 "
     assert favorite_item.statistic == NoteStatistics(like_num=1627, collect_num=323, chat_num=116)
     assert favorite_item.images is None
+    assert favorite_item.video is None
+
+
+@pytest.mark.asyncio
+async def test_xhs_parse_favorite_item_with_network(xhs_plugin, page):
+
+    favorite_item = await xhs_plugin._parse_note_from_network(NOTE_CARD_DETAILS["items"])
+    assert favorite_item.title == "外人节运动大会🏆 和世界冠军一起动起来"
+    assert favorite_item.author_info.username == "户外薯"
+    assert favorite_item.author_info.avatar == "https://sns-avatar-qc.xhscdn.com/avatar/62b2d333df95c6f0a5dcd801.jpg"
+    assert len(favorite_item.tags) == 2
+    assert favorite_item.tags[0] == "小红书外人节"
+    assert favorite_item.tags[1] == "户外48小时"
+    assert favorite_item.date == "1754451991000"
+    assert favorite_item.ip_zh == "新疆"
+    assert favorite_item.comment_num == "113"
+    assert favorite_item.statistic == NoteStatistics(like_num=2458, collect_num=54, chat_num=113)
+    assert len(favorite_item.images) == 11
     assert favorite_item.video is None
 
 

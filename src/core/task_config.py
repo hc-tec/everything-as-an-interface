@@ -45,6 +45,7 @@ class TaskConfig(Mapping[str, Any]):
     extra_http_headers: Optional[Dict[str, str]] = None
     # 是否需要嗅探网络请求，选择是，则可以通过 net_rule_match 来拦截请求与响应，具体情况可以搜索使用例子
     need_sniff_network: bool = True
+    need_scrapy_dom: bool = True
     # Some plugins reuse an "interval" key in their own validation;
     # keep it here for convenience although scheduler has its own interval.
     interval: Optional[int] = None
