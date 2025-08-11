@@ -396,8 +396,8 @@ class XiaohongshuPlugin(BasePlugin):
         item_id: Optional[str] = await self._parse_id(item)
 
         note_container = await wait_until_result(
-            lambda: self.page.query_selector(".note-detail-mask"),
-            timeout=5000
+            lambda: item.query_selector(".note-detail-mask"),
+            timeout=2000
         )
 
         # 2) title
@@ -425,15 +425,15 @@ class XiaohongshuPlugin(BasePlugin):
 
 
         # 10) close note
-        close_ele = await note_container.query_selector(".close-circle")
-        await close_ele.click()
+        close_ele = await item.query_selector(".close-circle")
+        await close_ele.click(timeout=2000)
 
         logger.info("\n\n")
 
         return FavoriteItem(
             id=item_id,
             title=title_val,
-            author_info=AuthorInfo(username=author_username_val, avatar=author_avatar_val),
+            author_info=AuthorInfo(username=author_username_val, avatar=author_avatar_val, user_id=None),
             tags=tag_ele_list,
             date=date_val,
             ip_zh=ip_zh_val,
@@ -459,8 +459,8 @@ class XiaohongshuPlugin(BasePlugin):
         last_update_time = note_card["last_update_time"]
         ip_zh = note_card["ip_location"]
         comment_num = note_card["interact_info"]["comment_count"]
-        statistic = NoteStatistics(like_num=int(note_card["interact_info"]["like_count"]),
-                                   collect_num=int(note_card["interact_info"]["collect_count"]),
+        statistic = NoteStatistics(like_num=int(note_card["interact_info"]["liked_count"]),
+                                   collect_num=int(note_card["interact_info"]["collected_count"]),
                                    chat_num=int(comment_num))
         images = [image["url_default"] for image in note_card["image_list"]]
         return FavoriteItem(id=id,
