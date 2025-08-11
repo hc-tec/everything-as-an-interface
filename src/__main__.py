@@ -11,6 +11,8 @@ import os
 import sys
 from typing import Dict, Any
 
+from src.core.task_config import TaskConfig
+
 from . import EverythingAsInterface, __version__
 from .core.orchestrator import Orchestrator
 
@@ -44,7 +46,7 @@ async def run_plugin(args: argparse.Namespace) -> None:
     system = EverythingAsInterface()
 
     # 加载配置
-    config: Dict[str, Any] = {}
+    config: TaskConfig = {}
     if args.config:
         try:
             with open(args.config, "r", encoding="utf-8") as f:

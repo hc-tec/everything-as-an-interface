@@ -1,8 +1,9 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Mapping
 
 from src.core.plugin_context import PluginContext
+from src.core.task_config import TaskConfig
 
 logger = logging.getLogger("plugin")
 
@@ -30,7 +31,7 @@ class BasePlugin(ABC):
     PLUGIN_AUTHOR: str = ""
     
     def __init__(self):
-        self.config: Dict[str, Any] = {}
+        self.config: Optional[TaskConfig] = None
         self.running: bool = False
         self.accounts: List[Dict[str, Any]] = []
         self.selected_account: Optional[Dict[str, Any]] = None
@@ -42,7 +43,7 @@ class BasePlugin(ABC):
         self.ctx: Optional[PluginContext] = None
         self.account_manager = None
     
-    def configure(self, config: Dict[str, Any]) -> None:
+    def configure(self, config: TaskConfig) -> None:
         """
         配置插件
         
@@ -175,7 +176,7 @@ class BasePlugin(ABC):
         # 默认实现，子类可覆盖
         return {"success": False, "message": "未实现验证码处理"}
     
-    def validate_config(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    def validate_config(self, config: TaskConfig) -> Dict[str, Any]:
         """
         验证配置是否合法
         

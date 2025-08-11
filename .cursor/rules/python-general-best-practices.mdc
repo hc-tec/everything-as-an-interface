@@ -16,3 +16,4 @@ globs: **/*.py
 - Limit the use of global variables to reduce side effects.
 
 - Choose descriptive variable, function, and class names.
+type hints相当重要，你可以创建配置类而不是直接使用Dict[str, Any]

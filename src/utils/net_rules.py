@@ -60,7 +60,8 @@ class _BoundRule:
     handler: Callable[..., Awaitable[Any]]
     func_name: str
 
-
+# 监听的请求和响应都不能更改
+# 若要拦截请求数据，可用page.route
 def net_rule_match(pattern: str, *, kind: str = "response", flags: int = 0) -> Callable[[Callable[..., Awaitable[Any]]], Callable[..., Awaitable[Any]]]:
     """Decorator to mark a method as a network rule handler.
 
@@ -119,7 +120,7 @@ async def _snapshot_request_payload(req: Request) -> Dict[str, Any]:
         "headers": dict(req.headers) if hasattr(req, "headers") else {},
     }
     try:
-        snap["post_data"] = await req.post_data()  # type: ignore[attr-defined]
+        snap["post_data"] = await req.post_data  # type: ignore[attr-defined]
     except Exception:
         snap["post_data"] = None
     return snap

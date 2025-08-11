@@ -7,10 +7,12 @@ from typing import Any, Dict, List, Optional, Callable
 
 from playwright.async_api import ElementHandle
 
+from src.core.task_config import TaskConfig
+
 from ..plugins.base import BasePlugin
 from ..utils.browser import BrowserAutomation
 from ..utils.async_utils import wait_until_result
-from ..utils.net_rules import net_rule_match, bind_network_rules, ResponseView, RuleContext
+from ..utils.net_rules import net_rule_match, bind_network_rules, ResponseView, RuleContext, RequestView
 from ..utils import Mp4DownloadSession
 from .registry import register_plugin
 from ..core.plugin_context import PluginContext
@@ -106,7 +108,7 @@ class XiaohongshuPlugin(BasePlugin):
                     "message": "登录失败，请检查网络连接或重试",
                     "need_relogin": True,
                 }
-            # await asyncio.sleep(1000)
+            await asyncio.sleep(1000)
             favorites = await self._get_favorites()
             if not favorites:
                 return {
@@ -134,7 +136,7 @@ class XiaohongshuPlugin(BasePlugin):
     # -----------------------------
     # 配置校验
     # -----------------------------
-    def validate_config(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    def validate_config(self, config: TaskConfig) -> Dict[str, Any]:
         errors: List[str] = []
 
         if "interval" in config and (not isinstance(config["interval"], int) or config["interval"] < 60):
@@ -163,13 +165,13 @@ class XiaohongshuPlugin(BasePlugin):
         # 初始化视频下载会话与网络规则绑定
         if not self._video_session:
             self._video_session = Mp4DownloadSession(
-                output_dir=self.config.get("video_output_dir", "videos"),
+                output_dir=self.config.extra.get("video_output_dir", "videos"),
                 proactive_on_first_seen=True,
             )
         # 若通过注册工厂注入了 ctx，则把账号管理器透传挂到实例供登录用
-        if self.ctx and hasattr(self, "account_manager") is False:
+        if self.ctx and self.ctx.account_manager:
             try:
-                setattr(self, "account_manager", self.ctx.account_manager)
+                self.account_manager = self.ctx.account_manager
             except Exception:
                 pass
         if not self._unbind_net_rules:
@@ -201,7 +203,7 @@ class XiaohongshuPlugin(BasePlugin):
         if not self.page:
             return False
         cookie_ids: List[str] = list(self.config.get("cookie_ids", []))
-        if getattr(self, "account_manager", None) and cookie_ids:
+        if self.account_manager and cookie_ids:
             try:
                 merged = self.account_manager.merge_cookies(cookie_ids)
                 if merged:
@@ -228,7 +230,7 @@ class XiaohongshuPlugin(BasePlugin):
                     logger.info("检测到登录成功")
                     try:
                         cookies = await self.page.context.cookies()
-                        if cookies and hasattr(self, "account_manager"):
+                        if cookies and self.account_manager:
                             cookie_id = self.account_manager.add_cookies(
                                 "xiaohongshu", cookies, name="登录获取"
                             )
@@ -448,7 +450,7 @@ class XiaohongshuPlugin(BasePlugin):
             data = response.data()
             self._net_results.append({
                 "rule": {"pattern": rule.pattern.pattern, "kind": rule.kind, "handler": rule.func_name},
-                "url": getattr(response, "url", None),
+                "url": response.url,
                 "data": data,
             })
         except Exception as exc:  # noqa: BLE001
@@ -464,6 +466,13 @@ class XiaohongshuPlugin(BasePlugin):
                 logger.info(f"视频已下载完成: {done_path}")
         except Exception as exc:  # noqa: BLE001
             logger.debug(f"_capture_mp4_ranges failed: {exc}")
+
+    # @net_rule_match(r".*", kind="request")
+    # async def _capture_requests(self, rule: RuleContext, request: RequestView):
+    #     try:
+    #         print(request.url)
+    #     except Exception as exc:
+    #         logger.debug(f"_capture_requests failed: {exc}")
 
     # -----------------------------
     # 辅助：从任意 dict/list 结构里提取第一个 mp4 链接
@@ -489,7 +498,7 @@ class XiaohongshuPlugin(BasePlugin):
 
 
 @register_plugin("xiaohongshu")
-def create_xhs(ctx: PluginContext, config: Dict[str, Any]) -> XiaohongshuPlugin:
+def create_xhs(ctx: PluginContext, config: TaskConfig) -> XiaohongshuPlugin:
     p = XiaohongshuPlugin()
     p.configure(config)
     # 注入上下文（包含 page/account_manager）

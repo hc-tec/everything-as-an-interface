@@ -1,11 +1,12 @@
 import asyncio
 import logging
 import time
-from typing import Dict, Any, List, Optional, Callable, Coroutine
+from typing import Dict, Any, List, Optional, Callable, Coroutine, Mapping, Union
 from datetime import datetime
 import uuid
 
 from .orchestrator import Orchestrator
+from .task_config import TaskConfig
 
 logger = logging.getLogger("scheduler")
 
@@ -17,7 +18,7 @@ class Task:
                  plugin_id: str, 
                  interval: int, 
                  callback: Optional[Callable[[Dict[str, Any]], Coroutine[Any, Any, None]]] = None,
-                 config: Optional[Dict[str, Any]] = None):
+                  config: Optional[TaskConfig] = None):
         """
         初始化任务
         
@@ -32,7 +33,7 @@ class Task:
         self.plugin_id = plugin_id
         self.interval = interval
         self.callback = callback
-        self.config = config or {}
+        self.config: TaskConfig = config or TaskConfig()
         self.last_run: Optional[datetime] = None
         self.next_run: Optional[datetime] = None
         self.running = False
@@ -102,7 +103,7 @@ class Scheduler:
                 plugin_id: str, 
                 interval: int, 
                 callback: Optional[Callable[[Dict[str, Any]], Coroutine[Any, Any, None]]] = None,
-                config: Optional[Dict[str, Any]] = None,
+                config: Optional[TaskConfig] = None,
                 task_id: Optional[str] = None) -> str:
         """
         添加任务
@@ -238,7 +239,7 @@ class Scheduler:
         
         try:
             # 从任务配置准备 cookie
-            cookie_ids = (task.config or {}).get("cookie_ids") or []
+            cookie_ids = task.config.get("cookie_ids") or []
             valid_cookie_ids: List[str] = []
             cookie_items = None
             if self.account_manager and cookie_ids:
@@ -255,7 +256,7 @@ class Scheduler:
                 settings={"plugin": task.plugin_id, "task_id": task.task_id},
             )
             # 实例化插件（注册表）
-            plugin = self.plugin_manager.instantiate_plugin(task.plugin_id, ctx, task.config or {})
+            plugin = self.plugin_manager.instantiate_plugin(task.plugin_id, ctx, task.config)
             success = plugin.start()
             if not success:
                 raise RuntimeError(f"插件启动失败: {task.plugin_id}")

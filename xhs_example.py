@@ -11,6 +11,7 @@ from typing import Dict, Any
 
 from src import EverythingAsInterface
 from src.core.orchestrator import Orchestrator
+from src.core.task_config import TaskConfig
 from src.plugins.xiaohongshu import XiaohongshuPlugin
 
 async def on_new_favorite(data: Dict[str, Any]) -> None:
@@ -64,11 +65,13 @@ async def main():
     task_id = system.scheduler.add_task(
         plugin_id="xiaohongshu",
         interval=300,  # 5分钟检查一次
-        config={
+        config=TaskConfig(
             # 可选：填写已保存的 cookie_ids 列表，以跳过手动登录
-            "cookie_ids": ["3d1ab44f-71ea-48eb-96c7-5dca21cc7987"],
-            "video_output_dir": "videos_data",
-        }
+            cookie_ids=["3d1ab44f-71ea-48eb-96c7-5dca21cc7987"],
+            extra={
+                "video_output_dir": "videos_data",
+            }
+        )
     )
     print(f"已添加任务: {task_id}")
 

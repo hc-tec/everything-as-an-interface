@@ -302,7 +302,8 @@ class BaseMediaDownloader(ABC):
             except Exception:
                 pass
         timeout = httpx.Timeout(30.0, read=60.0, write=30.0, connect=30.0)
-        client = httpx.AsyncClient(headers=headers, cookies=jar, follow_redirects=True, timeout=timeout)
+        # 公司内网中使用 verify=False 跳过证书认证
+        client = httpx.AsyncClient(headers=headers, cookies=jar, follow_redirects=True, timeout=timeout, verify=False)
         return client
 
     async def _ensure_total_size_httpx(self, client: Any, url: str, *, response_headers: Optional[Dict[str, str]] = None, active: _ActiveDownload) -> int:

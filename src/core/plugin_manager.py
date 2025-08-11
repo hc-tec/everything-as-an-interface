@@ -1,6 +1,8 @@
 import logging
 from typing import Dict, Any
 
+from src.core.task_config import TaskConfig
+
 from ..plugins.registry import get_factory, list_plugins
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -16,7 +18,7 @@ class PluginManager:
     def get_all_plugins(self) -> Dict[str, Any]:
         return {pid: None for pid in list_plugins()}
 
-    def instantiate_plugin(self, plugin_id: str, ctx: Any, config: Dict[str, Any]) -> Any:
+    def instantiate_plugin(self, plugin_id: str, ctx: Any, config: TaskConfig) -> Any:
         try:
             factory = get_factory(plugin_id)
         except KeyError:
