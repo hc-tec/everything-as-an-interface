@@ -11,6 +11,7 @@ from playwright.async_api import Page
 from src.sites.base import BaseSiteService
 from src.utils.net_rule_bus import NetRuleBus
 from src.sites.xiaohongshu.models import NoteDetail, SearchAuthor
+from src.utils.net_rules import ResponseView
 
 logger = logging.getLogger(__name__)
 
@@ -24,12 +25,35 @@ class DetailArgs:
     extra_config: Optional[Dict[str, Any]] = None
 
 
+class DetailServiceDelegate(Generic[T]):
+    """Optional delegate hooks for detail service."""
+
+    async def on_attach(self, page: Page) -> None:  # pragma: no cover - default no-op
+        return None
+
+    async def on_detach(self) -> None:  # pragma: no cover - default no-op
+        return None
+
+    async def before_navigate(self, item_id: str) -> None:  # pragma: no cover - default no-op
+        return None
+
+    async def on_response(self, response: ResponseView) -> None:  # pragma: no cover - default no-op
+        return None
+
+    async def parse_detail(self, item_id: str, payload: Dict[str, Any]) -> Optional[T]:  # pragma: no cover - default None
+        return None
+
+
 class DetailService(BaseSiteService, Generic[T]):
     """Interface for fetching detailed information about specific items."""
 
     def __init__(self) -> None:
         super().__init__()
         self.page: Optional[Page] = None
+        self._delegate: Optional[DetailServiceDelegate[T]] = None
+
+    def set_delegate(self, delegate: Optional[DetailServiceDelegate[T]]) -> None:  # pragma: no cover - simple setter
+        self._delegate = delegate
 
     @abstractmethod
     async def get_detail(self, args: DetailArgs) -> Optional[T]:
@@ -59,6 +83,19 @@ class XiaohongshuDetailService(DetailService[NoteDetail]):
         self._unbind = await self.bus.bind(page)
         # Subscribe to note detail API responses
         self._detail_queue = self.bus.subscribe(r".*/feed", kind="response")
+        if self._delegate:
+            try:
+                await self._delegate.on_attach(page)
+            except Exception:
+                pass
+
+    async def detach(self) -> None:
+        if self._delegate:
+            try:
+                await self._delegate.on_detach()
+            except Exception:
+                pass
+        await super().detach()
 
     async def get_detail(self, args: DetailArgs) -> Optional[NoteDetail]:
         """
@@ -82,19 +119,36 @@ class XiaohongshuDetailService(DetailService[NoteDetail]):
 
         try:
             # Navigate to the note detail page to trigger API calls
+            if self._delegate:
+                try:
+                    await self._delegate.before_navigate(note_id)
+                except Exception:
+                    pass
             await self._navigate_to_note(note_id)
             
             # Wait for detail response
             timeout = args.extra_config.get("timeout", 10.0) if args.extra_config else 10.0
             try:
-                response_view = await asyncio.wait_for(self._detail_queue.get(), timeout=timeout)
+                response_view: ResponseView = await asyncio.wait_for(self._detail_queue.get(), timeout=timeout)
+                if self._delegate:
+                    try:
+                        await self._delegate.on_response(response_view)
+                    except Exception:
+                        pass
             except asyncio.TimeoutError:
                 logger.warning(f"Timeout waiting for detail response for note {note_id}")
                 return None
 
             # Parse the response
             data = response_view.data()
-            detail = await self._parse_detail_response(note_id, data)
+            detail = None
+            if self._delegate:
+                try:
+                    detail = await self._delegate.parse_detail(note_id, data)
+                except Exception:
+                    detail = None
+            if detail is None:
+                detail = await self._parse_detail_response(note_id, data)
             
             if detail:
                 self._cache[note_id] = detail

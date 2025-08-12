@@ -22,6 +22,21 @@ class XiaohongshuDomFeedService(FeedService[FavoriteItem]):
     async def attach(self, page: Page) -> None:
         self.page = page
         self.state = DomCollectionState[FavoriteItem](page=page)
+        # Delegate hook
+        if self._delegate:
+            try:
+                await self._delegate.on_attach(page)
+            except Exception:
+                pass
+
+    async def detach(self) -> None:
+        # Delegate hook
+        if self._delegate:
+            try:
+                await self._delegate.on_detach()
+            except Exception:
+                pass
+        await super().detach()
 
     def set_stop_decider(self, decider) -> None:
         # DOM 模式暂不支持 decider（可扩展为基于 items 的自定义检查）
@@ -46,6 +61,16 @@ class XiaohongshuDomFeedService(FeedService[FavoriteItem]):
                 if parsed:
                     acc.append(parsed)
                     added += 1
+            # Delegate post-process for this batch
+            if added > 0 and self._delegate and self.state:
+                try:
+                    new_batch = acc[-added:]
+                    processed = await self._delegate.on_items_collected(new_batch, self.state)  # type: ignore[arg-type]
+                    if processed is not None:
+                        # Replace last added portion with processed
+                        acc[-added:] = processed
+                except Exception:
+                    pass
             return added
 
         results = await run_dom_collection(
