@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional
 
 from playwright.async_api import Page
 
-from src.sites.base import FeedService, FeedCollectArgs
+from src.sites.base import FeedService, FeedCollectArgs, ServiceDelegate
 from src.utils.feed_collection import (
     FeedCollectionConfig,
     FeedCollectionState,
@@ -14,9 +14,10 @@ from src.utils.feed_collection import (
     record_response,
     scroll_page_once,
 )
-from src.utils.net_rule_bus import NetRuleBus
+from src.utils.net_rule_bus import NetRuleBus, MergedEvent
 from src.utils.net_rules import ResponseView
 from src.plugins.xiaohongshu import FavoriteItem, AuthorInfo, NoteStatistics
+from src.utils.scrolling import DefaultScrollStrategy, SelectorScrollStrategy, PagerClickStrategy, ScrollStrategy
 
 
 class XiaohongshuFeedService(FeedService[FavoriteItem]):
@@ -24,22 +25,21 @@ class XiaohongshuFeedService(FeedService[FavoriteItem]):
         super().__init__()
         self.cfg = FeedCollectionConfig()
         self._bus: Optional[NetRuleBus] = None
-        self._queues: List[asyncio.Queue] = []
+        self._merged_q: Optional[asyncio.Queue] = None
+        self._subs_meta: Dict[int, tuple[str, str]] = {}
         self._consumer: Optional[asyncio.Task] = None
 
     async def attach(self, page: Page) -> None:
         self.page = page
         self.state = FeedCollectionState[FavoriteItem](page=page, event=asyncio.Event())
 
-        # Bind NetRuleBus and subscribe to feed responses
+        # Bind NetRuleBus and subscribe to feed responses (multi-pattern ready)
         self._bus = NetRuleBus()
         self._unbind = await self._bus.bind(page)
-        # Subscribe multiple patterns if needed
-        self._queues = [
-            self._bus.subscribe(r".*/feed", kind="response"),
-            # Example: capture another endpoint if needed
-            # self._bus.subscribe(r".*/another_endpoint", kind="response"),
-        ]
+        self._merged_q, self._subs_meta = self._bus.subscribe_many([
+            (r".*/feed", "response"),
+            # Add more patterns if needed: (r".*/another_endpoint", "response")
+        ])
         # Start background consumer
         self._consumer = asyncio.create_task(self._consume_loop())
 
@@ -85,7 +85,22 @@ class XiaohongshuFeedService(FeedService[FavoriteItem]):
 
         async def on_scroll() -> None:
             try:
-                await scroll_page_once(self.page, pause_ms=self.cfg.scroll_pause_ms)
+                strat: ScrollStrategy
+                pause = self._service_config.scroll_pause_ms or self.cfg.scroll_pause_ms
+                # Prefer ServiceConfig if specified
+                if self._service_config.scroll_mode == "selector" and self._service_config.scroll_selector:
+                    strat = SelectorScrollStrategy(self._service_config.scroll_selector, pause_ms=pause)
+                elif self._service_config.scroll_mode == "pager" and self._service_config.pager_selector:
+                    strat = PagerClickStrategy(self._service_config.pager_selector, wait_ms=pause)
+                else:
+                    extra = (args.extra_config or {})
+                    if extra.get("scroll_selector"):
+                        strat = SelectorScrollStrategy(extra["scroll_selector"], pause_ms=pause)
+                    elif extra.get("pager_selector"):
+                        strat = PagerClickStrategy(extra["pager_selector"], wait_ms=pause)
+                    else:
+                        strat = DefaultScrollStrategy(pause_ms=pause)
+                await strat.scroll(self.page)
             except Exception:
                 pass
 
@@ -99,25 +114,22 @@ class XiaohongshuFeedService(FeedService[FavoriteItem]):
         return items
 
     async def _consume_loop(self) -> None:
-        if not self._queues:
+        if not self._merged_q:
             return
         while True:
             try:
-                # Wait for any queue
-                pending = [asyncio.create_task(q.get()) for q in self._queues]
-                done, pending_tasks = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
-                # Cancel non-picked tasks
-                for t in pending_tasks:
-                    t.cancel()
-                response: ResponseView = next(iter(done)).result()
+                evt: MergedEvent = await self._merged_q.get()
             except asyncio.CancelledError:
                 break
             except Exception:
                 continue
 
+            if not isinstance(evt.view, ResponseView):
+                continue
+
             data = None
             try:
-                data = response.data()
+                data = evt.view.data()
             except Exception:
                 data = None
 
@@ -127,7 +139,7 @@ class XiaohongshuFeedService(FeedService[FavoriteItem]):
             # Delegate can observe raw response first
             if self._delegate and self.state:
                 try:
-                    await self._delegate.on_response(response, self.state)
+                    await self._delegate.on_response(evt.view, self.state)
                 except Exception:
                     pass
 
@@ -135,17 +147,17 @@ class XiaohongshuFeedService(FeedService[FavoriteItem]):
             should_record = True
             if self._delegate:
                 try:
-                    should_record = bool(self._delegate.should_record_response(data, response))
+                    should_record = bool(self._delegate.should_record_response(data, evt.view))
                 except Exception:
                     should_record = True
             if should_record and self.state:
-                record_response(self.state, data, response)
+                record_response(self.state, data, evt.view)
 
             # Let delegate parse items first; if returns None, fallback to default
             parsed: Optional[List[FavoriteItem]] = None
             if self._delegate:
                 try:
-                    parsed = await self._delegate.parse_feed_items(data)
+                    parsed = await self._delegate.parse_items(data)
                 except Exception:
                     parsed = None
 

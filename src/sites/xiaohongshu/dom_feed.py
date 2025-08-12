@@ -12,6 +12,7 @@ from src.utils.dom_collection import (
     run_dom_collection,
 )
 from src.plugins.xiaohongshu import FavoriteItem, AuthorInfo, NoteStatistics
+from src.utils.scrolling import DefaultScrollStrategy, SelectorScrollStrategy, PagerClickStrategy, ScrollStrategy
 
 
 class XiaohongshuDomFeedService(FeedService[FavoriteItem]):
@@ -53,6 +54,29 @@ class XiaohongshuDomFeedService(FeedService[FavoriteItem]):
             if args.goto_first:
                 await args.goto_first()
 
+        # Ad-hoc on-scroll via strategy by wrapping extract_once with scroll inside generic engine
+        # run_dom_collection will handle scroll via its engine, but strategy can be used by calling extra on_scroll.
+        # Here we pass strategy-based on_scroll to run_dom_collection.
+        async def on_scroll() -> None:
+            try:
+                strat: ScrollStrategy
+                pause = self._service_config.scroll_pause_ms or self.cfg.scroll_pause_ms
+                if self._service_config.scroll_mode == "selector" and self._service_config.scroll_selector:
+                    strat = SelectorScrollStrategy(self._service_config.scroll_selector, pause_ms=pause)
+                elif self._service_config.scroll_mode == "pager" and self._service_config.pager_selector:
+                    strat = PagerClickStrategy(self._service_config.pager_selector, wait_ms=pause)
+                else:
+                    extra = (args.extra_config or {})
+                    if extra.get("scroll_selector"):
+                        strat = SelectorScrollStrategy(extra["scroll_selector"], pause_ms=pause)
+                    elif extra.get("pager_selector"):
+                        strat = PagerClickStrategy(extra["pager_selector"], wait_ms=pause)
+                    else:
+                        strat = DefaultScrollStrategy(pause_ms=pause)
+                await strat.scroll(self.page)
+            except Exception:
+                pass
+
         async def extract_once(page: Page, acc: List[FavoriteItem]) -> int:
             added = 0
             items = await page.query_selector_all(".tab-content-item:nth-child(2) .note-item")
@@ -78,6 +102,7 @@ class XiaohongshuDomFeedService(FeedService[FavoriteItem]):
             self.cfg,
             goto_first=goto_first,
             extract_once=extract_once,
+            on_scroll=on_scroll,
         )
         return results
 

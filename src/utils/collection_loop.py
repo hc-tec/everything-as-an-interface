@@ -6,6 +6,7 @@ from typing import Any, Awaitable, Callable, Dict, Generic, List, Optional, Type
 from playwright.async_api import Page
 
 from .collection_common import scroll_page_once as _scroll_page_once, deduplicate_by as _deduplicate_by
+from .metrics import metrics
 
 T = TypeVar("T")
 
@@ -40,11 +41,14 @@ async def run_generic_collection(
     while True:
         elapsed = loop.time() - start_ts
         if elapsed >= max_seconds:
+            metrics.event("collect.exit", reason="timeout", elapsed=elapsed)
             break
         if len(state_items) >= max_items:
+            metrics.event("collect.exit", reason="max_items", count=len(state_items))
             break
 
         added = 0
+        metrics.inc("collect.ticks")
         if on_tick:
             try:
                 res = on_tick()
@@ -65,6 +69,7 @@ async def run_generic_collection(
             idle_rounds += 1
 
         if idle_rounds >= max_idle_rounds:
+            metrics.event("collect.exit", reason="idle", idle_rounds=idle_rounds)
             break
 
         if auto_scroll:
@@ -75,6 +80,7 @@ async def run_generic_collection(
                     pass
             else:
                 await _scroll_page_once(page, pause_ms=scroll_pause_ms)
+            metrics.inc("collect.scrolls")
 
     if key_fn is None:
         key_fn = lambda it: getattr(it, "id", None)  # type: ignore[return-value]

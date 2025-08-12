@@ -36,6 +36,7 @@ async def run_dom_collection(
     goto_first: Optional[Callable[[], Awaitable[None]]] = None,
     extract_once: ExtractOnce[T] = None,
     key_fn: Optional[KeyFn[T]] = None,
+    on_scroll: Optional[Callable[[], Awaitable[None]]] = None,
 ) -> List[T]:
     async def on_tick() -> Optional[int]:
         if not extract_once:
@@ -45,6 +46,9 @@ async def run_dom_collection(
             return await ret if asyncio.iscoroutine(ret) else int(ret or 0)
         except Exception:
             return 0
+
+    async def default_scroll() -> None:
+        await _scroll_page_once(state.page, pause_ms=cfg.scroll_pause_ms)
 
     return await run_generic_collection(
         page=state.page,
@@ -56,5 +60,6 @@ async def run_dom_collection(
         scroll_pause_ms=cfg.scroll_pause_ms,
         goto_first=goto_first,
         on_tick=on_tick,
+        on_scroll=on_scroll or default_scroll,
         key_fn=key_fn,
     ) 
