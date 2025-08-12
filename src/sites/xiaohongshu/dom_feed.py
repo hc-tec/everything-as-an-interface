@@ -60,14 +60,19 @@ class XiaohongshuDomFeedService(FeedService[FavoriteItem]):
         async def on_scroll() -> None:
             try:
                 strat: ScrollStrategy
-                extra = (args.extra_config or {})
                 pause = self._service_config.scroll_pause_ms or self.cfg.scroll_pause_ms
-                if extra.get("scroll_selector"):
-                    strat = SelectorScrollStrategy(extra["scroll_selector"], pause_ms=pause)
-                elif extra.get("pager_selector"):
-                    strat = PagerClickStrategy(extra["pager_selector"], wait_ms=pause)
+                if self._service_config.scroll_mode == "selector" and self._service_config.scroll_selector:
+                    strat = SelectorScrollStrategy(self._service_config.scroll_selector, pause_ms=pause)
+                elif self._service_config.scroll_mode == "pager" and self._service_config.pager_selector:
+                    strat = PagerClickStrategy(self._service_config.pager_selector, wait_ms=pause)
                 else:
-                    strat = DefaultScrollStrategy(pause_ms=pause)
+                    extra = (args.extra_config or {})
+                    if extra.get("scroll_selector"):
+                        strat = SelectorScrollStrategy(extra["scroll_selector"], pause_ms=pause)
+                    elif extra.get("pager_selector"):
+                        strat = PagerClickStrategy(extra["pager_selector"], wait_ms=pause)
+                    else:
+                        strat = DefaultScrollStrategy(pause_ms=pause)
                 await strat.scroll(self.page)
             except Exception:
                 pass

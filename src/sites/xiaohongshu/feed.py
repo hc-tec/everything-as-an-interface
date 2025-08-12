@@ -86,14 +86,20 @@ class XiaohongshuFeedService(FeedService[FavoriteItem]):
         async def on_scroll() -> None:
             try:
                 strat: ScrollStrategy
-                extra = (args.extra_config or {})
-                # Determine strategy from ServiceConfig or extra
-                if extra.get("scroll_selector"):
-                    strat = SelectorScrollStrategy(extra["scroll_selector"], pause_ms=self._service_config.scroll_pause_ms or self.cfg.scroll_pause_ms)
-                elif extra.get("pager_selector"):
-                    strat = PagerClickStrategy(extra["pager_selector"], wait_ms=self._service_config.scroll_pause_ms or self.cfg.scroll_pause_ms)
+                pause = self._service_config.scroll_pause_ms or self.cfg.scroll_pause_ms
+                # Prefer ServiceConfig if specified
+                if self._service_config.scroll_mode == "selector" and self._service_config.scroll_selector:
+                    strat = SelectorScrollStrategy(self._service_config.scroll_selector, pause_ms=pause)
+                elif self._service_config.scroll_mode == "pager" and self._service_config.pager_selector:
+                    strat = PagerClickStrategy(self._service_config.pager_selector, wait_ms=pause)
                 else:
-                    strat = DefaultScrollStrategy(pause_ms=self._service_config.scroll_pause_ms or self.cfg.scroll_pause_ms)
+                    extra = (args.extra_config or {})
+                    if extra.get("scroll_selector"):
+                        strat = SelectorScrollStrategy(extra["scroll_selector"], pause_ms=pause)
+                    elif extra.get("pager_selector"):
+                        strat = PagerClickStrategy(extra["pager_selector"], wait_ms=pause)
+                    else:
+                        strat = DefaultScrollStrategy(pause_ms=pause)
                 await strat.scroll(self.page)
             except Exception:
                 pass

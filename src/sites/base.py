@@ -28,6 +28,9 @@ class ServiceConfig:
         scroll_pause_ms: Pause after each scroll, in milliseconds.
         max_idle_rounds: Stop after this many consecutive idle rounds (for DOM collectors or custom loops).
         max_items: Optional item limit (applies where relevant).
+        scroll_mode: Optional strategy indicator: "default" | "selector" | "pager".
+        scroll_selector: Used when scroll_mode == "selector".
+        pager_selector: Used when scroll_mode == "pager".
     """
 
     response_timeout_sec: float = 5.0
@@ -38,6 +41,9 @@ class ServiceConfig:
     scroll_pause_ms: int = 800
     max_idle_rounds: int = 2
     max_items: Optional[int] = None
+    scroll_mode: Optional[str] = None
+    scroll_selector: Optional[str] = None
+    pager_selector: Optional[str] = None
 
 
 class BaseSiteService(ABC):
