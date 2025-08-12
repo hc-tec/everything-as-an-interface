@@ -109,7 +109,7 @@ playwright install
 
 ### 2. 运行示例程序
 ```bash
-python example.py
+python xhs_example.py
 ```
 
 ### 3. 运行测试

@@ -95,7 +95,7 @@ async def run_plugin(args: argparse.Namespace) -> None:
         plugin.set_input(input_payload)
 
     print(f"正在运行插件: {args.plugin_id}")
-    plugin.start()
+    await plugin.start()
     try:
         result = await plugin.fetch()
         if args.output:
@@ -107,7 +107,7 @@ async def run_plugin(args: argparse.Namespace) -> None:
     except Exception as e:
         print(f"插件执行失败: {str(e)}")
     finally:
-        plugin.stop()
+        await plugin.stop()
         await orch.release_context_page(ctx)
         await orch.stop()
 

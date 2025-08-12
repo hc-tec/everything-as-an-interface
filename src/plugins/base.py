@@ -106,7 +106,7 @@ class BasePlugin(ABC):
         return False
     
     @abstractmethod
-    def start(self) -> bool:
+    async def start(self) -> bool:
         """
         启动插件
         
@@ -118,7 +118,7 @@ class BasePlugin(ABC):
         return True
     
     @abstractmethod
-    def stop(self) -> bool:
+    async def stop(self) -> bool:
         """
         停止插件
         

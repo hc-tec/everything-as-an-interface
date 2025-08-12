@@ -257,11 +257,11 @@ class Scheduler:
             )
             # 实例化插件（注册表）
             plugin = self.plugin_manager.instantiate_plugin(task.plugin_id, ctx, task.config)
-            success = plugin.start()
+            success = await plugin.start()
             if not success:
                 raise RuntimeError(f"插件启动失败: {task.plugin_id}")
             data = await plugin.fetch()
-            plugin.stop()
+            await plugin.stop()
             # 释放上下文
             await self._orchestrator.release_context_page(ctx)
             # 回调与统计

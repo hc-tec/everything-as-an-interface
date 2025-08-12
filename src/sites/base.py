@@ -62,4 +62,53 @@ class FeedService(BaseSiteService, Generic[T]):
 
     @abstractmethod
     async def collect(self, args: FeedCollectArgs) -> List[T]:  # pragma: no cover - interface
-        ... 
+        ...
+
+
+
+
+@dataclass
+class PublishContent:
+    """Content to be published."""
+
+    title: str
+    content: str
+    images: Optional[List[str]] = None  # Local file paths or URLs
+    video: Optional[str] = None  # Local file path or URL
+    tags: Optional[List[str]] = None
+    visibility: str = "public"  # public, private, friends_only
+    extra_config: Optional[Dict[str, Any]] = None
+
+
+@dataclass
+class PublishResult:
+    """Result of a publish operation."""
+
+    success: bool
+    item_id: Optional[str] = None
+    url: Optional[str] = None
+    error_message: Optional[str] = None
+    extra_data: Optional[Dict[str, Any]] = None
+
+
+class PublishService(BaseSiteService):
+    """Interface for publishing content to a site."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.page: Optional[Page] = None
+
+    @abstractmethod
+    async def publish(self, content: PublishContent) -> PublishResult:
+        """Publish content to the site."""
+        ...
+
+    @abstractmethod
+    async def save_draft(self, content: PublishContent) -> PublishResult:
+        """Save content as a draft."""
+        ...
+
+    @abstractmethod
+    async def get_publish_status(self, item_id: str) -> Optional[Dict[str, Any]]:
+        """Check the status of a published item."""
+        ...
