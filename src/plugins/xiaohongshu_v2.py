@@ -15,19 +15,21 @@ from src.core.plugin_context import PluginContext
 from src.core.task_config import TaskConfig
 from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
-from src.sites.base import FeedCollectArgs
+from src.sites.base import FeedCollectArgs, ServiceConfig
 from src.sites.xiaohongshu import (
     XiaohongshuCommentService,
     XiaohongshuFeedService,
 )
-from src.sites.xiaohongshu.detail import XiaohongshuDetailService
+from src.utils import wait_until_result
 from src.utils.feed_collection import FeedCollectionConfig
 
 logger = logging.getLogger("plugin.xiaohongshu_v2")
 
+BASE_URL = "https://www.xiaohongshu.com"
+LOGIN_URL = f"{BASE_URL}/login"
+
 PLUGIN_ID = "xiaohongshu_v2"
 PLUGIN_VERSION = "2.0.0"
-
 
 class XiaohongshuV2Plugin(BasePlugin):
     """
@@ -57,12 +59,10 @@ class XiaohongshuV2Plugin(BasePlugin):
         try:
             # Initialize services
             self._feed_service = XiaohongshuFeedService()
-            self._detail_service = XiaohongshuDetailService()
             self._comment_service = XiaohongshuCommentService()
 
             # Attach all services to the page
             await self._feed_service.attach(self.page)
-            await self._detail_service.attach(self.page)
             await self._comment_service.attach(self.page)
 
             # Configure feed service based on task config
@@ -91,7 +91,6 @@ class XiaohongshuV2Plugin(BasePlugin):
         """Detach all services and cleanup resources."""
         services = [
             self._feed_service,
-            self._detail_service, 
             self._comment_service,
         ]
         
@@ -113,7 +112,9 @@ class XiaohongshuV2Plugin(BasePlugin):
         """
         if not self._feed_service:
             raise RuntimeError("Services not initialized. Call setup() first.")
-        
+
+        await self._ensure_logged_in()
+
         try:
             # Determine what to collect based on config
             task_type = self.config.extra.get("task_type", "favorites") if self.config.extra else "favorites"
@@ -144,9 +145,10 @@ class XiaohongshuV2Plugin(BasePlugin):
         logger.info("Collecting favorites using feed service")
         
         async def goto_favorites():
-            await self.page.goto("https://www.xiaohongshu.com/user/profile/favorites")
-            await asyncio.sleep(2)
-        
+            await self.page.click('.user, .side-bar-component')
+            await asyncio.sleep(1)
+            await self.page.click(".sub-tab-list:nth-child(2)")
+
         try:
             items = await self._feed_service.collect(FeedCollectArgs(
                 goto_first=goto_favorites,
@@ -348,11 +350,52 @@ class XiaohongshuV2Plugin(BasePlugin):
         
         return custom_stop_decider
 
-    # Legacy compatibility methods (delegating to services)
+    async def _try_cookie_login(self) -> bool:
+        if not self.page:
+            return False
+        cookie_ids: List[str] = list(self.config.get("cookie_ids", []))
+        if self.account_manager and cookie_ids:
+            try:
+                merged = self.account_manager.merge_cookies(cookie_ids)
+                if merged:
+                    await self.page.context.add_cookies(merged)
+                    await self.page.goto(BASE_URL)
+                    await asyncio.sleep(2)
+                    if await self._is_logged_in():
+                        logger.info("使用配置的 Cookie 登录成功")
+                        return True
+                    logger.warning("提供的 Cookie 未生效")
+            except Exception as exc:  # noqa: BLE001
+                logger.error(f"注入 Cookie 失败: {exc}")
+        return False
+
     async def _manual_login(self) -> bool:
-        """Legacy method for manual login - now handled by orchestrator."""
-        logger.info("Manual login handled by orchestrator, returning success")
-        return True
+        if not self.page:
+            return False
+        try:
+            await self.page.goto(LOGIN_URL)
+            await asyncio.sleep(1)
+            logger.info("请在浏览器中手动登录小红书，系统会自动检测登录状态…")
+            async def check_login():
+                if await self._is_logged_in():
+                    logger.info("检测到登录成功")
+                    try:
+                        cookies = await self.page.context.cookies()
+                        if cookies and self.account_manager:
+                            cookie_id = self.account_manager.add_cookies(
+                                "xiaohongshu", cookies, name="登录获取"
+                            )
+                            if cookie_id:
+                                logger.info(f"Cookie 已保存: {cookie_id}")
+                    except Exception as exc:  # noqa: BLE001
+                        logger.warning(f"获取或保存 Cookie 失败: {exc}")
+                    return True
+                return None
+            await wait_until_result(check_login, timeout=120000)
+            return False
+        except Exception as exc:  # noqa: BLE001
+            logger.error(f"手动登录过程异常: {exc}")
+            return False
 
     async def _is_logged_in(self) -> bool:
         """Check if user is logged in by looking for user profile elements."""
@@ -360,15 +403,9 @@ class XiaohongshuV2Plugin(BasePlugin):
             if not self.page:
                 return False
             
-            # Check for logged-in indicators
-            await self.page.goto("https://www.xiaohongshu.com", wait_until="networkidle")
-            
             # Look for user avatar or profile menu
             user_indicators = [
-                ".user-avatar",
-                ".profile-menu", 
-                ".user-info",
-                "[data-testid='user-avatar']"
+                '.reds-img-box',
             ]
             
             for selector in user_indicators:
