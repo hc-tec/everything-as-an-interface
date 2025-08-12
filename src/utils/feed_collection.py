@@ -8,6 +8,8 @@ from playwright.async_api import Page
 
 from .net_rules import ResponseView
 from .collection_common import scroll_page_once as _scroll_page_once, deduplicate_by as _deduplicate_by
+from .collection_loop import run_generic_collection
+from .net_rule_bus import MergedEvent
 
 T = TypeVar("T")
 
@@ -92,86 +94,42 @@ async def run_network_collection(
     on_scroll: Optional[Callable[[], Awaitable[None]]] = None,
     key_fn: Optional[Callable[[T], Optional[str]]] = None,
 ) -> List[T]:
-    """Run a generic network-driven collection loop using provided state/config.
+    """Run a unified network-driven collection loop using the generic engine.
 
-    Args:
-        state: Shared mutable state (items will be populated externally by parser).
-        cfg: Stop/scroll configuration.
-        extra_config: Arbitrary config object passed to decider.
-        goto_first: Optional coroutine to navigate to the starting page.
-        on_scroll: Optional coroutine to run instead of default scroll action.
-        key_fn: Optional key function for de-duplication (defaults to getattr(item, "id", None)).
-
-    Returns:
-        The list of collected items (deduplicated by key when provided).
+    This function assumes external code populates state.items and state.event is
+    set when new items arrive (e.g., via NetRuleBus consumer). It converts that
+    contract into a generic on_tick callback that waits for the event.
     """
     ensure_event(state)
     reset_state(state)
 
-    if goto_first:
-        await goto_first()
-        await asyncio.sleep(0.5)
-
-    start_ts = asyncio.get_event_loop().time()
-    last_len = 0
-    idle_rounds = 0
-
-    while True:
-        elapsed = asyncio.get_event_loop().time() - start_ts
-        if elapsed >= cfg.max_seconds:
-            break
-        if len(state.items) >= cfg.max_items:
-            break
-
+    async def on_tick() -> Optional[int]:
+        # Wait for event with a short timeout to allow idle detection
         try:
             await asyncio.wait_for(state.event.wait(), timeout=2.0)
         except asyncio.TimeoutError:
-            pass
+            return 0
         finally:
             try:
                 state.event.clear()
             except Exception:
                 state.event = asyncio.Event()
+        # Let the generic engine infer added count from items length delta
+        return 0
 
-        new_len = len(state.items)
-        if new_len > last_len:
-            idle_rounds = 0
-            new_items = state.items[last_len:new_len]
-            if state.stop_decider:
-                try:
-                    result = state.stop_decider(
-                        state.page,
-                        state.raw_responses,
-                        state.last_raw_response,
-                        state.items,
-                        new_items,
-                        elapsed,
-                        extra_config or {},
-                        state.last_response_view,
-                    )
-                    should_stop = await result if asyncio.iscoroutine(result) else bool(result)
-                    if should_stop:
-                        break
-                except Exception:
-                    # Ignore decider errors
-                    pass
-            last_len = new_len
-        else:
-            idle_rounds += 1
+    async def default_scroll() -> None:
+        await _scroll_page_once(state.page, pause_ms=cfg.scroll_pause_ms)
 
-        if idle_rounds >= cfg.max_idle_rounds:
-            break
-
-        if cfg.auto_scroll:
-            if on_scroll:
-                try:
-                    await on_scroll()
-                except Exception:
-                    pass
-            else:
-                await _scroll_page_once(state.page, pause_ms=cfg.scroll_pause_ms)
-
-    # Deduplicate
-    if key_fn is None:
-        key_fn = lambda it: getattr(it, "id", None)  # type: ignore[return-value]
-    return _deduplicate_by(state.items, key_fn) 
+    return await run_generic_collection(
+        page=state.page,
+        state_items=state.items,
+        max_items=cfg.max_items,
+        max_seconds=cfg.max_seconds,
+        max_idle_rounds=cfg.max_idle_rounds,
+        auto_scroll=cfg.auto_scroll,
+        scroll_pause_ms=cfg.scroll_pause_ms,
+        goto_first=goto_first,
+        on_tick=on_tick,
+        on_scroll=on_scroll or default_scroll,
+        key_fn=key_fn,
+    ) 
