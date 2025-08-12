@@ -8,6 +8,7 @@ from typing import Any, Awaitable, Callable, Dict, List, Optional, Pattern, Tupl
 from playwright.async_api import Page, Request, Response
 
 from .net_rules import ResponseView, RequestView
+from .metrics import metrics
 
 
 @dataclass
@@ -59,6 +60,7 @@ class NetRuleBus:
         q: asyncio.Queue = asyncio.Queue()
         sub = Subscription(pattern=compiled, kind=kind, queue=q)
         self._subs.append(sub)
+        metrics.inc("netrule.subscribe")
         return q
 
     def subscribe_many(self, patterns: List[Tuple[str, str, int]] | List[Tuple[str, str]] | List[str]) -> Tuple[asyncio.Queue, Dict[int, Tuple[str, str]]]:
@@ -95,6 +97,7 @@ class NetRuleBus:
                 while True:
                     item = await src_q.get()
                     await merged.put(MergedEvent(sub_id=sid, kind=k, view=item))
+                    metrics.inc("netrule.forward")
 
             # Background forwarders
             asyncio.create_task(forward(q, sub_id, kind))
@@ -111,6 +114,7 @@ class NetRuleBus:
                 continue
             snap = await self._snapshot_request(req)
             await sub.queue.put(RequestView(req, snap))
+            metrics.inc("netrule.request_match")
 
     async def _on_response(self, resp: Response) -> None:
         url = getattr(resp, "url", "")
@@ -121,6 +125,7 @@ class NetRuleBus:
                 continue
             payload = await self._prefetch_response(resp)
             await sub.queue.put(ResponseView(resp, payload))
+            metrics.inc("netrule.response_match")
 
     @staticmethod
     async def _snapshot_request(req: Request) -> Dict[str, Any]:

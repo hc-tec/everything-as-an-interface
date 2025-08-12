@@ -17,6 +17,7 @@ from src.utils.feed_collection import (
 from src.utils.net_rule_bus import NetRuleBus, MergedEvent
 from src.utils.net_rules import ResponseView
 from src.plugins.xiaohongshu import FavoriteItem, AuthorInfo, NoteStatistics
+from src.utils.scrolling import DefaultScrollStrategy, SelectorScrollStrategy, PagerClickStrategy, ScrollStrategy
 
 
 class XiaohongshuFeedService(FeedService[FavoriteItem]):
@@ -84,8 +85,16 @@ class XiaohongshuFeedService(FeedService[FavoriteItem]):
 
         async def on_scroll() -> None:
             try:
-                pause = self._service_config.scroll_pause_ms or self.cfg.scroll_pause_ms
-                await scroll_page_once(self.page, pause_ms=pause)
+                strat: ScrollStrategy
+                extra = (args.extra_config or {})
+                # Determine strategy from ServiceConfig or extra
+                if extra.get("scroll_selector"):
+                    strat = SelectorScrollStrategy(extra["scroll_selector"], pause_ms=self._service_config.scroll_pause_ms or self.cfg.scroll_pause_ms)
+                elif extra.get("pager_selector"):
+                    strat = PagerClickStrategy(extra["pager_selector"], wait_ms=self._service_config.scroll_pause_ms or self.cfg.scroll_pause_ms)
+                else:
+                    strat = DefaultScrollStrategy(pause_ms=self._service_config.scroll_pause_ms or self.cfg.scroll_pause_ms)
+                await strat.scroll(self.page)
             except Exception:
                 pass
 

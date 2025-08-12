@@ -8,6 +8,7 @@ from playwright.async_api import Page
 
 from src.utils.feed_collection import FeedCollectionState, record_response
 from src.utils.net_rules import ResponseView
+from src.utils.metrics import metrics
 
 T = TypeVar("T")
 
@@ -66,6 +67,7 @@ class PagedCollector(Generic[T]):
             except asyncio.TimeoutError:
                 break
 
+            metrics.inc("collector.queue_pop")
             # Hook: on_response
             if self.on_response:
                 try:
@@ -82,6 +84,7 @@ class PagedCollector(Generic[T]):
             # Record raw response into state
             try:
                 record_response(self.state, payload, rv)
+                metrics.inc("collector.record_response")
             except Exception:
                 pass
 
@@ -90,6 +93,7 @@ class PagedCollector(Generic[T]):
             try:
                 parsed = self.parser(payload)
                 batch = await parsed if asyncio.iscoroutine(parsed) else parsed
+                metrics.inc("collector.parsed_count", len(batch))
             except Exception:
                 batch = []
 
@@ -131,6 +135,7 @@ class PagedCollector(Generic[T]):
                         self.state.last_response_view,
                     )
                     should_stop = await result if asyncio.iscoroutine(result) else bool(result)
+                    metrics.event("collector.stop_decider", should_stop=should_stop, elapsed=elapsed)
                     if should_stop:
                         break
                 except Exception:
