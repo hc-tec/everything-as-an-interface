@@ -22,7 +22,7 @@ class Subscription:
 class MergedEvent:
     sub_id: int
     kind: str
-    view: Any  # ResponseView or RequestView
+    view: Optional[ResponseView, RequestView]
 
 
 class NetRuleBus:
@@ -63,7 +63,8 @@ class NetRuleBus:
         metrics.inc("netrule.subscribe")
         return q
 
-    def subscribe_many(self, patterns: List[Tuple[str, str, int]] | List[Tuple[str, str]] | List[str]) -> Tuple[asyncio.Queue, Dict[int, Tuple[str, str]]]:
+    def subscribe_many(self, patterns: List[Tuple[str, str, int]] | List[Tuple[str, str]] | List[str]) \
+            -> Tuple[asyncio.Queue, Dict[int, Tuple[str, str]]]:
         """Subscribe multiple patterns and return a merged queue with (sub_id, kind, view).
 
         patterns elements can be:
