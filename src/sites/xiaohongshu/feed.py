@@ -24,7 +24,7 @@ class XiaohongshuFeedService(FeedService[FavoriteItem]):
         super().__init__()
         self.cfg = FeedCollectionConfig()
         self._bus: Optional[NetRuleBus] = None
-        self._queue: Optional[asyncio.Queue] = None
+        self._queues: List[asyncio.Queue] = []
         self._consumer: Optional[asyncio.Task] = None
 
     async def attach(self, page: Page) -> None:
@@ -34,7 +34,12 @@ class XiaohongshuFeedService(FeedService[FavoriteItem]):
         # Bind NetRuleBus and subscribe to feed responses
         self._bus = NetRuleBus()
         self._unbind = await self._bus.bind(page)
-        self._queue = self._bus.subscribe(r".*/feed", kind="response")
+        # Subscribe multiple patterns if needed
+        self._queues = [
+            self._bus.subscribe(r".*/feed", kind="response"),
+            # Example: capture another endpoint if needed
+            # self._bus.subscribe(r".*/another_endpoint", kind="response"),
+        ]
         # Start background consumer
         self._consumer = asyncio.create_task(self._consume_loop())
 
@@ -94,11 +99,17 @@ class XiaohongshuFeedService(FeedService[FavoriteItem]):
         return items
 
     async def _consume_loop(self) -> None:
-        if not self._queue:
+        if not self._queues:
             return
         while True:
             try:
-                response: ResponseView = await self._queue.get()
+                # Wait for any queue
+                pending = [asyncio.create_task(q.get()) for q in self._queues]
+                done, pending_tasks = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
+                # Cancel non-picked tasks
+                for t in pending_tasks:
+                    t.cancel()
+                response: ResponseView = next(iter(done)).result()
             except asyncio.CancelledError:
                 break
             except Exception:

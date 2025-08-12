@@ -11,6 +11,7 @@ from src.utils.net_rule_bus import NetRuleBus
 from src.sites.xiaohongshu.models import CommentItem, CommentAuthor
 from src.utils.feed_collection import record_response, FeedCollectionState
 from src.utils.net_rules import ResponseView
+from src.utils.paged_collector import PagedCollector
 
 
 class CommentsServiceDelegate:
@@ -78,7 +79,30 @@ class XiaohongshuCommentService(BaseSiteService):
                 pass
         await super().detach()
 
-    async def collect_for_note(self, note_id: str, *, max_pages: int = 5, delay_ms: int = 500, timeout_sec: int = 30) -> List[CommentItem]:
+    def _default_parser(self, note_id: str):
+        async def _parse(payload: Dict[str, Any]) -> List[CommentItem]:
+            items: List[CommentItem] = []
+            comments = payload.get("data", {}).get("comments", [])
+            for c in comments or []:
+                author = c.get("user_info", {})
+                items.append(
+                    CommentItem(
+                        id=str(c.get("id")),
+                        note_id=note_id,
+                        author=CommentAuthor(
+                            user_id=str(author.get("user_id")),
+                            username=author.get("nickname"),
+                            avatar=author.get("avatar"),
+                        ),
+                        content=c.get("content", ""),
+                        like_num=int(c.get("like_count", 0)),
+                        created_at=str(c.get("time", "")),
+                    )
+                )
+            return items
+        return _parse
+
+    async def collect_for_note(self, note_id: str, *, max_pages: Optional[int] = None, delay_ms: Optional[int] = None, timeout_sec: Optional[float] = None) -> List[CommentItem]:
         if not self.page or not self._q or not self._state:
             raise RuntimeError("Service not attached")
         self._items = []
@@ -98,94 +122,56 @@ class XiaohongshuCommentService(BaseSiteService):
         except Exception:
             pass
 
-        start = time.monotonic()
-        pages = 0
-        last_len = 0
-        extra_cfg: Dict[str, Any] = {"note_id": note_id, "max_pages": max_pages}
-
-        while pages < max_pages and (time.monotonic() - start) < timeout_sec:
-            try:
-                rv: ResponseView = await asyncio.wait_for(self._q.get(), timeout=5.0)
-            except asyncio.TimeoutError:
-                break
-
-            # Delegate observe response
-            if self._delegate and self._state:
-                try:
-                    await self._delegate.on_response(rv, self._state)
-                except Exception:
-                    pass
-
-            payload = rv.data()
-            if not isinstance(payload, dict):
-                continue
-
-            # Record raw payload into state
-            if self._state:
-                record_response(self._state, payload, rv)
-
-            # Parse comments (delegate first)
-            batch: Optional[List[CommentItem]] = None
+        # Delegate hooks for PagedCollector
+        async def _on_resp(rv: ResponseView, state: FeedCollectionState[CommentItem]) -> None:
             if self._delegate:
                 try:
-                    batch = await self._delegate.parse_comment_items(payload)
-                except Exception:
-                    batch = None
-            if batch is None:
-                batch = self._parse_comments_payload(note_id, payload)
-
-            # Post-process & append
-            if batch and self._state:
-                try:
-                    if self._delegate:
-                        batch = await self._delegate.on_items_collected(batch, self._state)
+                    await self._delegate.on_response(rv, state)
                 except Exception:
                     pass
-                self._items.extend(batch)
-                self._state.items.extend(batch)
-                if self._state.event:
-                    try:
-                        self._state.event.set()
-                    except Exception:
-                        pass
 
-            # Stop-decider check (reusing feed-like signature)
-            new_len = len(self._items)
-            if self._stop_decider and self._state:
-                try:
-                    elapsed = time.monotonic() - start
-                    new_batch = self._items[last_len:new_len]
-                    result = self._stop_decider(
-                        self.page,
-                        self._state.raw_responses,
-                        self._state.last_raw_response,
-                        self._items,
-                        new_batch,
-                        elapsed,
-                        extra_cfg,
-                        self._state.last_response_view,
-                    )
-                    should_stop = await result if asyncio.iscoroutine(result) else bool(result)
-                    if should_stop:
-                        break
-                except Exception:
-                    pass
-            last_len = new_len
-
-            pages += 1
-            # Pagination hook
+        async def _on_items(batch: List[CommentItem], state: FeedCollectionState[CommentItem]) -> List[CommentItem]:
             if self._delegate:
                 try:
-                    await self._delegate.before_next_page(pages)
+                    processed = await self._delegate.on_items_collected(batch, state)
+                    return processed
                 except Exception:
                     pass
-            # Load next
-            try:
-                await self._load_next_comments_page()
-            except Exception:
-                break
-            await asyncio.sleep(max(0.05, float(delay_ms) / 1000.0))
+            return batch
 
+        # If delegate provides a custom parser, wrap it
+        async def _parser(payload: Dict[str, Any]) -> List[CommentItem]:
+            if self._delegate:
+                try:
+                    ret = await self._delegate.parse_comment_items(payload)
+                    if ret is not None:
+                        return ret
+                except Exception:
+                    pass
+            return await self._default_parser(note_id)(payload)
+
+        cfg_timeout = timeout_sec if timeout_sec is not None else self._service_config.response_timeout_sec
+        cfg_delay = delay_ms if delay_ms is not None else self._service_config.delay_ms
+        cfg_pages = max_pages if max_pages is not None else self._service_config.max_pages
+
+        collector = PagedCollector[CommentItem](
+            page=self.page,
+            queue=self._q,
+            state=self._state,
+            parser=_parser,
+            response_timeout_sec=cfg_timeout,
+            delay_ms=cfg_delay,
+            max_pages=cfg_pages,
+            on_response=_on_resp,
+            on_items_collected=_on_items,
+        )
+
+        # Inherit stop_decider if provided
+        if self._stop_decider:
+            self._state.stop_decider = self._stop_decider
+
+        results = await collector.run(extra_config={"note_id": note_id})
+        self._items = results
         return list(self._items)
 
     async def _open_note_and_show_comments(self, note_id: str) -> None:
@@ -195,28 +181,4 @@ class XiaohongshuCommentService(BaseSiteService):
 
     async def _load_next_comments_page(self) -> None:
         # 站点具体实现：点击“更多评论”或调整 offset 参数
-        pass
-
-    def _parse_comments_payload(self, note_id: str, payload: Dict[str, Any]) -> List[CommentItem]:
-        items: List[CommentItem] = []
-        try:
-            comments = payload.get("data", {}).get("comments", [])
-            for c in comments or []:
-                author = c.get("user_info", {})
-                items.append(
-                    CommentItem(
-                        id=str(c.get("id")),
-                        note_id=note_id,
-                        author=CommentAuthor(
-                            user_id=str(author.get("user_id")),
-                            username=author.get("nickname"),
-                            avatar=author.get("avatar"),
-                        ),
-                        content=c.get("content", ""),
-                        like_num=int(c.get("like_count", 0)),
-                        created_at=str(c.get("time", "")),
-                    )
-                )
-        except Exception:
-            return []
-        return items 
+        pass 

@@ -15,11 +15,31 @@ T = TypeVar("T")
 StopDecider = Callable[[Page, List[Any], Optional[Any], List[T], List[T], float, Dict[str, Any], Optional[ResponseView]], bool | Awaitable[bool]]
 
 
+@dataclass
+class ServiceConfig:
+    """Common configuration for site services.
+
+    Attributes:
+        response_timeout_sec: Max seconds to wait for a response event.
+        delay_ms: Delay between pages/batches/polls (when applicable).
+        queue_maxsize: Optional queue size hint for internal buffers.
+        concurrency: Desired concurrency for request generation (advisory).
+        max_pages: Optional page limit for paginated collectors.
+    """
+
+    response_timeout_sec: float = 5.0
+    delay_ms: int = 500
+    queue_maxsize: Optional[int] = None
+    concurrency: int = 1
+    max_pages: Optional[int] = None
+
+
 class BaseSiteService(ABC):
     """Base for all site services (feed/detail/publish etc.)."""
 
     def __init__(self) -> None:
         self._unbind: Optional[Callable[[], None]] = None
+        self._service_config: ServiceConfig = ServiceConfig()
 
     @abstractmethod
     async def attach(self, page: Page) -> None:
@@ -34,6 +54,9 @@ class BaseSiteService(ABC):
                 unbind()
             except Exception:
                 pass
+
+    def set_service_config(self, cfg: ServiceConfig) -> None:  # pragma: no cover - simple setter
+        self._service_config = cfg
 
 
 # Delegate interfaces for service customization
