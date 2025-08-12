@@ -7,6 +7,7 @@ from typing import Any, Awaitable, Callable, Dict, Generic, List, Optional, Sequ
 from playwright.async_api import Page
 
 from .net_rules import ResponseView
+from .collection_common import scroll_page_once as _scroll_page_once, deduplicate_by as _deduplicate_by
 
 T = TypeVar("T")
 
@@ -67,18 +68,6 @@ def reset_state(state: FeedCollectionState[Any]) -> None:
             state.event = asyncio.Event()
 
 
-async def scroll_page_once(page: Page, *, pause_ms: int = 800) -> bool:
-    """Scroll the page once and return True if the scroll height increased."""
-    try:
-        last_height = await page.evaluate("document.documentElement.scrollHeight")
-        await page.evaluate("window.scrollTo(0, document.documentElement.scrollHeight)")
-        await asyncio.sleep(max(0.05, float(pause_ms) / 1000.0))
-        new_height = await page.evaluate("document.documentElement.scrollHeight")
-        return bool(new_height and last_height and new_height > last_height)
-    except Exception:
-        return False
-
-
 def record_response(state: FeedCollectionState[Any], data: Any, response_view: Optional[ResponseView] = None) -> None:
     """Record a raw response and wake the collector loop."""
     try:
@@ -92,22 +81,6 @@ def record_response(state: FeedCollectionState[Any], data: Any, response_view: O
             state.event.set()
         except Exception:
             pass
-
-
-def deduplicate_by(items: Sequence[T], key_fn: Callable[[T], Optional[str]]) -> List[T]:
-    """Return a new list with items deduplicated by key_fn, keeping order."""
-    seen: set[str] = set()
-    results: List[T] = []
-    for it in items:
-        try:
-            key = key_fn(it)
-        except Exception:
-            key = None
-        if not key or key in seen:
-            continue
-        seen.add(key)
-        results.append(it)
-    return results
 
 
 async def run_network_collection(
@@ -196,9 +169,9 @@ async def run_network_collection(
                 except Exception:
                     pass
             else:
-                await scroll_page_once(state.page, pause_ms=cfg.scroll_pause_ms)
+                await _scroll_page_once(state.page, pause_ms=cfg.scroll_pause_ms)
 
     # Deduplicate
     if key_fn is None:
         key_fn = lambda it: getattr(it, "id", None)  # type: ignore[return-value]
-    return deduplicate_by(state.items, key_fn) 
+    return _deduplicate_by(state.items, key_fn) 

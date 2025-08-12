@@ -11,6 +11,7 @@ T = TypeVar("T")
 ExtractOnce = Callable[[Page, List[T]], Awaitable[int] | int]
 KeyFn = Callable[[T], Optional[str]]
 
+from .collection_common import scroll_page_once as _scroll_page_once, deduplicate_by as _deduplicate_by
 
 @dataclass
 class DomCollectionConfig:
@@ -25,32 +26,6 @@ class DomCollectionConfig:
 class DomCollectionState(Generic[T]):
     page: Page
     items: List[T] = field(default_factory=list)
-
-
-async def scroll_page_once(page: Page, *, pause_ms: int = 800) -> bool:
-    try:
-        last_height = await page.evaluate("document.documentElement.scrollHeight")
-        await page.evaluate("window.scrollTo(0, document.documentElement.scrollHeight)")
-        await asyncio.sleep(max(0.05, float(pause_ms) / 1000.0))
-        new_height = await page.evaluate("document.documentElement.scrollHeight")
-        return bool(new_height and last_height and new_height > last_height)
-    except Exception:
-        return False
-
-
-def deduplicate_by(items: Sequence[T], key_fn: KeyFn) -> List[T]:
-    seen: set[str] = set()
-    results: List[T] = []
-    for it in items:
-        try:
-            key = key_fn(it)
-        except Exception:
-            key = None
-        if not key or key in seen:
-            continue
-        seen.add(key)
-        results.append(it)
-    return results
 
 
 async def run_dom_collection(
@@ -91,10 +66,10 @@ async def run_dom_collection(
             break
 
         if cfg.auto_scroll:
-            increased = await scroll_page_once(state.page, pause_ms=cfg.scroll_pause_ms)
+            increased = await _scroll_page_once(state.page, pause_ms=cfg.scroll_pause_ms)
             if not increased:
                 idle_rounds += 1
 
     if key_fn is None:
         key_fn = lambda it: getattr(it, "id", None)  # type: ignore[return-value]
-    return deduplicate_by(state.items, key_fn) 
+    return _deduplicate_by(state.items, key_fn) 
