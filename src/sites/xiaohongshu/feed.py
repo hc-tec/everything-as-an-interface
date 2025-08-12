@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 from typing import Any, Dict, List, Optional
 
 from playwright.async_api import Page
@@ -11,8 +12,10 @@ from src.utils.feed_collection import (
     FeedCollectionState,
     run_network_collection,
     record_response,
+    scroll_page_once,
 )
-from src.utils.net_rules import net_rule_match, bind_network_rules, ResponseView, RuleContext
+from src.utils.net_rule_bus import NetRuleBus
+from src.utils.net_rules import ResponseView
 from src.plugins.xiaohongshu import FavoriteItem, AuthorInfo, NoteStatistics
 
 
@@ -20,14 +23,26 @@ class XiaohongshuFeedService(FeedService[FavoriteItem]):
     def __init__(self) -> None:
         super().__init__()
         self.cfg = FeedCollectionConfig()
+        self._bus: Optional[NetRuleBus] = None
+        self._queues: List[asyncio.Queue] = []
+        self._consumer: Optional[asyncio.Task] = None
 
     async def attach(self, page: Page) -> None:
         self.page = page
         self.state = FeedCollectionState[FavoriteItem](page=page, event=asyncio.Event())
 
-        # Bind network rules locally to service
-        # We attach handlers onto self (service) so they can update state directly
-        self._unbind = await bind_network_rules(page, self)
+        # Bind NetRuleBus and subscribe to feed responses
+        self._bus = NetRuleBus()
+        self._unbind = await self._bus.bind(page)
+        # Subscribe multiple patterns if needed
+        self._queues = [
+            self._bus.subscribe(r".*/feed", kind="response"),
+            # Example: capture another endpoint if needed
+            # self._bus.subscribe(r".*/another_endpoint", kind="response"),
+        ]
+        # Start background consumer
+        self._consumer = asyncio.create_task(self._consume_loop())
+
         # Delegate hook
         if self._delegate:
             try:
@@ -42,6 +57,15 @@ class XiaohongshuFeedService(FeedService[FavoriteItem]):
                 await self._delegate.on_detach()
             except Exception:
                 pass
+        # Stop consumer
+        if self._consumer:
+            try:
+                self._consumer.cancel()
+                with contextlib.suppress(asyncio.CancelledError):
+                    await self._consumer
+            except Exception:
+                pass
+            self._consumer = None
         await super().detach()
 
     def set_stop_decider(self, decider) -> None:
@@ -59,21 +83,46 @@ class XiaohongshuFeedService(FeedService[FavoriteItem]):
             if args.goto_first:
                 await args.goto_first()
 
+        async def on_scroll() -> None:
+            try:
+                await scroll_page_once(self.page, pause_ms=self.cfg.scroll_pause_ms)
+            except Exception:
+                pass
+
         items = await run_network_collection(
             self.state,
             self.cfg,
             extra_config=args.extra_config or {},
             goto_first=goto_first,
+            on_scroll=on_scroll,
         )
         return items
 
-    # ---------- Network rule handlers ----------
-    @net_rule_match(r".*/feed", kind="response")
-    async def _capture_feed(self, rule: RuleContext, response: ResponseView):
-        try:
-            data = response.data()
-            if not data or data.get("code") != 0:
-                return
+    async def _consume_loop(self) -> None:
+        if not self._queues:
+            return
+        while True:
+            try:
+                # Wait for any queue
+                pending = [asyncio.create_task(q.get()) for q in self._queues]
+                done, pending_tasks = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
+                # Cancel non-picked tasks
+                for t in pending_tasks:
+                    t.cancel()
+                response: ResponseView = next(iter(done)).result()
+            except asyncio.CancelledError:
+                break
+            except Exception:
+                continue
+
+            data = None
+            try:
+                data = response.data()
+            except Exception:
+                data = None
+
+            if not data or not isinstance(data, dict) or data.get("code") != 0:
+                continue
 
             # Delegate can observe raw response first
             if self._delegate and self.state:
@@ -121,8 +170,6 @@ class XiaohongshuFeedService(FeedService[FavoriteItem]):
                         self.state.event.set()
                     except Exception:
                         pass
-        except Exception:
-            pass
 
     async def _parse_items_default(self, resp_items: List[Dict[str, Any]]) -> List[FavoriteItem]:
         results: List[FavoriteItem] = []

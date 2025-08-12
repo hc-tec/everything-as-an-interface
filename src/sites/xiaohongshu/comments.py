@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import time
 from typing import Any, Dict, List, Optional
 
 from playwright.async_api import Page
@@ -8,6 +9,31 @@ from playwright.async_api import Page
 from src.sites.base import BaseSiteService
 from src.utils.net_rule_bus import NetRuleBus
 from src.sites.xiaohongshu.models import CommentItem, CommentAuthor
+from src.utils.feed_collection import record_response, FeedCollectionState
+from src.utils.net_rules import ResponseView
+from src.utils.paged_collector import PagedCollector
+
+
+class CommentsServiceDelegate:
+    """Optional delegate for customizing comment collection behavior."""
+
+    async def on_attach(self, page: Page) -> None:  # pragma: no cover - default no-op
+        return None
+
+    async def on_detach(self) -> None:  # pragma: no cover - default no-op
+        return None
+
+    async def on_response(self, response: ResponseView, state: FeedCollectionState[CommentItem]) -> None:  # pragma: no cover - default no-op
+        return None
+
+    async def parse_comment_items(self, payload: Dict[str, Any]) -> Optional[List[CommentItem]]:  # pragma: no cover - default None
+        return None
+
+    async def on_items_collected(self, items: List[CommentItem], state: FeedCollectionState[CommentItem]) -> List[CommentItem]:  # pragma: no cover - default passthrough
+        return items
+
+    async def before_next_page(self, page_index: int) -> None:  # pragma: no cover - default no-op
+        return None
 
 
 class XiaohongshuCommentService(BaseSiteService):
@@ -15,59 +41,51 @@ class XiaohongshuCommentService(BaseSiteService):
         super().__init__()
         self.page: Optional[Page] = None
         self.bus = NetRuleBus()
-        self._q = None
+        self._q: Optional[asyncio.Queue] = None
         self._items: List[CommentItem] = []
+        # Shared state borrowed from feed collection primitives for consistency
+        self._state: Optional[FeedCollectionState[CommentItem]] = None
+        self._delegate: Optional[CommentsServiceDelegate] = None
+        self._stop_decider = None
+
+    def set_delegate(self, delegate: Optional[CommentsServiceDelegate]) -> None:  # pragma: no cover - simple setter
+        self._delegate = delegate
+
+    def set_stop_decider(self, decider) -> None:  # pragma: no cover - optional support
+        """Set a stop decider with the same signature as Feed StopDecider.
+
+        page, all_raw, last_raw, all_items, last_batch, elapsed, extra_config, last_view -> bool
+        """
+        self._stop_decider = decider
 
     async def attach(self, page: Page) -> None:
         self.page = page
         self._unbind = await self.bus.bind(page)
-        # 调整正则以匹配评论接口路径（示例）
+        # 订阅评论接口（按需调整正则以适配真实路径）
         self._q = self.bus.subscribe(r".*/note/comments.*", kind="response")
-
-    async def collect_for_note(self, note_id: str, *, max_pages: int = 5, delay_ms: int = 500) -> List[CommentItem]:
-        if not self.page or not self._q:
-            raise RuntimeError("Service not attached")
-        self._items = []
-
-        # 触发评论加载（示例：点击评论按钮或构造接口请求）
-        try:
-            await self._open_note_and_show_comments(note_id)
-        except Exception:
-            pass
-
-        pages = 0
-        while pages < max_pages:
+        # 初始化 state
+        self._state = FeedCollectionState[CommentItem](page=page, event=asyncio.Event())
+        if self._delegate:
             try:
-                rv = await asyncio.wait_for(self._q.get(), timeout=5.0)
-            except asyncio.TimeoutError:
-                break
-            data = rv.data()
-            await self._parse_comments_payload(note_id, data)
-            pages += 1
-            await asyncio.sleep(max(0.05, float(delay_ms) / 1000.0))
-            # 可在此执行“下一页”动作（点击更多、修改偏移等）
-            try:
-                await self._load_next_comments_page()
+                await self._delegate.on_attach(page)
             except Exception:
-                break
-        return list(self._items)
+                pass
 
-    async def _open_note_and_show_comments(self, note_id: str) -> None:
-        # 站点具体实现：打开详情页并点击评论区域
-        # 占位：用户可通过外部传入 goto_first 替代
-        pass
+    async def detach(self) -> None:
+        if self._delegate:
+            try:
+                await self._delegate.on_detach()
+            except Exception:
+                pass
+        await super().detach()
 
-    async def _load_next_comments_page(self) -> None:
-        # 站点具体实现：点击“更多评论”或调整 offset 参数
-        pass
-
-    async def _parse_comments_payload(self, note_id: str, payload: Dict[str, Any]) -> None:
-        # 参考站点数据结构进行解析，这里做一个结构化示例
-        try:
-            items = payload.get("data", {}).get("comments", [])
-            for c in items:
+    def _default_parser(self, note_id: str):
+        async def _parse(payload: Dict[str, Any]) -> List[CommentItem]:
+            items: List[CommentItem] = []
+            comments = payload.get("data", {}).get("comments", [])
+            for c in comments or []:
                 author = c.get("user_info", {})
-                self._items.append(
+                items.append(
                     CommentItem(
                         id=str(c.get("id")),
                         note_id=note_id,
@@ -81,5 +99,86 @@ class XiaohongshuCommentService(BaseSiteService):
                         created_at=str(c.get("time", "")),
                     )
                 )
+            return items
+        return _parse
+
+    async def collect_for_note(self, note_id: str, *, max_pages: Optional[int] = None, delay_ms: Optional[int] = None, timeout_sec: Optional[float] = None) -> List[CommentItem]:
+        if not self.page or not self._q or not self._state:
+            raise RuntimeError("Service not attached")
+        self._items = []
+        # 清理 state
+        self._state.items.clear()
+        self._state.raw_responses.clear()
+        self._state.last_raw_response = None
+        self._state.last_response_view = None
+        try:
+            self._state.event.clear()
         except Exception:
-            pass 
+            self._state.event = asyncio.Event()
+
+        # 触发首屏评论加载（示例：点击评论按钮或构造接口请求）
+        try:
+            await self._open_note_and_show_comments(note_id)
+        except Exception:
+            pass
+
+        # Delegate hooks for PagedCollector
+        async def _on_resp(rv: ResponseView, state: FeedCollectionState[CommentItem]) -> None:
+            if self._delegate:
+                try:
+                    await self._delegate.on_response(rv, state)
+                except Exception:
+                    pass
+
+        async def _on_items(batch: List[CommentItem], state: FeedCollectionState[CommentItem]) -> List[CommentItem]:
+            if self._delegate:
+                try:
+                    processed = await self._delegate.on_items_collected(batch, state)
+                    return processed
+                except Exception:
+                    pass
+            return batch
+
+        # If delegate provides a custom parser, wrap it
+        async def _parser(payload: Dict[str, Any]) -> List[CommentItem]:
+            if self._delegate:
+                try:
+                    ret = await self._delegate.parse_comment_items(payload)
+                    if ret is not None:
+                        return ret
+                except Exception:
+                    pass
+            return await self._default_parser(note_id)(payload)
+
+        cfg_timeout = timeout_sec if timeout_sec is not None else self._service_config.response_timeout_sec
+        cfg_delay = delay_ms if delay_ms is not None else self._service_config.delay_ms
+        cfg_pages = max_pages if max_pages is not None else self._service_config.max_pages
+
+        collector = PagedCollector[CommentItem](
+            page=self.page,
+            queue=self._q,
+            state=self._state,
+            parser=_parser,
+            response_timeout_sec=cfg_timeout,
+            delay_ms=cfg_delay,
+            max_pages=cfg_pages,
+            on_response=_on_resp,
+            on_items_collected=_on_items,
+        )
+
+        # Inherit stop_decider if provided
+        if self._stop_decider:
+            self._state.stop_decider = self._stop_decider
+
+        results = await collector.run(extra_config={"note_id": note_id})
+        self._items = results
+        return list(self._items)
+
+    async def _open_note_and_show_comments(self, note_id: str) -> None:
+        # 站点具体实现：打开详情页并点击评论区域
+        # 占位：用户可通过外部传入 goto_first 替代（未来可扩展到 CollectArgs）
+        pass
+
+    async def _load_next_comments_page(self) -> None:
+        # 站点具体实现：点击“更多评论”或调整 offset 参数
+        pass 
