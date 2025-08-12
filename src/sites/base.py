@@ -36,6 +36,38 @@ class BaseSiteService(ABC):
                 pass
 
 
+# Delegate interfaces for service customization
+class FeedServiceDelegate(Generic[T], ABC):
+    """Optional delegate that can customize network-driven feed collection.
+
+    Users can provide a delegate to override or extend default behaviors.
+    All methods are optional to implement; default implementations are no-ops
+    and keep the built-in behavior.
+    """
+
+    async def on_attach(self, page: Page) -> None:  # pragma: no cover - default no-op
+        return None
+
+    async def on_detach(self) -> None:  # pragma: no cover - default no-op
+        return None
+
+    async def on_response(self, response: ResponseView, state: FeedCollectionState[T]) -> None:  # pragma: no cover - default no-op
+        """Called when a matching network response arrives before default parsing."""
+        return None
+
+    def should_record_response(self, payload: Any, response_view: ResponseView) -> bool:  # pragma: no cover - default yes
+        """Whether to record this payload into the state before parsing."""
+        return True
+
+    async def parse_feed_items(self, payload: Dict[str, Any]) -> Optional[List[T]]:  # pragma: no cover - default None
+        """Return parsed items from payload. Return None to use default parser."""
+        return None
+
+    async def on_items_collected(self, items: List[T], state: FeedCollectionState[T]) -> List[T]:  # pragma: no cover - default passthrough
+        """Post-process parsed items (filter/transform) before appending to state."""
+        return items
+
+
 @dataclass
 class FeedCollectArgs:
     """Arguments for a standard feed collection task."""
@@ -51,6 +83,18 @@ class FeedService(BaseSiteService, Generic[T]):
         super().__init__()
         self.page: Optional[Page] = None
         self.state: Optional[FeedCollectionState[T]] = None
+        # Optional delegate for customization
+        self._delegate: Optional[FeedServiceDelegate[T]] = None
+
+    def set_delegate(self, delegate: Optional[FeedServiceDelegate[T]]) -> None:  # pragma: no cover - simple setter
+        """Install or clear a delegate for customizing feed behavior."""
+        self._delegate = delegate
+        # If already attached, allow delegate to observe attachment
+        if delegate and self.page:
+            try:
+                asyncio.create_task(delegate.on_attach(self.page))
+            except Exception:
+                pass
 
     @abstractmethod
     def set_stop_decider(self, decider: Optional[StopDecider[T]]) -> None:  # pragma: no cover - interface

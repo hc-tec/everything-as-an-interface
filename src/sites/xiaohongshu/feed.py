@@ -28,6 +28,21 @@ class XiaohongshuFeedService(FeedService[FavoriteItem]):
         # Bind network rules locally to service
         # We attach handlers onto self (service) so they can update state directly
         self._unbind = await bind_network_rules(page, self)
+        # Delegate hook
+        if self._delegate:
+            try:
+                await self._delegate.on_attach(page)
+            except Exception:
+                pass
+
+    async def detach(self) -> None:
+        # Delegate hook (before unbind)
+        if self._delegate:
+            try:
+                await self._delegate.on_detach()
+            except Exception:
+                pass
+        await super().detach()
 
     def set_stop_decider(self, decider) -> None:
         if self.state:
@@ -59,14 +74,58 @@ class XiaohongshuFeedService(FeedService[FavoriteItem]):
             data = response.data()
             if not data or data.get("code") != 0:
                 return
-            record_response(self.state, data, response)
-            await self._parse_items(data.get("data", {}).get("items", []))
+
+            # Delegate can observe raw response first
+            if self._delegate and self.state:
+                try:
+                    await self._delegate.on_response(response, self.state)
+                except Exception:
+                    pass
+
+            # Whether to record into state.raw_responses/last_response
+            should_record = True
+            if self._delegate:
+                try:
+                    should_record = bool(self._delegate.should_record_response(data, response))
+                except Exception:
+                    should_record = True
+            if should_record and self.state:
+                record_response(self.state, data, response)
+
+            # Let delegate parse items first; if returns None, fallback to default
+            parsed: Optional[List[FavoriteItem]] = None
+            if self._delegate:
+                try:
+                    parsed = await self._delegate.parse_feed_items(data)
+                except Exception:
+                    parsed = None
+
+            if parsed is None:
+                # Default parser
+                items_payload = data.get("data", {}).get("items", [])
+                parsed = await self._parse_items_default(items_payload)
+
+            # Post-process via delegate and append to state
+            if parsed and self.state:
+                try:
+                    if self._delegate:
+                        parsed = await self._delegate.on_items_collected(parsed, self.state)
+                except Exception:
+                    pass
+                try:
+                    self.state.items.extend(parsed)
+                except Exception:
+                    pass
+                if self.state.event:
+                    try:
+                        self.state.event.set()
+                    except Exception:
+                        pass
         except Exception:
             pass
 
-    async def _parse_items(self, resp_items: List[Dict[str, Any]]) -> None:
-        if not self.state:
-            return
+    async def _parse_items_default(self, resp_items: List[Dict[str, Any]]) -> List[FavoriteItem]:
+        results: List[FavoriteItem] = []
         for note_item in resp_items or []:
             try:
                 id = note_item["id"]
@@ -89,7 +148,7 @@ class XiaohongshuFeedService(FeedService[FavoriteItem]):
                     chat_num=str(interact.get("comment_count", 0)),
                 )
                 images = [image.get("url_default") for image in note_card.get("image_list", [])]
-                self.state.items.append(
+                results.append(
                     FavoriteItem(
                         id=id,
                         title=title,
@@ -106,8 +165,4 @@ class XiaohongshuFeedService(FeedService[FavoriteItem]):
                 )
             except Exception:
                 continue
-        if self.state.event:
-            try:
-                self.state.event.set()
-            except Exception:
-                pass 
+        return results 
