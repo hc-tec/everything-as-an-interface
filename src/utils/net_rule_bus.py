@@ -17,6 +17,13 @@ class Subscription:
     queue: asyncio.Queue
 
 
+@dataclass
+class MergedEvent:
+    sub_id: int
+    kind: str
+    view: Any  # ResponseView or RequestView
+
+
 class NetRuleBus:
     """A centralized bus for capturing network traffic and emitting events to subscribers.
 
@@ -27,6 +34,8 @@ class NetRuleBus:
         self._subs: List[Subscription] = []
         self._bound = False
         self._page: Optional[Page] = None
+        self._next_id: int = 1
+        self._subs_with_ids: Dict[int, Subscription] = {}
 
     async def bind(self, page: Page) -> Callable[[], None]:
         if self._bound:
@@ -48,8 +57,50 @@ class NetRuleBus:
     def subscribe(self, pattern: str, *, kind: str = "response", flags: int = 0) -> asyncio.Queue:
         compiled = re.compile(pattern, flags)
         q: asyncio.Queue = asyncio.Queue()
-        self._subs.append(Subscription(pattern=compiled, kind=kind, queue=q))
+        sub = Subscription(pattern=compiled, kind=kind, queue=q)
+        self._subs.append(sub)
         return q
+
+    def subscribe_many(self, patterns: List[Tuple[str, str, int]] | List[Tuple[str, str]] | List[str]) -> Tuple[asyncio.Queue, Dict[int, Tuple[str, str]]]:
+        """Subscribe multiple patterns and return a merged queue with (sub_id, kind, view).
+
+        patterns elements can be:
+          - (pattern, kind, flags)
+          - (pattern, kind)  # flags defaults to 0
+          - pattern (str)    # kind defaults to "response", flags=0
+        """
+        merged: asyncio.Queue = asyncio.Queue()
+        id_to_meta: Dict[int, Tuple[str, str]] = {}
+
+        for p in patterns:
+            if isinstance(p, str):
+                pat, kind, flags = p, "response", 0
+            elif isinstance(p, tuple):
+                if len(p) == 2:
+                    pat, kind = p
+                    flags = 0
+                else:
+                    pat, kind, flags = p
+            else:
+                continue
+            compiled = re.compile(pat, flags)
+            sub_id = self._next_id
+            self._next_id += 1
+            q: asyncio.Queue = asyncio.Queue()
+            sub = Subscription(pattern=compiled, kind=kind, queue=q)
+            self._subs.append(sub)
+            self._subs_with_ids[sub_id] = sub
+
+            async def forward(src_q: asyncio.Queue, sid: int, k: str) -> None:
+                while True:
+                    item = await src_q.get()
+                    await merged.put(MergedEvent(sub_id=sid, kind=k, view=item))
+
+            # Background forwarders
+            asyncio.create_task(forward(q, sub_id, kind))
+            id_to_meta[sub_id] = (pat, kind)
+
+        return merged, id_to_meta
 
     async def _on_request(self, req: Request) -> None:
         url = getattr(req, "url", "")

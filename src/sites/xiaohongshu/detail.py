@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Generic, TypeVar
 
 from playwright.async_api import Page
 
-from src.sites.base import BaseSiteService
+from src.sites.base import BaseSiteService, ServiceDelegate
 from src.utils.net_rule_bus import NetRuleBus
 from src.sites.xiaohongshu.models import NoteDetail, SearchAuthor
 from src.utils.net_rules import ResponseView
@@ -50,9 +50,9 @@ class DetailService(BaseSiteService, Generic[T]):
     def __init__(self) -> None:
         super().__init__()
         self.page: Optional[Page] = None
-        self._delegate: Optional[DetailServiceDelegate[T]] = None
+        self._delegate: Optional[ServiceDelegate[T]] = None
 
-    def set_delegate(self, delegate: Optional[DetailServiceDelegate[T]]) -> None:  # pragma: no cover - simple setter
+    def set_delegate(self, delegate: Optional[ServiceDelegate[T]]) -> None:  # pragma: no cover - simple setter
         self._delegate = delegate
 
     @abstractmethod
@@ -127,7 +127,8 @@ class XiaohongshuDetailService(DetailService[NoteDetail]):
             await self._navigate_to_note(note_id)
             
             # Wait for detail response
-            timeout = args.extra_config.get("timeout", 10.0) if args.extra_config else 10.0
+            default_to = self._service_config.response_timeout_sec or 10.0
+            timeout = args.extra_config.get("timeout", default_to) if args.extra_config else default_to
             try:
                 response_view: ResponseView = await asyncio.wait_for(self._detail_queue.get(), timeout=timeout)
                 if self._delegate:
@@ -144,7 +145,7 @@ class XiaohongshuDetailService(DetailService[NoteDetail]):
             detail = None
             if self._delegate:
                 try:
-                    detail = await self._delegate.parse_detail(note_id, data)
+                    detail = await self._delegate.parse_single(note_id, data)
                 except Exception:
                     detail = None
             if detail is None:

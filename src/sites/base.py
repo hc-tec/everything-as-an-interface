@@ -25,6 +25,9 @@ class ServiceConfig:
         queue_maxsize: Optional queue size hint for internal buffers.
         concurrency: Desired concurrency for request generation (advisory).
         max_pages: Optional page limit for paginated collectors.
+        scroll_pause_ms: Pause after each scroll, in milliseconds.
+        max_idle_rounds: Stop after this many consecutive idle rounds (for DOM collectors or custom loops).
+        max_items: Optional item limit (applies where relevant).
     """
 
     response_timeout_sec: float = 5.0
@@ -32,6 +35,9 @@ class ServiceConfig:
     queue_maxsize: Optional[int] = None
     concurrency: int = 1
     max_pages: Optional[int] = None
+    scroll_pause_ms: int = 800
+    max_idle_rounds: int = 2
+    max_items: Optional[int] = None
 
 
 class BaseSiteService(ABC):
@@ -59,13 +65,11 @@ class BaseSiteService(ABC):
         self._service_config = cfg
 
 
-# Delegate interfaces for service customization
-class FeedServiceDelegate(Generic[T], ABC):
-    """Optional delegate that can customize network-driven feed collection.
+# Unified delegate interface
+class ServiceDelegate(Generic[T], ABC):
+    """Unified delegate for all services.
 
-    Users can provide a delegate to override or extend default behaviors.
-    All methods are optional to implement; default implementations are no-ops
-    and keep the built-in behavior.
+    Hooks are optional; default implementations are no-ops to preserve built-in behavior.
     """
 
     async def on_attach(self, page: Page) -> None:  # pragma: no cover - default no-op
@@ -74,21 +78,29 @@ class FeedServiceDelegate(Generic[T], ABC):
     async def on_detach(self) -> None:  # pragma: no cover - default no-op
         return None
 
-    async def on_response(self, response: ResponseView, state: FeedCollectionState[T]) -> None:  # pragma: no cover - default no-op
-        """Called when a matching network response arrives before default parsing."""
+    async def on_response(self, response: ResponseView, state: Optional[FeedCollectionState[T]]) -> None:  # pragma: no cover - default no-op
         return None
 
     def should_record_response(self, payload: Any, response_view: ResponseView) -> bool:  # pragma: no cover - default yes
-        """Whether to record this payload into the state before parsing."""
         return True
 
-    async def parse_feed_items(self, payload: Dict[str, Any]) -> Optional[List[T]]:  # pragma: no cover - default None
-        """Return parsed items from payload. Return None to use default parser."""
+    async def parse_items(self, payload: Dict[str, Any]) -> Optional[List[T]]:  # pragma: no cover - default None
         return None
 
-    async def on_items_collected(self, items: List[T], state: FeedCollectionState[T]) -> List[T]:  # pragma: no cover - default passthrough
-        """Post-process parsed items (filter/transform) before appending to state."""
+    async def parse_single(self, item_id: str, payload: Dict[str, Any]) -> Optional[T]:  # pragma: no cover - default None
+        return None
+
+    async def on_items_collected(self, items: List[T], state: Optional[FeedCollectionState[T]]) -> List[T]:  # pragma: no cover - default passthrough
         return items
+
+
+# Backward-compatible aliases (no additional members)
+class FeedServiceDelegate(ServiceDelegate[T]):
+    pass
+
+
+class DetailServiceDelegate(ServiceDelegate[T]):
+    pass
 
 
 @dataclass
@@ -107,9 +119,9 @@ class FeedService(BaseSiteService, Generic[T]):
         self.page: Optional[Page] = None
         self.state: Optional[FeedCollectionState[T]] = None
         # Optional delegate for customization
-        self._delegate: Optional[FeedServiceDelegate[T]] = None
+        self._delegate: Optional[ServiceDelegate[T]] = None
 
-    def set_delegate(self, delegate: Optional[FeedServiceDelegate[T]]) -> None:  # pragma: no cover - simple setter
+    def set_delegate(self, delegate: Optional[ServiceDelegate[T]]) -> None:  # pragma: no cover - simple setter
         """Install or clear a delegate for customizing feed behavior."""
         self._delegate = delegate
         # If already attached, allow delegate to observe attachment
