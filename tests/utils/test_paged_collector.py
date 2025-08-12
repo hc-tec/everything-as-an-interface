@@ -1,8 +1,8 @@
 import asyncio
 import pytest
 
-from src.utils.paged_collector import PagedCollector
-from src.utils.feed_collection import FeedCollectionState
+from src.services.paged_collector import PagedCollector
+from src.services.xiaohongshu.collections.note_net_collection import FeedCollectionState
 from src.utils.net_rules import ResponseView
 
 

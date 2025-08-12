@@ -10,13 +10,12 @@ from playwright.async_api import ElementHandle
 from src.core.task_config import TaskConfig
 
 from ..plugins.base import BasePlugin
-from ..utils.browser import BrowserAutomation
 from ..utils.async_utils import wait_until_result
-from ..utils.net_rules import net_rule_match, bind_network_rules, ResponseView, RuleContext, RequestView
+from ..utils.net_rules import net_rule_match, bind_network_rules, ResponseView, RuleContext
 from ..utils import Mp4DownloadSession
 from .registry import register_plugin
 from ..core.plugin_context import PluginContext
-from ..utils.feed_collection import (
+from src.services.xiaohongshu.collections.note_net_collection import (
     FeedCollectionConfig,
     FeedCollectionState,
     run_network_collection,

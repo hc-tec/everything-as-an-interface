@@ -6,7 +6,7 @@ from typing import Any, Awaitable, Callable, Dict, Generic, List, Optional, Type
 from playwright.async_api import Page
 
 from .collection_common import scroll_page_once as _scroll_page_once, deduplicate_by as _deduplicate_by
-from .metrics import metrics
+from src.utils.metrics import metrics
 
 T = TypeVar("T")
 

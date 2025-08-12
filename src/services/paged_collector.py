@@ -6,7 +6,7 @@ from typing import Any, Awaitable, Callable, Dict, Generic, List, Optional, Type
 
 from playwright.async_api import Page
 
-from src.utils.feed_collection import FeedCollectionState, record_response
+from src.services.xiaohongshu.collections.note_net_collection import FeedCollectionState, record_response
 from src.utils.net_rules import ResponseView
 from src.utils.metrics import metrics
 

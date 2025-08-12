@@ -15,13 +15,13 @@ from src.core.plugin_context import PluginContext
 from src.core.task_config import TaskConfig
 from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
-from src.sites.base import FeedCollectArgs, ServiceConfig
-from src.sites.xiaohongshu import (
+from src.services.base import FeedCollectArgs
+from src.services.xiaohongshu import (
     XiaohongshuCommentService,
     XiaohongshuFeedService,
 )
 from src.utils import wait_until_result
-from src.utils.feed_collection import FeedCollectionConfig
+from src.services.xiaohongshu.collections.note_net_collection import FeedCollectionConfig
 
 logger = logging.getLogger("plugin.xiaohongshu_v2")
 

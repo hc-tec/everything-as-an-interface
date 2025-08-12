@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass, field
-from typing import Any, Awaitable, Callable, Dict, Generic, List, Optional, Sequence, TypeVar
+from typing import Awaitable, Callable, Generic, List, Optional, TypeVar
 
 from playwright.async_api import Page
 
@@ -11,8 +11,8 @@ T = TypeVar("T")
 ExtractOnce = Callable[[Page, List[T]], Awaitable[int] | int]
 KeyFn = Callable[[T], Optional[str]]
 
-from .collection_common import scroll_page_once as _scroll_page_once, deduplicate_by as _deduplicate_by
-from .collection_loop import run_generic_collection
+from src.services.collection_common import scroll_page_once as _scroll_page_once
+from src.services.collection_loop import run_generic_collection
 
 @dataclass
 class DomCollectionConfig:

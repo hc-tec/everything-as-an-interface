@@ -1,17 +1,16 @@
 from __future__ import annotations
 
 import asyncio
-import time
 from typing import Any, Dict, List, Optional
 
 from playwright.async_api import Page
 
-from src.sites.base import BaseSiteService
+from src.services.base import BaseSiteService
 from src.utils.net_rule_bus import NetRuleBus
-from src.sites.xiaohongshu.models import CommentItem, CommentAuthor
-from src.utils.feed_collection import record_response, FeedCollectionState
+from src.services.xiaohongshu.models import CommentItem, CommentAuthor
+from src.services.xiaohongshu.collections.note_net_collection import FeedCollectionState
 from src.utils.net_rules import ResponseView
-from src.utils.paged_collector import PagedCollector
+from src.services.paged_collector import PagedCollector
 
 
 class CommentsServiceDelegate:

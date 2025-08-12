@@ -15,18 +15,17 @@ Run this example:
 
 import asyncio
 import logging
-from typing import List
 
 from src.core.orchestrator import Orchestrator
 from src.core.plugin_context import PluginContext
 from src.core.task_config import TaskConfig
-from src.sites.base import FeedCollectArgs, PublishContent
-from src.sites.xiaohongshu import (
+from src.services.base import FeedCollectArgs, PublishContent
+from src.services.xiaohongshu import (
     XiaohongshuCommentService,
     XiaohongshuDetailService,
     XiaohongshuFeedService,
 )
-from src.utils.feed_collection import FeedCollectionConfig
+from src.services.xiaohongshu.collections.note_net_collection import FeedCollectionConfig
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

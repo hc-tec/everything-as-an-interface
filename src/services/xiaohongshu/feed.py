@@ -6,14 +6,13 @@ from typing import Any, Dict, List, Optional
 
 from playwright.async_api import Page
 
-from src.sites.base import FeedService, FeedCollectArgs, ServiceDelegate
-from src.utils.feed_collection import (
+from src.services.base import FeedService, FeedCollectArgs
+from src.services.xiaohongshu.collections.note_net_collection import (
     FeedCollectionConfig,
     FeedCollectionState,
     run_network_collection,
     record_response,
 )
-from src.utils.collection_common import scroll_page_once
 from src.utils.net_rule_bus import NetRuleBus, MergedEvent
 from src.utils.net_rules import ResponseView
 from src.plugins.xiaohongshu import FavoriteItem, AuthorInfo, NoteStatistics

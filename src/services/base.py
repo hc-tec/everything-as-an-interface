@@ -7,7 +7,7 @@ from typing import Any, Awaitable, Callable, Dict, Generic, List, Optional, Type
 
 from playwright.async_api import Page
 
-from src.utils.feed_collection import FeedCollectionConfig, FeedCollectionState
+from src.services.xiaohongshu.collections.note_net_collection import FeedCollectionConfig, FeedCollectionState
 from src.utils.net_rules import ResponseView
 
 T = TypeVar("T")

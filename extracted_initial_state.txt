@@ -1,0 +1,496 @@
+{
+                "global": {
+                    "appSettings": {
+                        "notificationInterval": 30,
+                        "prefetchTimeout": 3001,
+                        "prefetchRedisExpires": 259200000,
+                        "searchFilterGuideConfig": {
+                            "maxDailyShow": 1,
+                            "maxTotalShow": 3,
+                            "showInterval": 1,
+                            "validDays": 15,
+                            "autoCloseDelay": 5000
+                        },
+                        "retryFeeds": true,
+                        "grayModeConfig": {
+                            "global": false,
+                            "dateRange": ["2023-08-01 00:00:00", "2023-08-19 23:59:59"],
+                            "greyRule": {
+                                "layout": {
+                                    "enable": false,
+                                    "pages": ["Explore"]
+                                },
+                                "pages": ["Explore"]
+                            },
+                            "disableLikeNotes": ["64ce36f7000000000c036ba5"],
+                            "disableSearchHint": false
+                        },
+                        "NIO": true,
+                        "ICPInfoList": [{
+                            "label": "沪ICP备13030189号",
+                            "link": "\u002F\u002Fbeian.miit.gov.cn\u002F",
+                            "title": "小红书_沪ICP备"
+                        }, {
+                            "label": "营业执照",
+                            "link": "\u002F\u002Ffe-video-qc.xhscdn.com\u002Ffe-platform\u002F5581076bd6b6af2e0e943abb024ad0e16f2ebff6.pdf",
+                            "title": "小红书_营业执照"
+                        }, {
+                            "label": "2024沪公网安备31010102002533号",
+                            "link": "\u002F\u002Fwww.beian.gov.cn\u002Fportal\u002FregisterSystemInfo?recordcode=31010102002533",
+                            "title": "小红书_沪公网安备"
+                        }, {
+                            "label": "增值电信业务经营许可证：沪B2-20150021",
+                            "link": "\u002F\u002Ffe-video-qc.xhscdn.com\u002Ffe-platform-file\u002F104101b831hhkkll23u0678gtks7tu70004en2n231udpe",
+                            "title": "小红书_网文"
+                        }, {
+                            "label": "医疗器械网络交易服务第三方平台备案：(沪)网械平台备字[2019]第00006号",
+                            "link": "\u002F\u002Ffe-video-qc.xhscdn.com\u002Ffe-platform\u002F410dce57bc12a6d7e5808060e47644fbe46f68ff.pdf",
+                            "title": "小红书_医疗器械网络交易服务"
+                        }, {
+                            "label": "互联网药品信息服务资格证书：(沪)-经营性-2023-0144",
+                            "link": "\u002F\u002Ffe-video-qc.xhscdn.com\u002Ffe-platform\u002Ff37a08cacc088061beb38329c387c32fc48fc6fe.pdf",
+                            "title": "小红书_互联网药品信息服务"
+                        }, {
+                            "label": "违法不良信息举报电话：4006676810",
+                            "link": "\u002F\u002Fwww.shjbzx.cn",
+                            "title": "小红书_上海市互联网举报中心"
+                        }, {
+                            "label": "上海市互联网举报中心",
+                            "link": "\u002F\u002Fwww.shjbzx.cn",
+                            "title": "小红书_上海市互联网举报中心"
+                        }, {
+                            "label": "网上有害信息举报专区",
+                            "link": "\u002F\u002Fwww.12377.cn",
+                            "title": "网上有害信息举报专区"
+                        }, {
+                            "label": "自营经营者信息",
+                            "link": "\u002F\u002Fdc.xhscdn.com\u002F06c2adb0-b353-11e9-9d0c-7be9ff8961c1\u002F自营经营者信息公示.pdf",
+                            "title": "小红书_沪公网安备"
+                        }, {
+                            "label": "网络文化经营许可证：沪网文(2024)1344-086号",
+                            "link": "\u002F\u002Ffe-video-qc.xhscdn.com\u002Ffe-platform\u002F7970f6e8b70aedc995ba273d04b6b6751abcd63c.pdf",
+                            "title": "小红书_网络文化经营许可"
+                        }, {
+                            "label": "个性化推荐算法 网信算备310101216601302230019号",
+                            "link": "https:\u002F\u002Fbeian.cac.gov.cn\u002Fapi\u002Fstatic\u002FfileUpload\u002FprincipalOrithm\u002Fadditional\u002Fuser_c015445c-80ac-45f7-94d7-3871e961b1fe_d4425f3b-7f35-45af-b8d4-badd4424d6d5.pdf"
+                        }],
+                        "disableBanAlert": "false",
+                        "showAdBlockAlert": 0
+                    },
+                    "supportWebp": true,
+                    "serverTime": 1755007935328,
+                    "grayMode": false,
+                    "referer": "",
+                    "pwaAddDesktopPrompt": undefined,
+                    "firstVisitUrl": undefined,
+                    "easyAccessModalVisible": {
+                        "addDesktopGuide": false,
+                        "collectGuide": false,
+                        "keyboardList": false,
+                        "miniWindowGuide": false
+                    },
+                    "currentLayout": "default",
+                    "fullscreenLocking": false,
+                    "feedbackPopupVisible": false,
+                    "trackFps": false,
+                    "supportAVIF": true,
+                    "imgFormatCollect": {
+                        "ssr": ["jpg", "webp", "avif"],
+                        "csr": ["jpg"]
+                    },
+                    "isUndertake": false
+                },
+                "user": {
+                    "loggedIn": true,
+                    "activated": false,
+                    "userInfo": {
+                        "guest": false,
+                        "red_id": "9915703740",
+                        "user_id": "650475450000000016039087",
+                        "nickname": "慕尘嚣",
+                        "desc": "还没有简介",
+                        "gender": 0,
+                        "images": "https:\u002F\u002Fsns-avatar-qc.xhscdn.com\u002Favatar\u002F1040g2jo30q7fqc9cng605p84el2ln447rqvtutg?imageView2\u002F2\u002Fw\u002F360\u002Fformat\u002Fwebp",
+                        "imageb": "https:\u002F\u002Fsns-avatar-qc.xhscdn.com\u002Favatar\u002F1040g2jo30q7fqc9cng605p84el2ln447rqvtutg?imageView2\u002F2\u002Fw\u002F540\u002Fformat\u002Fwebp",
+                        "userId": "650475450000000016039087",
+                        "redId": "9915703740"
+                    },
+                    "follow": [],
+                    "userPageData": {},
+                    "activeTab": {
+                        "key": 0,
+                        "index": 0,
+                        "query": "note",
+                        "label": "笔记",
+                        "lock": false,
+                        "subTabs": null,
+                        "feedType": 0
+                    },
+                    "notes": [[], [], [], []],
+                    "isFetchingNotes": [false, false, false, false],
+                    "tabScrollTop": [0, 0, 0, 0],
+                    "userFetchingStatus": undefined,
+                    "userNoteFetchingStatus": ["", "", "", ""],
+                    "bannedInfo": {
+                        "userId": "",
+                        "serverBanned": false,
+                        "code": 0,
+                        "showAlert": false,
+                        "reason": "",
+                        "api": ""
+                    },
+                    "firstFetchNote": true,
+                    "noteQueries": [{
+                        "num": 30,
+                        "cursor": "",
+                        "userId": "",
+                        "hasMore": true,
+                        "page": 1
+                    }, {
+                        "num": 30,
+                        "cursor": "",
+                        "userId": "",
+                        "hasMore": true,
+                        "page": 1
+                    }, {
+                        "num": 30,
+                        "cursor": "",
+                        "userId": "",
+                        "hasMore": true,
+                        "page": 1
+                    }, {
+                        "num": 30,
+                        "cursor": "",
+                        "userId": "",
+                        "hasMore": true,
+                        "page": 1
+                    }],
+                    "pageScrolled": 0,
+                    "activeSubTab": undefined,
+                    "isOwnBoard": true
+                },
+                "board": {
+                    "boardListData": {},
+                    "isLoadingBoardList": false,
+                    "boardDetails": {},
+                    "boardFeedsMap": {},
+                    "boardPageStatus": "pending",
+                    "userBoardList": []
+                },
+                "login": {
+                    "loginMethod": undefined,
+                    "from": "",
+                    "showLogin": false,
+                    "agreed": false,
+                    "showTooltip": false,
+                    "loginData": {
+                        "phone": "",
+                        "authCode": ""
+                    },
+                    "errors": {
+                        "phone": "",
+                        "authCode": ""
+                    },
+                    "qrData": {
+                        "backend": {
+                            "qrId": "",
+                            "code": ""
+                        },
+                        "image": "",
+                        "status": "un_scanned"
+                    },
+                    "counter": undefined,
+                    "inAntiSpamChecking": false,
+                    "recentFrom": "",
+                    "isObPagesVisible": false,
+                    "obPageFillInProgress": null,
+                    "verificationCodeStartTime": 0,
+                    "ageSelectValue": "21",
+                    "hobbySelectValue": [],
+                    "genderSelectValue": undefined,
+                    "inSpamCheckSendAuthCode": false,
+                    "isRegFusing": false,
+                    "loginStep": 0,
+                    "isLogining": false,
+                    "loginPadMountedTime": 0,
+                    "loginTips": "登录后推荐更懂你的笔记",
+                    "isRiskUser": false,
+                    "closeLoginModal": false,
+                    "traceId": "",
+                    "inAntiSpamCheckLogin": false
+                },
+                "feed": {
+                    "query": {
+                        "cursorScore": "",
+                        "num": 30,
+                        "refreshType": 1,
+                        "noteIndex": 0,
+                        "unreadBeginNoteId": "",
+                        "unreadEndNoteId": "",
+                        "unreadNoteCount": 0,
+                        "category": "homefeed_recommend",
+                        "searchKey": "",
+                        "needNum": 20,
+                        "imageFormats": [],
+                        "needFilterImage": false
+                    },
+                    "isFetching": false,
+                    "isError": false,
+                    "feedsWrapper": undefined,
+                    "undertakeNote": undefined,
+                    "feeds": [],
+                    "currentChannel": "homefeed_recommend",
+                    "unreadInfo": {
+                        "cachedFeeds": [],
+                        "unreadBeginNoteId": "",
+                        "unreadEndNoteId": "",
+                        "unreadNoteCount": 0,
+                        "timestamp": 0
+                    },
+                    "validIds": {
+                        "noteIds": []
+                    },
+                    "mfStatistics": {
+                        "timestamp": 0,
+                        "visitTimes": 0,
+                        "readFeedCount": 0
+                    },
+                    "channels": undefined,
+                    "isResourceDisplay": false,
+                    "isActivityEnd": false,
+                    "cancelFeedRequest": false,
+                    "prefetchId": undefined,
+                    "mfRequestMetaData": {
+                        "start": null,
+                        "lasting": null
+                    },
+                    "placeholderFeeds": [],
+                    "feedsCacheLogInfo": {
+                        "flag": "unknown",
+                        "errorCode": 0,
+                        "isHitMfCache": false,
+                        "SSRDocumentChecked": false,
+                        "SSRDocumentCheckedSuccess": false
+                    },
+                    "isUsingPlaceholderFeeds": false,
+                    "placeholderFeedsConsumed": false,
+                    "isReplace": false,
+                    "isFirstSuccessFetched": false,
+                    "imgNoteFilterStatus": "unchecked",
+                    "ssrRequestStatus": 5,
+                    "ssrRenderExtra": ""
+                },
+                "layout": {
+                    "layoutInfoReady": false,
+                    "columns": 6,
+                    "columnsWithSidebar": 6,
+                    "gap": {
+                        "vertical": 12,
+                        "horizontal": 24
+                    },
+                    "columnWidth": 0,
+                    "interactionWidth": 0,
+                    "widthType": "normal",
+                    "bufferRow": 3
+                },
+                "search": {
+                    "state": "auto",
+                    "searchContext": {
+                        "keyword": "",
+                        "page": 1,
+                        "pageSize": 20,
+                        "searchId": "",
+                        "sort": "general",
+                        "noteType": 0,
+                        "extFlags": [],
+                        "filters": [],
+                        "geo": ""
+                    },
+                    "feeds": [],
+                    "searchValue": "",
+                    "suggestions": [],
+                    "userInputSugTrigger": "",
+                    "keywordFrom": 2,
+                    "tagSearch": [],
+                    "activeTagSearch": null,
+                    "searchFeedsWrapper": undefined,
+                    "currentSearchType": "all",
+                    "hintWord": {
+                        "title": "搜索小红书",
+                        "searchWord": "小红书网页版",
+                        "hintWordRequestId": "default",
+                        "type": "default"
+                    },
+                    "sugType": null,
+                    "queryTrendingInfo": undefined,
+                    "queryTrendingParams": {
+                        "source": "ExploreNote",
+                        "searchType": "trend",
+                        "lastQuery": "",
+                        "lastQueryTime": 0,
+                        "wordRequestSituation": "FIRST_ENTER",
+                        "hintWord": "",
+                        "hintWordType": "",
+                        "hintWordRequestId": ""
+                    },
+                    "queryTrendingFetched": false,
+                    "oneboxInfo": {},
+                    "hasMore": true,
+                    "firstEnterSearchPage": true,
+                    "userLists": [],
+                    "fetchUserListsStatus": "auto",
+                    "isFetchingUserLists": false,
+                    "hasMoreUser": true,
+                    "searchCplId": undefined,
+                    "wordRequestId": undefined,
+                    "historyList": [],
+                    "searchPageHasPrevRoute": false,
+                    "searchHotSpots": [],
+                    "hotspotQueryNoteStep": "display",
+                    "hotspotQueryNoteIndex": 0,
+                    "canShowHotspotQueryNote": true,
+                    "forceHotspotSearch": false,
+                    "searchCardHotSpots": [],
+                    "isHotspotSearch": false,
+                    "filters": undefined,
+                    "activeFilters": [],
+                    "filterParams": undefined,
+                    "sessionId": "",
+                    "rootSearchId": "",
+                    "searchUserContext": {
+                        "keyword": "",
+                        "searchId": "",
+                        "page": 1,
+                        "pageSize": 15,
+                        "bizType": "web_search_user",
+                        "requestId": ""
+                    }
+                },
+                "activity": {
+                    "isOpen": false,
+                    "currentUrl": "",
+                    "entryList": []
+                },
+                "note": {
+                    "prevRouteData": {},
+                    "prevRoute": "Empty",
+                    "commentTarget": {},
+                    "isImgFullscreen": false,
+                    "gotoPage": "",
+                    "firstNoteId": "68946e5f0000000004004a29",
+                    "autoOpenNote": false,
+                    "topCommentId": "",
+                    "noteDetailMap": {
+                        "68946e5f0000000004004a29": {
+                            "comments": {
+                                "list": [],
+                                "cursor": "",
+                                "hasMore": true,
+                                "loading": false,
+                                "firstRequestFinish": false
+                            },
+                            "currentTime": 1755007935373,
+                            "note": {
+                                "xsecToken": "ABDgkOQ8NILFlyhk8fCNr9cFnRjahNE8KCM3aMNsmVbhs=",
+                                "imageList": [{
+                                    "height": 1739,
+                                    "url": "",
+                                    "infoList": [{
+                                        "imageScene": "WB_PRV",
+                                        "url": "http:\u002F\u002Fsns-webpic-qc.xhscdn.com\u002F202508122212\u002F5685d8ec79a3f6d85f4de8d04a793c47\u002F1040g2sg31kskkgvjiue049nls7mpc7hdai1dua0!nd_prv_wlteh_webp_3"
+                                    }, {
+                                        "imageScene": "WB_DFT",
+                                        "url": "http:\u002F\u002Fsns-webpic-qc.xhscdn.com\u002F202508122212\u002F34dec3e0b36c99e3ecdee4f6aec19fc8\u002F1040g2sg31kskkgvjiue049nls7mpc7hdai1dua0!nd_dft_wlteh_webp_3"
+                                    }],
+                                    "stream": {},
+                                    "livePhoto": false,
+                                    "fileId": "",
+                                    "width": 804,
+                                    "traceId": "",
+                                    "urlPre": "http:\u002F\u002Fsns-webpic-qc.xhscdn.com\u002F202508122212\u002F5685d8ec79a3f6d85f4de8d04a793c47\u002F1040g2sg31kskkgvjiue049nls7mpc7hdai1dua0!nd_prv_wlteh_webp_3",
+                                    "urlDefault": "http:\u002F\u002Fsns-webpic-qc.xhscdn.com\u002F202508122212\u002F34dec3e0b36c99e3ecdee4f6aec19fc8\u002F1040g2sg31kskkgvjiue049nls7mpc7hdai1dua0!nd_dft_wlteh_webp_3"
+                                }],
+                                "atUserList": [],
+                                "ipLocation": "湖北",
+                                "noteId": "68946e5f0000000004004a29",
+                                "type": "normal",
+                                "title": "",
+                                "desc": "去按摩几个小时才回来。我竟然觉得自己好像无所谓",
+                                "user": {
+                                    "userId": "598aad9650c4b40f12221e2d",
+                                    "nickname": "梦里花落",
+                                    "avatar": "https:\u002F\u002Fsns-avatar-qc.xhscdn.com\u002Favatar\u002F1000g2jo2fesddrmgs06g49nls7mpc7hdgnnjq7g",
+                                    "xsecToken": "AB-u1FpgIiJHA1dnh_4Qr4JdDi-rOY7GDpOm0KYz0bTTY="
+                                },
+                                "interactInfo": {
+                                    "collectedCount": "30",
+                                    "commentCount": "261",
+                                    "shareCount": "36",
+                                    "followed": false,
+                                    "relation": "none",
+                                    "liked": false,
+                                    "likedCount": "164",
+                                    "collected": false
+                                },
+                                "tagList": [],
+                                "time": 1754558047000,
+                                "lastUpdateTime": 1754558048000,
+                                "shareInfo": {
+                                    "unShare": false
+                                }
+                            }
+                        }
+                    },
+                    "serverRequestInfo": {
+                        "state": "success",
+                        "errorCode": 0,
+                        "errMsg": ""
+                    },
+                    "volume": 0,
+                    "recommendVideoMap": {},
+                    "videoFeedType": "note_source",
+                    "rate": 1,
+                    "currentNoteId": "68946e5f0000000004004a29",
+                    "forceScrollToComment": false,
+                    "mediaWidth": 450,
+                    "noteHeight": 800
+                },
+                "nioStore": {
+                    "collectionListDataSource": undefined,
+                    "error": undefined
+                },
+                "notification": {
+                    "isFetching": false,
+                    "activeTabKey": -1,
+                    "notificationCount": {
+                        "unreadCount": 0,
+                        "mentions": 0,
+                        "likes": 0,
+                        "connections": 0
+                    },
+                    "notificationMap": {
+                        "mentions": {
+                            "messageList": [],
+                            "hasMore": true,
+                            "cursor": ""
+                        },
+                        "likes": {
+                            "messageList": [],
+                            "hasMore": true,
+                            "cursor": ""
+                        },
+                        "connections": {
+                            "messageList": [],
+                            "hasMore": true,
+                            "cursor": ""
+                        }
+                    }
+                },
+                "redMoji": {
+                    "mojiData": {
+                        "version": "",
+                        "redmojiTabs": [],
+                        "redmojiMap": {}
+                    }
+                }
+            }

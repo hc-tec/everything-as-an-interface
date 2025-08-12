@@ -37841,3 +37841,161 @@ Call log:
 2025-08-11 19:25:22,982 - utils.video_downloader - INFO - [httpx] 并发分段下载完成
 2025-08-11 19:25:22,983 - utils.video_downloader - INFO - 下载完成: videos_data\20250811_192519_01e894ade4b25977010370019884ccce6c_115.mp4
 2025-08-11 19:25:28,173 - scheduler - INFO - 调度器已停止
+2025-08-11 22:20:45,710 - captcha_center - INFO - 注册验证码处理器: image
+2025-08-11 22:20:45,710 - captcha_center - INFO - 注册验证码处理器: slide
+2025-08-11 22:20:45,710 - captcha_center - INFO - 注册验证码处理器: human
+2025-08-11 22:20:45,710 - notification - INFO - 注册通知渠道: console (控制台通知)
+2025-08-11 22:20:45,747 - account_manager - INFO - 加密系统已初始化
+2025-08-11 22:20:45,747 - account_manager - INFO - 已加载 3 个平台定义
+2025-08-11 22:20:45,748 - account_manager - INFO - 已加载 4 组 Cookie, dict_keys(['1f2a15fd-5027-43ab-ba84-b82785cc6b08', '584f0f66-637b-48dc-82ae-c2e5bf0ac6a5', '3d1ab44f-71ea-48eb-96c7-5dca21cc7987', '7ad8ed9f-96a3-4ed6-aa64-4f8813f35dd0'])
+2025-08-11 22:20:45,748 - everything_as_interface - INFO - Everything As Interface 初始化完成
+2025-08-11 22:20:45,748 - subscription - INFO - 创建主题: dc04b642-3ca8-47a1-b17d-a7954c0334c0 (小红书收藏夹更新)
+2025-08-11 22:20:45,748 - subscription - INFO - 主题 dc04b642-3ca8-47a1-b17d-a7954c0334c0 添加订阅者: d4b6f496-2e0f-4c73-9128-8e74a01d7bb3
+2025-08-11 22:20:45,748 - scheduler - INFO - 添加任务: fc42bc26-e8ac-4d82-a728-3c875f291a0e (插件: xiaohongshu, 间隔: 300秒)
+2025-08-11 23:38:52,726 - captcha_center - INFO - 注册验证码处理器: image
+2025-08-11 23:38:52,726 - captcha_center - INFO - 注册验证码处理器: slide
+2025-08-11 23:38:52,726 - captcha_center - INFO - 注册验证码处理器: human
+2025-08-11 23:38:52,726 - notification - INFO - 注册通知渠道: console (控制台通知)
+2025-08-11 23:38:52,777 - account_manager - INFO - 加密系统已初始化
+2025-08-11 23:38:52,777 - account_manager - INFO - 已加载 3 个平台定义
+2025-08-11 23:38:52,778 - account_manager - INFO - 已加载 4 组 Cookie, dict_keys(['1f2a15fd-5027-43ab-ba84-b82785cc6b08', '584f0f66-637b-48dc-82ae-c2e5bf0ac6a5', '3d1ab44f-71ea-48eb-96c7-5dca21cc7987', '7ad8ed9f-96a3-4ed6-aa64-4f8813f35dd0'])
+2025-08-11 23:38:52,779 - everything_as_interface - INFO - Everything As Interface 初始化完成
+2025-08-11 23:38:52,779 - subscription - INFO - 创建主题: ceea851d-ffc6-45a1-9e2c-ea16083ee53b (小红书收藏夹更新)
+2025-08-11 23:38:52,779 - subscription - INFO - 主题 ceea851d-ffc6-45a1-9e2c-ea16083ee53b 添加订阅者: 22b88377-972e-48d2-952a-9488c2deeb97
+2025-08-11 23:38:52,779 - scheduler - INFO - 添加任务: 1dadb07e-f4a6-41c2-8b86-851e16b2b3d5 (插件: xiaohongshu, 间隔: 300秒)
+2025-08-11 23:38:53,196 - scheduler - INFO - 调度器已启动
+2025-08-11 23:38:53,197 - scheduler - INFO - 执行任务: 1dadb07e-f4a6-41c2-8b86-851e16b2b3d5 (插件: xiaohongshu)
+2025-08-11 23:38:56,358 - plugin - INFO - 插件 xiaohongshu 已配置
+2025-08-11 23:38:56,358 - plugin - INFO - 插件 xiaohongshu 已注入 Context
+2025-08-11 23:38:56,358 - plugin.xiaohongshu - INFO - 启动小红书插件
+2025-08-11 23:38:56,358 - plugin - INFO - 插件 xiaohongshu 已启动
+2025-08-11 23:39:00,290 - plugin.xiaohongshu - INFO - 使用配置的 Cookie 登录成功
+2025-08-11 23:41:05,432 - asyncio - ERROR - Exception in callback AsyncIOEventEmitter._emit_run.<locals>.callback(<Task finishe...rdInterrupt()>) at D:\Anaconda\envs\everything-as-interface\Lib\site-packages\pyee\asyncio.py:69
+handle: <Handle AsyncIOEventEmitter._emit_run.<locals>.callback(<Task finishe...rdInterrupt()>) at D:\Anaconda\envs\everything-as-interface\Lib\site-packages\pyee\asyncio.py:69>
+Traceback (most recent call last):
+  File "D:\PyCharm 2024.3.1.1\plugins\python\helpers-pro\pydevd_asyncio\pydevd_nest_asyncio.py", line 138, in run
+    return loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\PyCharm 2024.3.1.1\plugins\python\helpers-pro\pydevd_asyncio\pydevd_nest_asyncio.py", line 234, in run_until_complete
+    self._run_once()
+  File "D:\PyCharm 2024.3.1.1\plugins\python\helpers-pro\pydevd_asyncio\pydevd_nest_asyncio.py", line 286, in _run_once
+    handle._run()
+  File "D:\Anaconda\envs\everything-as-interface\Lib\asyncio\events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\asyncio\tasks.py", line 396, in __wakeup
+    self.__step()
+  File "D:\PyCharm 2024.3.1.1\plugins\python\helpers-pro\pydevd_asyncio\pydevd_nest_asyncio.py", line 394, in step
+    step_orig(task, exc)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\asyncio\tasks.py", line 303, in __step
+    self.__step_run_and_handle_result(exc)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\asyncio\tasks.py", line 314, in __step_run_and_handle_result
+    result = coro.send(None)
+             ^^^^^^^^^^^^^^^
+  File "D:\AIProject\everything-as-an-interface\src\utils\net_rules.py", line 167, in on_response
+    await rule.handler(ctx, wrapped)
+  File "D:\AIProject\everything-as-an-interface\src\plugins\xiaohongshu.py", line 486, in _get_note_details
+    if data and data.get("code", 1) == 0:
+    ^^^^
+  File "_pydevd_bundle\\pydevd_pep_669_tracing_cython.pyx", line 471, in _pydevd_bundle.pydevd_pep_669_tracing_cython.py_line_callback
+  File "_pydevd_bundle\\pydevd_pep_669_tracing_cython.pyx", line 465, in _pydevd_bundle.pydevd_pep_669_tracing_cython.py_line_callback
+  File "D:\PyCharm 2024.3.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1220, in do_wait_suspend
+    self._do_wait_suspend(thread, frame, event, arg, suspend_type, from_this_thread)
+  File "D:\PyCharm 2024.3.1.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1235, in _do_wait_suspend
+    time.sleep(0.01)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Anaconda\envs\everything-as-interface\Lib\asyncio\events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\site-packages\pyee\asyncio.py", line 77, in callback
+    self.emit("error", exc)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\site-packages\pyee\base.py", line 215, in emit
+    self._emit_handle_potential_error(event, args[0] if args else None)
+  File "D:\Anaconda\envs\everything-as-interface\Lib\site-packages\pyee\base.py", line 175, in _emit_handle_potential_error
+    raise PyeeError(f"Uncaught, unspecified 'error' event: {error}")
+pyee.base.PyeeError: Uncaught, unspecified 'error' event: 
+2025-08-11 23:41:05,448 - scheduler - INFO - 调度器已停止
+2025-08-11 23:41:08,203 - captcha_center - INFO - 注册验证码处理器: image
+2025-08-11 23:41:08,204 - captcha_center - INFO - 注册验证码处理器: slide
+2025-08-11 23:41:08,204 - captcha_center - INFO - 注册验证码处理器: human
+2025-08-11 23:41:08,204 - notification - INFO - 注册通知渠道: console (控制台通知)
+2025-08-11 23:41:08,247 - account_manager - INFO - 加密系统已初始化
+2025-08-11 23:41:08,248 - account_manager - INFO - 已加载 3 个平台定义
+2025-08-11 23:41:08,250 - account_manager - INFO - 已加载 4 组 Cookie, dict_keys(['1f2a15fd-5027-43ab-ba84-b82785cc6b08', '584f0f66-637b-48dc-82ae-c2e5bf0ac6a5', '3d1ab44f-71ea-48eb-96c7-5dca21cc7987', '7ad8ed9f-96a3-4ed6-aa64-4f8813f35dd0'])
+2025-08-11 23:41:08,250 - everything_as_interface - INFO - Everything As Interface 初始化完成
+2025-08-11 23:41:08,250 - subscription - INFO - 创建主题: 51b0b090-f79c-4d06-85e1-0ca39854b66f (小红书收藏夹更新)
+2025-08-11 23:41:08,250 - subscription - INFO - 主题 51b0b090-f79c-4d06-85e1-0ca39854b66f 添加订阅者: f2aaaeac-2192-4e8c-9975-ebd8381d6ae6
+2025-08-11 23:41:08,250 - scheduler - INFO - 添加任务: 41b06104-aabf-4e2f-82f8-20c187749de8 (插件: xiaohongshu, 间隔: 300秒)
+2025-08-11 23:41:08,638 - scheduler - INFO - 调度器已启动
+2025-08-11 23:41:08,639 - scheduler - INFO - 执行任务: 41b06104-aabf-4e2f-82f8-20c187749de8 (插件: xiaohongshu)
+2025-08-11 23:41:08,775 - plugin - INFO - 插件 xiaohongshu 已配置
+2025-08-11 23:41:08,775 - plugin - INFO - 插件 xiaohongshu 已注入 Context
+2025-08-11 23:41:08,776 - plugin.xiaohongshu - INFO - 启动小红书插件
+2025-08-11 23:41:08,776 - plugin - INFO - 插件 xiaohongshu 已启动
+2025-08-11 23:41:12,573 - plugin.xiaohongshu - INFO - 使用配置的 Cookie 登录成功
+2025-08-11 23:44:32,472 - scheduler - INFO - 调度器已停止
+2025-08-12 00:47:24,793 - captcha_center - INFO - 注册验证码处理器: image
+2025-08-12 00:47:24,793 - captcha_center - INFO - 注册验证码处理器: slide
+2025-08-12 00:47:24,793 - captcha_center - INFO - 注册验证码处理器: human
+2025-08-12 00:47:24,793 - notification - INFO - 注册通知渠道: console (控制台通知)
+2025-08-12 00:47:24,828 - account_manager - INFO - 加密系统已初始化
+2025-08-12 00:47:24,828 - account_manager - INFO - 已加载 3 个平台定义
+2025-08-12 00:47:24,829 - account_manager - INFO - 已加载 4 组 Cookie, dict_keys(['1f2a15fd-5027-43ab-ba84-b82785cc6b08', '584f0f66-637b-48dc-82ae-c2e5bf0ac6a5', '3d1ab44f-71ea-48eb-96c7-5dca21cc7987', '7ad8ed9f-96a3-4ed6-aa64-4f8813f35dd0'])
+2025-08-12 00:47:24,829 - everything_as_interface - INFO - Everything As Interface 初始化完成
+2025-08-12 00:47:24,829 - subscription - INFO - 创建主题: 162e67d8-7091-49c0-a7bd-d570964c4032 (小红书收藏夹更新)
+2025-08-12 00:47:24,829 - subscription - INFO - 主题 162e67d8-7091-49c0-a7bd-d570964c4032 添加订阅者: 9d2d4878-8f70-47da-8c94-0200136c1dab
+2025-08-12 00:47:24,830 - scheduler - INFO - 添加任务: 853a207e-787e-4cae-aa51-74ea57f8ca6f (插件: xiaohongshu, 间隔: 300秒)
+2025-08-12 00:47:25,226 - scheduler - INFO - 调度器已启动
+2025-08-12 00:47:25,226 - scheduler - INFO - 执行任务: 853a207e-787e-4cae-aa51-74ea57f8ca6f (插件: xiaohongshu)
+2025-08-12 00:47:25,343 - plugin - INFO - 插件 xiaohongshu 已配置
+2025-08-12 00:47:25,344 - plugin - INFO - 插件 xiaohongshu 已注入 Context
+2025-08-12 00:47:25,344 - plugin.xiaohongshu - INFO - 启动小红书插件
+2025-08-12 00:47:25,344 - plugin - INFO - 插件 xiaohongshu 已启动
+2025-08-12 00:47:29,048 - plugin.xiaohongshu - INFO - 使用配置的 Cookie 登录成功
+2025-08-12 00:48:25,213 - scheduler - INFO - 调度器已停止
+2025-08-12 00:48:25,668 - captcha_center - INFO - 注册验证码处理器: image
+2025-08-12 00:48:25,668 - captcha_center - INFO - 注册验证码处理器: slide
+2025-08-12 00:48:25,668 - captcha_center - INFO - 注册验证码处理器: human
+2025-08-12 00:48:25,668 - notification - INFO - 注册通知渠道: console (控制台通知)
+2025-08-12 00:48:25,703 - account_manager - INFO - 加密系统已初始化
+2025-08-12 00:48:25,703 - account_manager - INFO - 已加载 3 个平台定义
+2025-08-12 00:48:25,704 - account_manager - INFO - 已加载 4 组 Cookie, dict_keys(['1f2a15fd-5027-43ab-ba84-b82785cc6b08', '584f0f66-637b-48dc-82ae-c2e5bf0ac6a5', '3d1ab44f-71ea-48eb-96c7-5dca21cc7987', '7ad8ed9f-96a3-4ed6-aa64-4f8813f35dd0'])
+2025-08-12 00:48:25,704 - everything_as_interface - INFO - Everything As Interface 初始化完成
+2025-08-12 00:48:25,704 - subscription - INFO - 创建主题: e59b50ae-20ee-4217-8411-3327eb5a6099 (小红书收藏夹更新)
+2025-08-12 00:48:25,705 - subscription - INFO - 主题 e59b50ae-20ee-4217-8411-3327eb5a6099 添加订阅者: 7fcb1aa1-4398-4282-aa59-1a39a9d9f0cc
+2025-08-12 00:48:25,705 - scheduler - INFO - 添加任务: 1472ba71-9dec-42ff-9b8f-ce7fc97e1e39 (插件: xiaohongshu, 间隔: 300秒)
+2025-08-12 00:48:26,146 - scheduler - INFO - 调度器已启动
+2025-08-12 00:48:26,147 - scheduler - INFO - 执行任务: 1472ba71-9dec-42ff-9b8f-ce7fc97e1e39 (插件: xiaohongshu)
+2025-08-12 00:48:26,273 - plugin - INFO - 插件 xiaohongshu 已配置
+2025-08-12 00:48:26,273 - plugin - INFO - 插件 xiaohongshu 已注入 Context
+2025-08-12 00:48:26,273 - plugin.xiaohongshu - INFO - 启动小红书插件
+2025-08-12 00:48:26,273 - plugin - INFO - 插件 xiaohongshu 已启动
+2025-08-12 00:48:29,829 - plugin.xiaohongshu - INFO - 使用配置的 Cookie 登录成功
+2025-08-12 00:48:36,281 - plugin.xiaohongshu - INFO - 获取到 0 个收藏项
+2025-08-12 00:48:36,281 - plugin.xiaohongshu - INFO - 停止小红书插件
+2025-08-12 00:48:36,281 - plugin - INFO - 插件 xiaohongshu 已停止
+2025-08-12 00:48:36,310 - scheduler - INFO - 任务执行成功: 1472ba71-9dec-42ff-9b8f-ce7fc97e1e39
+2025-08-12 00:52:27,624 - scheduler - INFO - 调度器已停止
+2025-08-12 22:11:22,369 - captcha_center - INFO - 注册验证码处理器: image
+2025-08-12 22:11:22,370 - captcha_center - INFO - 注册验证码处理器: slide
+2025-08-12 22:11:22,370 - captcha_center - INFO - 注册验证码处理器: human
+2025-08-12 22:11:22,370 - notification - INFO - 注册通知渠道: console (控制台通知)
+2025-08-12 22:11:22,421 - account_manager - INFO - 加密系统已初始化
+2025-08-12 22:11:22,421 - account_manager - INFO - 已加载 3 个平台定义
+2025-08-12 22:11:22,423 - account_manager - INFO - 已加载 4 组 Cookie, dict_keys(['1f2a15fd-5027-43ab-ba84-b82785cc6b08', '584f0f66-637b-48dc-82ae-c2e5bf0ac6a5', '3d1ab44f-71ea-48eb-96c7-5dca21cc7987', '7ad8ed9f-96a3-4ed6-aa64-4f8813f35dd0'])
+2025-08-12 22:11:22,423 - everything_as_interface - INFO - Everything As Interface 初始化完成
+2025-08-12 22:11:22,423 - subscription - INFO - 创建主题: 9a8eb3fc-60dc-4df8-a5c5-383622ed04eb (小红书收藏夹更新)
+2025-08-12 22:11:22,423 - subscription - INFO - 主题 9a8eb3fc-60dc-4df8-a5c5-383622ed04eb 添加订阅者: b8e86a0b-c5aa-4802-91af-85d9c00947c3
+2025-08-12 22:11:22,423 - scheduler - INFO - 添加任务: 8ebbae05-aedb-49da-af80-36d27782cd65 (插件: xiaohongshu_v2, 间隔: 300秒)
+2025-08-12 22:11:25,326 - scheduler - INFO - 调度器已启动
+2025-08-12 22:11:25,326 - scheduler - INFO - 执行任务: 8ebbae05-aedb-49da-af80-36d27782cd65 (插件: xiaohongshu_v2)
+2025-08-12 22:11:25,442 - plugin - INFO - 插件  已配置
+2025-08-12 22:11:25,442 - plugin - INFO - 插件  已注入 Context
+2025-08-12 22:11:25,464 - plugin.xiaohongshu_v2 - INFO - All Xiaohongshu services initialized and attached
+2025-08-12 22:11:25,464 - plugin.xiaohongshu_v2 - INFO - 启动小红书插件
+2025-08-12 22:11:25,464 - plugin - INFO - 插件  已启动
+2025-08-12 22:11:29,723 - plugin.xiaohongshu_v2 - INFO - 使用配置的 Cookie 登录成功
+2025-08-12 22:11:29,724 - plugin.xiaohongshu_v2 - INFO - Collecting favorites using feed service
+2025-08-12 22:16:40,512 - scheduler - INFO - 调度器已停止

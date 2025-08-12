@@ -8,9 +8,9 @@ from typing import Any, Dict, List, Optional, Generic, TypeVar
 
 from playwright.async_api import Page
 
-from src.sites.base import BaseSiteService, ServiceDelegate
+from src.services.base import BaseSiteService, ServiceDelegate
 from src.utils.net_rule_bus import NetRuleBus
-from src.sites.xiaohongshu.models import NoteDetail, SearchAuthor
+from src.services.xiaohongshu.models import NoteDetail, SearchAuthor
 from src.utils.net_rules import ResponseView
 
 logger = logging.getLogger(__name__)

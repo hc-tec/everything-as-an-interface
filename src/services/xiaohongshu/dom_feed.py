@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
 from playwright.async_api import Page, ElementHandle
 
-from src.sites.base import FeedService, FeedCollectArgs
-from src.utils.dom_collection import (
+from src.services.base import FeedService, FeedCollectArgs
+from src.services.xiaohongshu.collections.note_dom_collection import (
     DomCollectionConfig,
     DomCollectionState,
     run_dom_collection,
