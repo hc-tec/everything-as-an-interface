@@ -61,50 +61,8 @@ class BasePlugin(ABC):
         self.page = self.ctx.page
         self.account_manager = self.ctx.account_manager
         logger.info(f"插件 {self.PLUGIN_ID} 已注入 Context")
-    
-    def set_input(self, input_data: Dict[str, Any]) -> None:
-        """
-        设置本次执行的输入参数（例如文本、链接、图片等）
-        
-        Args:
-            input_data: 输入参数字典
-        """
-        self.input_data = input_data or {}
 
-    def get_input(self) -> Dict[str, Any]:
-        """
-        获取已设置的输入参数
-        """
-        return self.input_data
-    
-    def set_accounts(self, accounts: List[Dict[str, Any]]) -> None:
-        """
-        设置可用账号列表
-        
-        Args:
-            accounts: 账号列表
-        """
-        self.accounts = accounts
-    
-    def select_account(self, account_id: str) -> bool:
-        """
-        选择使用的账号
-        
-        Args:
-            account_id: 账号ID
-            
-        Returns:
-            是否成功选择账号
-        """
-        for account in self.accounts:
-            if account.get("id") == account_id:
-                self.selected_account = account
-                logger.info(f"插件 {self.PLUGIN_ID} 已选择账号: {account_id}")
-                return True
-        
-        logger.error(f"插件 {self.PLUGIN_ID} 选择账号失败: 账号 {account_id} 不存在")
-        return False
-    
+
     @abstractmethod
     async def start(self) -> bool:
         """
@@ -154,15 +112,6 @@ class BasePlugin(ABC):
             "author": self.PLUGIN_AUTHOR,
         }
     
-    def needs_account(self) -> bool:
-        """
-        是否需要账号
-        
-        Returns:
-            是否需要账号
-        """
-        return True
-    
     def handle_captcha(self, captcha_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         处理验证码
@@ -175,7 +124,7 @@ class BasePlugin(ABC):
         """
         # 默认实现，子类可覆盖
         return {"success": False, "message": "未实现验证码处理"}
-    
+
     def validate_config(self, config: TaskConfig) -> Dict[str, Any]:
         """
         验证配置是否合法
@@ -187,4 +136,22 @@ class BasePlugin(ABC):
             验证结果，包含是否成功和错误信息
         """
         # 默认实现，子类应当覆盖
-        return {"valid": True, "errors": []} 
+        return {"valid": True, "errors": []}
+
+    @abstractmethod
+    async def _try_cookie_login(self):
+        ...
+
+    @abstractmethod
+    async def _manual_login(self):
+        ...
+
+    async def _ensure_logged_in(self) -> bool:
+        if not self.page:
+            return False
+        # 1) 优先尝试 Cookie 登录
+        if await self._try_cookie_login():
+            return True
+        # 2) 回退手动登录
+        logger.info("需要手动登录，正在打开登录页…")
+        return await self._manual_login()
