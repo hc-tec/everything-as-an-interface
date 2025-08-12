@@ -56,7 +56,22 @@ class XiaohongshuDomFeedService(FeedService[FavoriteItem]):
 
         # Ad-hoc on-scroll via strategy by wrapping extract_once with scroll inside generic engine
         # run_dom_collection will handle scroll via its engine, but strategy can be used by calling extra on_scroll.
-        # Here we rely on run_dom_collection default scroll; strategy is considered at a higher orchestration if needed.
+        # Here we pass strategy-based on_scroll to run_dom_collection.
+        async def on_scroll() -> None:
+            try:
+                strat: ScrollStrategy
+                extra = (args.extra_config or {})
+                pause = self._service_config.scroll_pause_ms or self.cfg.scroll_pause_ms
+                if extra.get("scroll_selector"):
+                    strat = SelectorScrollStrategy(extra["scroll_selector"], pause_ms=pause)
+                elif extra.get("pager_selector"):
+                    strat = PagerClickStrategy(extra["pager_selector"], wait_ms=pause)
+                else:
+                    strat = DefaultScrollStrategy(pause_ms=pause)
+                await strat.scroll(self.page)
+            except Exception:
+                pass
+
         async def extract_once(page: Page, acc: List[FavoriteItem]) -> int:
             added = 0
             items = await page.query_selector_all(".tab-content-item:nth-child(2) .note-item")
@@ -82,6 +97,7 @@ class XiaohongshuDomFeedService(FeedService[FavoriteItem]):
             self.cfg,
             goto_first=goto_first,
             extract_once=extract_once,
+            on_scroll=on_scroll,
         )
         return results
 
