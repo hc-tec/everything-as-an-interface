@@ -12,8 +12,8 @@ from src.utils.feed_collection import (
     FeedCollectionState,
     run_network_collection,
     record_response,
-    scroll_page_once,
 )
+from src.utils.collection_common import scroll_page_once
 from src.utils.net_rule_bus import NetRuleBus, MergedEvent
 from src.utils.net_rules import ResponseView
 from src.plugins.xiaohongshu import FavoriteItem, AuthorInfo, NoteStatistics
@@ -127,7 +127,6 @@ class XiaohongshuFeedService(FeedService[FavoriteItem]):
             if not isinstance(evt.view, ResponseView):
                 continue
 
-            data = None
             try:
                 data = evt.view.data()
             except Exception:
