@@ -70,7 +70,7 @@ async def main():
             cookie_ids=["3d1ab44f-71ea-48eb-96c7-5dca21cc7987"],
             extra={
                 "video_output_dir": "videos_data",
-                "task_type": "details",
+                "task_type": "favorites",
                 "note_ids": ["64a54a7d0000000023036647?xsec_token=ABAGtrrS0w5pLKIte2XwU4DKg4UIJJkWOdWz14wWBL3FE=&xsec_source=pc_feed"]
             }
         )
