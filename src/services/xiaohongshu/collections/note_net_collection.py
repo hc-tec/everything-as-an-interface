@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from dataclasses import dataclass, field
 from typing import Any, Awaitable, Callable, Dict, Generic, List, Optional, TypeVar
 
@@ -37,7 +38,6 @@ class NoteNetCollectionConfig:
     scroll_pause_ms: int = 800
 
 
-@dataclass
 class NoteNetCollectionState(Generic[T]):
     """Mutable state for a feed collection session."""
 
@@ -49,6 +49,22 @@ class NoteNetCollectionState(Generic[T]):
     last_response_view: Optional[ResponseView] = None
     stop_decider: Optional[StopDecider[T]] = None
 
+    def __init__(self, page: Page, event: Optional[asyncio.Event], items: List[T] = field(default_factory=list),
+                 raw_responses: List[Any] = field(default_factory=list), last_raw_response: Optional[Any] = None,
+                 last_response_view: Optional[ResponseView] = None, stop_decider: Optional[StopDecider[T]] = None):
+        self.page = page
+        self.event = event
+        self.items = items
+        self.raw_responses = raw_responses
+        self.last_raw_response = last_raw_response
+        self.last_response_view = last_response_view
+        self.stop_decider = stop_decider
+
+    def clear(self):
+        self.items = []
+        self.raw_responses = []
+        self.last_raw_response = None
+        self.last_response_view = None
 
 def ensure_event(state: NoteNetCollectionState[Any]) -> None:
     """Ensure the state has an asyncio.Event for synchronization."""
@@ -58,10 +74,7 @@ def ensure_event(state: NoteNetCollectionState[Any]) -> None:
 
 def reset_state(state: NoteNetCollectionState[Any]) -> None:
     """Reset dynamic fields of the state (items and responses)."""
-    state.items.clear()
-    state.raw_responses.clear()
-    state.last_raw_response = None
-    state.last_response_view = None
+    state.clear()
     if state.event is not None:
         try:
             state.event.clear()
@@ -107,6 +120,7 @@ async def run_network_collection(
         try:
             await asyncio.wait_for(state.event.wait(), timeout=2.0)
         except asyncio.TimeoutError:
+            logging.debug("network collection timed out")
             return 0
         finally:
             try:
@@ -121,7 +135,7 @@ async def run_network_collection(
 
     return await run_generic_collection(
         page=state.page,
-        state_items=state.items,
+        state=state,
         max_items=cfg.max_items,
         max_seconds=cfg.max_seconds,
         max_idle_rounds=cfg.max_idle_rounds,

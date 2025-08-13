@@ -16,12 +16,9 @@ from src.core.task_config import TaskConfig
 from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
 from src.services.base import NoteCollectArgs
-from src.services.xiaohongshu.comments import (
-    XiaohongshuCommentService,
-)
-from src.services.xiaohongshu.note_net import (
-    XiaohongshuNoteNetService,
-)
+from src.services.xiaohongshu.comments import XiaohongshuCommentService
+from src.services.xiaohongshu.note_net import XiaohongshuNoteNetService
+from src.services.xiaohongshu.note_brief_net import XiaohongshuNoteBriefNetService
 from src.utils import wait_until_result
 from src.services.xiaohongshu.collections.note_net_collection import NoteNetCollectionConfig
 
@@ -52,6 +49,7 @@ class XiaohongshuV2Plugin(BasePlugin):
         # Initialize services (will be attached during setup)
         self._note_net_service: Optional[XiaohongshuNoteNetService] = None
         self._comment_service: Optional[XiaohongshuCommentService] = None
+        self._note_brief_net_service: Optional[XiaohongshuNoteBriefNetService] = None
 
 
     # -----------------------------
@@ -62,19 +60,24 @@ class XiaohongshuV2Plugin(BasePlugin):
             # Initialize services
             self._note_net_service = XiaohongshuNoteNetService()
             self._comment_service = XiaohongshuCommentService()
+            self._note_brief_net_service = XiaohongshuNoteBriefNetService()
 
             # Attach all services to the page
             await self._note_net_service.attach(self.page)
             await self._comment_service.attach(self.page)
+            await self._note_brief_net_service.attach(self.page)
 
             # Configure note_net service based on task config
             note_net_config = self._build_note_net_config()
             self._note_net_service.configure(note_net_config)
+            self._note_brief_net_service.configure(note_net_config)
 
             # Set custom stop conditions if specified
             stop_decider = self._build_stop_decider()
             if stop_decider:
                 self._note_net_service.set_stop_decider(stop_decider)
+            if stop_decider:
+                self._note_brief_net_service.set_stop_decider(stop_decider)
 
             logger.info("All Xiaohongshu services initialized and attached")
 
@@ -94,6 +97,7 @@ class XiaohongshuV2Plugin(BasePlugin):
         services = [
             self._note_net_service,
             self._comment_service,
+            self._note_brief_net_service,
         ]
         
         for service in services:
@@ -127,6 +131,8 @@ class XiaohongshuV2Plugin(BasePlugin):
                 return await self._perform_search()
             elif task_type == "details":
                 return await self._collect_details()
+            elif task_type == "briefs":
+                return await self._collect_briefs()
             elif task_type == "comments":
                 return await self._collect_comments()
             else:
@@ -251,6 +257,39 @@ class XiaohongshuV2Plugin(BasePlugin):
             
         except Exception as e:
             logger.error(f"Details collection failed: {e}")
+            raise
+
+    async def _collect_briefs(self) -> Dict[str, Any]:
+        """Collect favorite items using the note_net service."""
+        logger.info("Collecting favorites using note_brief_net service")
+
+        async def goto_favorites():
+            await self.page.click('.user, .side-bar-component')
+            await asyncio.sleep(1)
+            await self.page.click(".sub-tab-list:nth-child(2)")
+
+        try:
+            items = await self._note_brief_net_service.collect(NoteCollectArgs(
+                goto_first=goto_favorites,
+                extra_config=self.config.extra
+            ))
+
+            # Convert to dictionaries for JSON serialization
+            items_data = [asdict(item) for item in items]
+
+            logger.info(f"Successfully collected {len(items_data)} favorite items")
+
+            return {
+                "success": True,
+                "data": items_data,
+                "count": len(items_data),
+                "plugin_id": self.plugin_id,
+                "version": self.version,
+                "task_type": "favorites",
+            }
+
+        except Exception as e:
+            logger.error(f"Favorites collection failed: {e}")
             raise
 
     async def _collect_comments(self) -> Dict[str, Any]:

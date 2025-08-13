@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from typing import Any, Awaitable, Callable, Dict, Generic, List, Optional, TypeVar
 
 from playwright.async_api import Page
@@ -18,7 +19,7 @@ OnTick = Callable[[], Awaitable[Optional[int]] | Optional[int]]
 async def run_generic_collection(
     *,
     page: Page,
-    state_items: List[T],
+    state: Any,
     max_items: int,
     max_seconds: int,
     max_idle_rounds: int,
@@ -43,8 +44,8 @@ async def run_generic_collection(
         if elapsed >= max_seconds:
             metrics.event("collect.exit", reason="timeout", elapsed=elapsed)
             break
-        if len(state_items) >= max_items:
-            metrics.event("collect.exit", reason="max_items", count=len(state_items))
+        if len(state.items) >= max_items:
+            metrics.event("collect.exit", reason="max_items", count=len(state.items))
             break
 
         added = 0
@@ -58,7 +59,7 @@ async def run_generic_collection(
 
         # If on_tick did not explicitly report added items, infer from length delta
         if added == 0:
-            new_len = len(state_items)
+            new_len = len(state.items)
             if new_len > last_len:
                 added = new_len - last_len
                 last_len = new_len
@@ -70,6 +71,7 @@ async def run_generic_collection(
 
         if idle_rounds >= max_idle_rounds:
             metrics.event("collect.exit", reason="idle", idle_rounds=idle_rounds)
+            logging.warning("超过最大空转轮数")
             break
 
         if auto_scroll:
@@ -84,4 +86,4 @@ async def run_generic_collection(
 
     if key_fn is None:
         key_fn = lambda it: getattr(it, "id", None)  # type: ignore[return-value]
-    return _deduplicate_by(state_items, key_fn)
+    return _deduplicate_by(state.items, key_fn)

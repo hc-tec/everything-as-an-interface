@@ -21,11 +21,14 @@ async def on_new_favorite(data: Dict[str, Any]) -> None:
     Args:
         data: 收藏夹数据
     """
-    print("\n" + "="*50)
-    print(f"检测到 {len(data['new_items'])} 条新收藏:")
-    for idx, item in enumerate(data['new_items'], 1):
-        print(f"\n{idx}. {item['title']}")
-    print("="*50 + "\n")
+    try:
+        print("\n" + "="*50)
+        print(f"检测到 {len(data['data'])} 条新收藏:")
+        for idx, item in enumerate(data['data'], 1):
+            print(f"\n{idx}. {item['title']}")
+        print("="*50 + "\n")
+    except Exception as e:
+        print(f"on_new_favorite, {e}")
 
 async def main():
     logging.basicConfig(level=logging.DEBUG)
@@ -67,10 +70,11 @@ async def main():
         interval=300,  # 5分钟检查一次
         config=TaskConfig(
             # 可选：填写已保存的 cookie_ids 列表，以跳过手动登录
-            cookie_ids=["3d1ab44f-71ea-48eb-96c7-5dca21cc7987"],
+            cookie_ids=["12e12361-b5e3-41ec-ac9e-ef29b675bdb4"],
             extra={
                 "video_output_dir": "videos_data",
-                "task_type": "favorites",
+                "task_type": "briefs",
+                "max_items": 10,
                 "note_ids": ["64a54a7d0000000023036647?xsec_token=ABAGtrrS0w5pLKIte2XwU4DKg4UIJJkWOdWz14wWBL3FE=&xsec_source=pc_feed"]
             }
         )

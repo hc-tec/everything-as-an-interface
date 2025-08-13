@@ -96,6 +96,7 @@ class AuthorInfo:
     user_id: str
     username: str
     avatar: str
+    xsec_token: str
 
 @dataclass
 class NoteStatistics:
@@ -121,3 +122,12 @@ class NoteDetailsItem:
     images: Optional[list[str]]
     video: Optional[VideoInfo]
     timestamp: str
+
+@dataclass
+class NoteBriefItem:
+    id: str
+    xsec_token: str
+    title: str
+    author_info: AuthorInfo
+    statistic: NoteStatistics
+    cover_image: str

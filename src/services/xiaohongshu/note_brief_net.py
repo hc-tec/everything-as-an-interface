@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import logging
 from typing import Any, Dict, List, Optional
 
 from playwright.async_api import Page
@@ -15,11 +16,11 @@ from src.services.xiaohongshu.collections.note_net_collection import (
 )
 from src.utils.net_rule_bus import NetRuleBus, MergedEvent
 from src.utils.net_rules import ResponseView
-from src.services.xiaohongshu.models import AuthorInfo, NoteStatistics, NoteDetailsItem
+from src.services.xiaohongshu.models import AuthorInfo, NoteStatistics, NoteBriefItem
 from src.utils.scrolling import DefaultScrollStrategy, SelectorScrollStrategy, PagerClickStrategy, ScrollStrategy
 
 
-class XiaohongshuNoteBriefNetService(NoteService[NoteDetailsItem]):
+class XiaohongshuNoteBriefNetService(NoteService[NoteBriefItem]):
     def __init__(self) -> None:
         super().__init__()
         self.cfg = NoteNetCollectionConfig()
@@ -30,13 +31,13 @@ class XiaohongshuNoteBriefNetService(NoteService[NoteDetailsItem]):
 
     async def attach(self, page: Page) -> None:
         self.page = page
-        self.state = NoteNetCollectionState[NoteDetailsItem](page=page, event=asyncio.Event())
+        self.state = NoteNetCollectionState[NoteBriefItem](page=page, event=asyncio.Event())
 
         # Bind NetRuleBus and subscribe to note responses (multi-pattern ready)
         self._bus = NetRuleBus()
         self._unbind = await self._bus.bind(page)
         self._merged_q, self._subs_meta = self._bus.subscribe_many([
-            (r".*/feed", "response"),
+            (r".*/note/collect/page/*", "response"),
             # Add more patterns if needed: (r".*/another_endpoint", "response")
         ])
         # Start background consumer
@@ -74,7 +75,7 @@ class XiaohongshuNoteBriefNetService(NoteService[NoteDetailsItem]):
     def configure(self, cfg: NoteNetCollectionConfig) -> None:
         self.cfg = cfg
 
-    async def collect(self, args: NoteCollectArgs) -> List[NoteDetailsItem]:
+    async def collect(self, args: NoteCollectArgs) -> List[NoteBriefItem]:
         if not self.page or not self.state:
             raise RuntimeError("Service not attached to a Page")
 
@@ -148,7 +149,7 @@ class XiaohongshuNoteBriefNetService(NoteService[NoteDetailsItem]):
                 record_response(self.state, data, evt.view)
 
             # Let delegate parse items first; if returns None, fallback to default
-            parsed: Optional[List[NoteDetailsItem]] = None
+            parsed: Optional[List[NoteBriefItem]] = None
             if self._delegate:
                 try:
                     parsed = await self._delegate.parse_items(data)
@@ -157,7 +158,7 @@ class XiaohongshuNoteBriefNetService(NoteService[NoteDetailsItem]):
 
             if parsed is None:
                 # Default parser
-                items_payload = data.get("data", {}).get("items", [])
+                items_payload = data.get("data", {}).get("notes", [])
                 parsed = await self._parse_items_default(items_payload)
 
             # Post-process via delegate and append to state
@@ -177,45 +178,37 @@ class XiaohongshuNoteBriefNetService(NoteService[NoteDetailsItem]):
                     except Exception:
                         pass
 
-    async def _parse_items_default(self, resp_items: List[Dict[str, Any]]) -> List[NoteDetailsItem]:
-        results: List[NoteDetailsItem] = []
+    async def _parse_items_default(self, resp_items: List[Dict[str, Any]]) -> List[NoteBriefItem]:
+        results: List[NoteBriefItem] = []
         for note_item in resp_items or []:
             try:
-                id = note_item["id"]
-                note_card = note_item["note_card"]
-                title = note_card.get("title")
-                user = note_card.get("user", {})
+                id = note_item["note_id"]
+                title = note_item.get("display_title")
+                xsec_token = note_item.get("xsec_token")
+                user = note_item.get("user", {})
                 author_info = AuthorInfo(
                     username=user.get("nickname"),
                     avatar=user.get("avatar"),
                     user_id=user.get("user_id"),
+                    xsec_token=user.get("xsec_token")
                 )
-                tag_list = [tag.get("name") for tag in note_card.get("tag_list", [])]
-                date = note_card.get("time")
-                ip_zh = note_card.get("ip_location")
-                interact = note_card.get("interact_info", {})
-                comment_num = str(interact.get("comment_count", 0))
+                interact = note_item.get("interact_info", {})
                 statistic = NoteStatistics(
                     like_num=str(interact.get("liked_count", 0)),
-                    collect_num=str(interact.get("collected_count", 0)),
-                    chat_num=str(interact.get("comment_count", 0)),
+                    collect_num=None,
+                    chat_num=None
                 )
-                images = [image.get("url_default") for image in note_card.get("image_list", [])]
+                cover_image = note_item.get("cover").get("url_default")
                 results.append(
-                    NoteDetailsItem(
+                    NoteBriefItem(
                         id=id,
+                        xsec_token=xsec_token,
                         title=title,
                         author_info=author_info,
-                        tags=tag_list,
-                        date=date,
-                        ip_zh=ip_zh,
-                        comment_num=comment_num,
                         statistic=statistic,
-                        images=images,
-                        video=None,
-                        timestamp=__import__("datetime").datetime.now().isoformat(),
+                        cover_image=cover_image,
                     )
                 )
-            except Exception:
-                continue
+            except Exception as e:
+                logging.error(f"解析笔记信息出错：{str(e)}")
         return results
