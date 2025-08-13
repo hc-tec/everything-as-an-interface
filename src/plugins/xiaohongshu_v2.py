@@ -15,13 +15,13 @@ from src.core.plugin_context import PluginContext
 from src.core.task_config import TaskConfig
 from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
-from src.services.base import FeedCollectArgs
+from src.services.base import NoteCollectArgs
 from src.services.xiaohongshu import (
     XiaohongshuCommentService,
-    XiaohongshuFeedService,
+    XiaohongshuNoteNetService,
 )
 from src.utils import wait_until_result
-from src.services.xiaohongshu.collections.note_net_collection import FeedCollectionConfig
+from src.services.xiaohongshu.collections.note_net_collection import NoteNetCollectionConfig
 
 logger = logging.getLogger("plugin.xiaohongshu_v2")
 
@@ -48,7 +48,7 @@ class XiaohongshuV2Plugin(BasePlugin):
         self.description = "Xiaohongshu automation plugin (service-based v2)"
         
         # Initialize services (will be attached during setup)
-        self._feed_service: Optional[XiaohongshuFeedService] = None
+        self._note_net_service: Optional[XiaohongshuNoteNetService] = None
         self._comment_service: Optional[XiaohongshuCommentService] = None
 
 
@@ -58,21 +58,21 @@ class XiaohongshuV2Plugin(BasePlugin):
     async def start(self) -> bool:
         try:
             # Initialize services
-            self._feed_service = XiaohongshuFeedService()
+            self._note_net_service = XiaohongshuNoteNetService()
             self._comment_service = XiaohongshuCommentService()
 
             # Attach all services to the page
-            await self._feed_service.attach(self.page)
+            await self._note_net_service.attach(self.page)
             await self._comment_service.attach(self.page)
 
-            # Configure feed service based on task config
-            feed_config = self._build_feed_config()
-            self._feed_service.configure(feed_config)
+            # Configure note_net service based on task config
+            note_net_config = self._build_note_net_config()
+            self._note_net_service.configure(note_net_config)
 
             # Set custom stop conditions if specified
             stop_decider = self._build_stop_decider()
             if stop_decider:
-                self._feed_service.set_stop_decider(stop_decider)
+                self._note_net_service.set_stop_decider(stop_decider)
 
             logger.info("All Xiaohongshu services initialized and attached")
 
@@ -90,7 +90,7 @@ class XiaohongshuV2Plugin(BasePlugin):
     async def _cleanup(self) -> None:
         """Detach all services and cleanup resources."""
         services = [
-            self._feed_service,
+            self._note_net_service,
             self._comment_service,
         ]
         
@@ -110,7 +110,7 @@ class XiaohongshuV2Plugin(BasePlugin):
         Returns:
             Dictionary containing collected data and metadata
         """
-        if not self._feed_service:
+        if not self._note_net_service:
             raise RuntimeError("Services not initialized. Call setup() first.")
 
         await self._ensure_logged_in()
@@ -141,8 +141,8 @@ class XiaohongshuV2Plugin(BasePlugin):
             }
 
     async def _collect_favorites(self) -> Dict[str, Any]:
-        """Collect favorite items using the feed service."""
-        logger.info("Collecting favorites using feed service")
+        """Collect favorite items using the note_net service."""
+        logger.info("Collecting favorites using note_net service")
         
         async def goto_favorites():
             await self.page.click('.user, .side-bar-component')
@@ -150,7 +150,7 @@ class XiaohongshuV2Plugin(BasePlugin):
             await self.page.click(".sub-tab-list:nth-child(2)")
 
         try:
-            items = await self._feed_service.collect(FeedCollectArgs(
+            items = await self._note_net_service.collect(NoteCollectArgs(
                 goto_first=goto_favorites,
                 extra_config=self.config.extra
             ))
@@ -291,13 +291,13 @@ class XiaohongshuV2Plugin(BasePlugin):
             logger.error(f"Comments collection failed: {e}")
             raise
 
-    def _build_feed_config(self) -> FeedCollectionConfig:
-        """Build FeedCollectionConfig from task config."""
+    def _build_note_net_config(self) -> NoteNetCollectionConfig:
+        """Build NoteNetCollectionConfig from task config."""
         if not self.config or not self.config.extra:
-            return FeedCollectionConfig()
+            return NoteNetCollectionConfig()
         
         extra = self.config.extra
-        return FeedCollectionConfig(
+        return NoteNetCollectionConfig(
             max_items=extra.get("max_items", 1000),
             max_seconds=extra.get("max_seconds", 600),
             max_idle_rounds=extra.get("max_idle_rounds", 2),

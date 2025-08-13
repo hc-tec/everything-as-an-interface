@@ -6,10 +6,10 @@ from typing import Any, Dict, List, Optional
 
 from playwright.async_api import Page
 
-from src.services.base import FeedService, FeedCollectArgs
+from src.services.base import NoteService, NoteCollectArgs
 from src.services.xiaohongshu.collections.note_net_collection import (
-    FeedCollectionConfig,
-    FeedCollectionState,
+    NoteNetCollectionConfig,
+    NoteNetCollectionState,
     run_network_collection,
     record_response,
 )
@@ -19,10 +19,10 @@ from src.plugins.xiaohongshu import FavoriteItem, AuthorInfo, NoteStatistics
 from src.utils.scrolling import DefaultScrollStrategy, SelectorScrollStrategy, PagerClickStrategy, ScrollStrategy
 
 
-class XiaohongshuFeedService(FeedService[FavoriteItem]):
+class XiaohongshuNoteNetService(NoteService[FavoriteItem]):
     def __init__(self) -> None:
         super().__init__()
-        self.cfg = FeedCollectionConfig()
+        self.cfg = NoteNetCollectionConfig()
         self._bus: Optional[NetRuleBus] = None
         self._merged_q: Optional[asyncio.Queue] = None
         self._subs_meta: Dict[int, tuple[str, str]] = {}
@@ -30,9 +30,9 @@ class XiaohongshuFeedService(FeedService[FavoriteItem]):
 
     async def attach(self, page: Page) -> None:
         self.page = page
-        self.state = FeedCollectionState[FavoriteItem](page=page, event=asyncio.Event())
+        self.state = NoteNetCollectionState[FavoriteItem](page=page, event=asyncio.Event())
 
-        # Bind NetRuleBus and subscribe to feed responses (multi-pattern ready)
+        # Bind NetRuleBus and subscribe to note responses (multi-pattern ready)
         self._bus = NetRuleBus()
         self._unbind = await self._bus.bind(page)
         self._merged_q, self._subs_meta = self._bus.subscribe_many([
@@ -71,16 +71,12 @@ class XiaohongshuFeedService(FeedService[FavoriteItem]):
         if self.state:
             self.state.stop_decider = decider
 
-    def configure(self, cfg: FeedCollectionConfig) -> None:
+    def configure(self, cfg: NoteNetCollectionConfig) -> None:
         self.cfg = cfg
 
-    async def collect(self, args: FeedCollectArgs) -> List[FavoriteItem]:
+    async def collect(self, args: NoteCollectArgs) -> List[FavoriteItem]:
         if not self.page or not self.state:
             raise RuntimeError("Service not attached to a Page")
-
-        async def goto_first() -> None:
-            if args.goto_first:
-                await args.goto_first()
 
         async def on_scroll() -> None:
             try:
@@ -107,7 +103,7 @@ class XiaohongshuFeedService(FeedService[FavoriteItem]):
             self.state,
             self.cfg,
             extra_config=args.extra_config or {},
-            goto_first=goto_first,
+            goto_first=args.goto_first,
             on_scroll=on_scroll,
         )
         return items

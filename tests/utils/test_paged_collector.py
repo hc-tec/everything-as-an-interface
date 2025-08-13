@@ -2,7 +2,7 @@ import asyncio
 import pytest
 
 from src.services.paged_collector import PagedCollector
-from src.services.xiaohongshu.collections.note_net_collection import FeedCollectionState
+from src.services.xiaohongshu.collections.note_net_collection import NoteNetCollectionState
 from src.utils.net_rules import ResponseView
 
 
@@ -20,7 +20,7 @@ async def test_paged_collector_basic(monkeypatch):
     q: asyncio.Queue = asyncio.Queue()
 
     # Prepare state
-    state = FeedCollectionState(page=None)  # page unused in test
+    state = NoteNetCollectionState(page=None)  # page unused in test
 
     # Parser returns items from payload
     async def parser(payload):
@@ -55,7 +55,7 @@ async def test_paged_collector_basic(monkeypatch):
 @pytest.mark.asyncio
 async def test_paged_collector_stop_decider():
     q: asyncio.Queue = asyncio.Queue()
-    state = FeedCollectionState(page=None)
+    state = NoteNetCollectionState(page=None)
 
     async def parser(payload):
         return payload.get("items", [])

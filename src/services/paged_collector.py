@@ -6,7 +6,7 @@ from typing import Any, Awaitable, Callable, Dict, Generic, List, Optional, Type
 
 from playwright.async_api import Page
 
-from src.services.xiaohongshu.collections.note_net_collection import FeedCollectionState, record_response
+from src.services.xiaohongshu.collections.note_net_collection import NoteNetCollectionState, record_response
 from src.utils.net_rules import ResponseView
 from src.utils.metrics import metrics
 
@@ -15,7 +15,7 @@ T = TypeVar("T")
 # Parser signature: payload(dict) -> List[T]
 ParserFn = Callable[[Dict[str, Any]], Awaitable[List[T]] | List[T]]
 
-# Stop decider signature is reused from Feed utils via state.stop_decider
+# Stop decider signature is reused from Note utils via state.stop_decider
 
 
 class PagedCollector(Generic[T]):
@@ -23,7 +23,7 @@ class PagedCollector(Generic[T]):
 
     It integrates:
       - Response queue consumption (produced by NetRuleBus)
-      - Recording raw responses into FeedCollectionState
+      - Recording raw responses into NoteNetCollectionState
       - Optional stop_decider on the state
       - Delegate-like hooks via callbacks
     """
@@ -33,13 +33,13 @@ class PagedCollector(Generic[T]):
         *,
         page: Page,
         queue: asyncio.Queue,
-        state: FeedCollectionState[T],
+        state: NoteNetCollectionState[T],
         parser: ParserFn[T],
         response_timeout_sec: float = 5.0,
         delay_ms: int = 500,
         max_pages: Optional[int] = None,
-        on_response: Optional[Callable[[ResponseView, FeedCollectionState[T]], Awaitable[None] | None]] = None,
-        on_items_collected: Optional[Callable[[List[T], FeedCollectionState[T]], Awaitable[List[T]] | List[T]]] = None,
+        on_response: Optional[Callable[[ResponseView, NoteNetCollectionState[T]], Awaitable[None] | None]] = None,
+        on_items_collected: Optional[Callable[[List[T], NoteNetCollectionState[T]], Awaitable[List[T]] | List[T]]] = None,
     ) -> None:
         self.page = page
         self.queue = queue

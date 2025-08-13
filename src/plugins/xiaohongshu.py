@@ -16,8 +16,8 @@ from ..utils import Mp4DownloadSession
 from .registry import register_plugin
 from ..core.plugin_context import PluginContext
 from src.services.xiaohongshu.collections.note_net_collection import (
-    FeedCollectionConfig,
-    FeedCollectionState,
+    NoteNetCollectionConfig,
+    NoteNetCollectionState,
     run_network_collection,
     record_response as feed_record_response,
 )
@@ -312,14 +312,14 @@ class XiaohongshuPlugin(BasePlugin):
     async def _collect_favorites_via_network(self) -> list[FavoriteItem]:
         # Build config/state and reuse shared collector
         extra = (self.config.extra if isinstance(self.config, TaskConfig) else {}) or {}
-        cfg = FeedCollectionConfig(
+        cfg = NoteNetCollectionConfig(
             max_items=int(extra.get("max_items", 1000)),
             max_seconds=int(extra.get("max_seconds", 600)),
             max_idle_rounds=int(extra.get("max_idle_rounds", 2)),
             auto_scroll=bool(extra.get("auto_scroll", True)),
             scroll_pause_ms=int(extra.get("scroll_pause_ms", 800)),
         )
-        state = FeedCollectionState[FavoriteItem](
+        state = NoteNetCollectionState[FavoriteItem](
             page=self.page,
             event=self._net_note_event or asyncio.Event(),
             items=self._net_note_items,

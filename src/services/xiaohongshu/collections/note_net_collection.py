@@ -19,8 +19,8 @@ StopDecider = Callable[[Page, List[Any], Optional[Any], List[T], List[T], float,
 
 
 @dataclass
-class FeedCollectionConfig:
-    """Configuration for network-driven feed collection.
+class NoteNetCollectionConfig:
+    """Configuration for network-driven note collection.
 
     Attributes:
         max_items: Stop when collected at least this many items.
@@ -38,7 +38,7 @@ class FeedCollectionConfig:
 
 
 @dataclass
-class FeedCollectionState(Generic[T]):
+class NoteNetCollectionState(Generic[T]):
     """Mutable state for a feed collection session."""
 
     page: Page
@@ -50,13 +50,13 @@ class FeedCollectionState(Generic[T]):
     stop_decider: Optional[StopDecider[T]] = None
 
 
-def ensure_event(state: FeedCollectionState[Any]) -> None:
+def ensure_event(state: NoteNetCollectionState[Any]) -> None:
     """Ensure the state has an asyncio.Event for synchronization."""
     if state.event is None:
         state.event = asyncio.Event()
 
 
-def reset_state(state: FeedCollectionState[Any]) -> None:
+def reset_state(state: NoteNetCollectionState[Any]) -> None:
     """Reset dynamic fields of the state (items and responses)."""
     state.items.clear()
     state.raw_responses.clear()
@@ -69,7 +69,7 @@ def reset_state(state: FeedCollectionState[Any]) -> None:
             state.event = asyncio.Event()
 
 
-def record_response(state: FeedCollectionState[Any], data: Any, response_view: Optional[ResponseView] = None) -> None:
+def record_response(state: NoteNetCollectionState[Any], data: Any, response_view: Optional[ResponseView] = None) -> None:
     """Record a raw response and wake the collector loop."""
     try:
         state.raw_responses.append(data)
@@ -85,8 +85,8 @@ def record_response(state: FeedCollectionState[Any], data: Any, response_view: O
 
 
 async def run_network_collection(
-    state: FeedCollectionState[T],
-    cfg: FeedCollectionConfig,
+    state: NoteNetCollectionState[T],
+    cfg: NoteNetCollectionConfig,
     *,
     extra_config: Optional[Dict[str, Any]] = None,
     goto_first: Optional[Callable[[], Awaitable[None]]] = None,

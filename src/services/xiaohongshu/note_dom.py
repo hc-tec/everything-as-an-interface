@@ -5,7 +5,7 @@ from typing import List, Optional
 
 from playwright.async_api import Page, ElementHandle
 
-from src.services.base import FeedService, FeedCollectArgs
+from src.services.base import NoteService, NoteCollectArgs
 from src.services.xiaohongshu.collections.note_dom_collection import (
     DomCollectionConfig,
     DomCollectionState,
@@ -15,7 +15,7 @@ from src.plugins.xiaohongshu import FavoriteItem, AuthorInfo, NoteStatistics
 from src.utils.scrolling import DefaultScrollStrategy, SelectorScrollStrategy, PagerClickStrategy, ScrollStrategy
 
 
-class XiaohongshuDomFeedService(FeedService[FavoriteItem]):
+class XiaohongshuDomNoteService(NoteService[FavoriteItem]):
     def __init__(self) -> None:
         super().__init__()
         self.cfg = DomCollectionConfig()
@@ -46,7 +46,7 @@ class XiaohongshuDomFeedService(FeedService[FavoriteItem]):
     def configure(self, cfg: DomCollectionConfig) -> None:
         self.cfg = cfg
 
-    async def collect(self, args: FeedCollectArgs) -> List[FavoriteItem]:
+    async def collect(self, args: NoteCollectArgs) -> List[FavoriteItem]:
         if not self.page or not self.state:
             raise RuntimeError("Service not attached to a Page")
 

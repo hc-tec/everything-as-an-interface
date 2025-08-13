@@ -3,7 +3,7 @@
 Example demonstrating how to use Xiaohongshu site services.
 
 This example shows how to:
-1. Use FeedService to collect favorite items
+1. Use NoteService to collect favorite items
 2. Use DetailService to get detailed information about specific notes
 3. Use CommentService to fetch comments
 4. Use SearchService to search for content
@@ -19,13 +19,13 @@ import logging
 from src.core.orchestrator import Orchestrator
 from src.core.plugin_context import PluginContext
 from src.core.task_config import TaskConfig
-from src.services.base import FeedCollectArgs, PublishContent
+from src.services.base import NoteCollectArgs, PublishContent
 from src.services.xiaohongshu import (
     XiaohongshuCommentService,
     XiaohongshuDetailService,
-    XiaohongshuFeedService,
+    XiaohongshuNoteNetService,
 )
-from src.services.xiaohongshu.collections.note_net_collection import FeedCollectionConfig
+from src.services.xiaohongshu.collections.note_net_collection import NoteNetCollectionConfig
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 
 async def demo_feed_service():
-    """Demonstrate using FeedService to collect favorites."""
+    """Demonstrate using NoteService to collect favorites."""
     logger.info("=== Feed Service Demo ===")
     
     # Setup
@@ -46,11 +46,11 @@ async def demo_feed_service():
     )
     
     # Create and attach feed service
-    feed_service = XiaohongshuFeedService()
+    feed_service = XiaohongshuNoteNetService()
     await feed_service.attach(ctx.page)
     
     # Configure collection settings
-    feed_config = FeedCollectionConfig(
+    feed_config = NoteNetCollectionConfig(
         max_items=10,
         max_seconds=30,
         auto_scroll=True
@@ -75,7 +75,7 @@ async def demo_feed_service():
         await asyncio.sleep(2)
     
     try:
-        items = await feed_service.collect(FeedCollectArgs(
+        items = await feed_service.collect(NoteCollectArgs(
             goto_first=goto_favorites,
             extra_config={"custom_param": "demo"}
         ))

@@ -46,18 +46,18 @@ The project now supports a service-based architecture that separates site-specif
 
 ```python
 # Initialize and configure
-feed_service = XiaohongshuFeedService()
-await feed_service.attach(page)
+note_service = XiaohongshuNoteService()
+await note_service.attach(page)
 
-config = FeedCollectionConfig(
+config = NoteCollectionConfig(
     max_items=100,
     max_seconds=60,
     auto_scroll=True
 )
-feed_service.configure(config)
+note_service.configure(config)
 
 # Collect items
-items = await feed_service.collect(FeedCollectArgs(
+items = await note_service.collect(NoteCollectArgs(
     goto_first=lambda: page.goto("https://www.xiaohongshu.com/favorites"),
     extra_config={"custom_param": "value"}
 ))
@@ -254,7 +254,7 @@ class MyPlugin(BasePlugin):
 class MyPlugin(BasePlugin):
     async def fetch(self):
         # Clean orchestration
-        items = await self._feed_service.collect(args)
+        items = await self._note_service.collect(args)
         details = await self._detail_service.get_details_batch([item.id for item in items])
         return self._format_results(details)
 ```

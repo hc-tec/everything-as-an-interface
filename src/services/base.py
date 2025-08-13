@@ -7,7 +7,7 @@ from typing import Any, Awaitable, Callable, Dict, Generic, List, Optional, Type
 
 from playwright.async_api import Page
 
-from src.services.xiaohongshu.collections.note_net_collection import FeedCollectionConfig, FeedCollectionState
+from src.services.xiaohongshu.collections.note_net_collection import NoteNetCollectionConfig, NoteNetCollectionState
 from src.utils.net_rules import ResponseView
 
 T = TypeVar("T")
@@ -47,7 +47,7 @@ class ServiceConfig:
 
 
 class BaseSiteService(ABC):
-    """Base for all site services (feed/detail/publish etc.)."""
+    """Base for all site services (note/detail/publish etc.)."""
 
     def __init__(self) -> None:
         self._unbind: Optional[Callable[[], None]] = None
@@ -84,7 +84,7 @@ class ServiceDelegate(Generic[T], ABC):
     async def on_detach(self) -> None:  # pragma: no cover - default no-op
         return None
 
-    async def on_response(self, response: ResponseView, state: Optional[FeedCollectionState[T]]) -> None:  # pragma: no cover - default no-op
+    async def on_response(self, response: ResponseView, state: Optional[NoteNetCollectionState[T]]) -> None:  # pragma: no cover - default no-op
         return None
 
     def should_record_response(self, payload: Any, response_view: ResponseView) -> bool:  # pragma: no cover - default yes
@@ -96,12 +96,12 @@ class ServiceDelegate(Generic[T], ABC):
     async def parse_single(self, item_id: str, payload: Dict[str, Any]) -> Optional[T]:  # pragma: no cover - default None
         return None
 
-    async def on_items_collected(self, items: List[T], state: Optional[FeedCollectionState[T]]) -> List[T]:  # pragma: no cover - default passthrough
+    async def on_items_collected(self, items: List[T], state: Optional[NoteNetCollectionState[T]]) -> List[T]:  # pragma: no cover - default passthrough
         return items
 
 
 # Backward-compatible aliases (no additional members)
-class FeedServiceDelegate(ServiceDelegate[T]):
+class NoteServiceDelegate(ServiceDelegate[T]):
     pass
 
 
@@ -110,25 +110,25 @@ class DetailServiceDelegate(ServiceDelegate[T]):
 
 
 @dataclass
-class FeedCollectArgs:
-    """Arguments for a standard feed collection task."""
+class NoteCollectArgs:
+    """Arguments for a standard note collection task."""
 
     goto_first: Optional[Callable[[], Awaitable[None]]] = None
     extra_config: Optional[Dict[str, Any]] = None
 
 
-class FeedService(BaseSiteService, Generic[T]):
-    """Interface for site feed service implementations."""
+class NoteService(BaseSiteService, Generic[T]):
+    """Interface for site note service implementations."""
 
     def __init__(self) -> None:
         super().__init__()
         self.page: Optional[Page] = None
-        self.state: Optional[FeedCollectionState[T]] = None
+        self.state: Optional[NoteNetCollectionState[T]] = None
         # Optional delegate for customization
         self._delegate: Optional[ServiceDelegate[T]] = None
 
     def set_delegate(self, delegate: Optional[ServiceDelegate[T]]) -> None:  # pragma: no cover - simple setter
-        """Install or clear a delegate for customizing feed behavior."""
+        """Install or clear a delegate for customizing note behavior."""
         self._delegate = delegate
         # If already attached, allow delegate to observe attachment
         if delegate and self.page:
@@ -142,11 +142,11 @@ class FeedService(BaseSiteService, Generic[T]):
         ...
 
     @abstractmethod
-    def configure(self, cfg: FeedCollectionConfig) -> None:  # pragma: no cover - interface
+    def configure(self, cfg: NoteNetCollectionConfig) -> None:  # pragma: no cover - interface
         ...
 
     @abstractmethod
-    async def collect(self, args: FeedCollectArgs) -> List[T]:  # pragma: no cover - interface
+    async def collect(self, args: NoteCollectArgs) -> List[T]:  # pragma: no cover - interface
         ...
 
 

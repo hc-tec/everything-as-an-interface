@@ -8,7 +8,7 @@ from playwright.async_api import Page
 from src.services.base import BaseSiteService
 from src.utils.net_rule_bus import NetRuleBus
 from src.services.xiaohongshu.models import CommentItem, CommentAuthor
-from src.services.xiaohongshu.collections.note_net_collection import FeedCollectionState
+from src.services.xiaohongshu.collections.note_net_collection import NoteNetCollectionState
 from src.utils.net_rules import ResponseView
 from src.services.paged_collector import PagedCollector
 
@@ -22,13 +22,13 @@ class CommentsServiceDelegate:
     async def on_detach(self) -> None:  # pragma: no cover - default no-op
         return None
 
-    async def on_response(self, response: ResponseView, state: FeedCollectionState[CommentItem]) -> None:  # pragma: no cover - default no-op
+    async def on_response(self, response: ResponseView, state: NoteNetCollectionState[CommentItem]) -> None:  # pragma: no cover - default no-op
         return None
 
     async def parse_comment_items(self, payload: Dict[str, Any]) -> Optional[List[CommentItem]]:  # pragma: no cover - default None
         return None
 
-    async def on_items_collected(self, items: List[CommentItem], state: FeedCollectionState[CommentItem]) -> List[CommentItem]:  # pragma: no cover - default passthrough
+    async def on_items_collected(self, items: List[CommentItem], state: NoteNetCollectionState[CommentItem]) -> List[CommentItem]:  # pragma: no cover - default passthrough
         return items
 
     async def before_next_page(self, page_index: int) -> None:  # pragma: no cover - default no-op
@@ -42,8 +42,8 @@ class XiaohongshuCommentService(BaseSiteService):
         self.bus = NetRuleBus()
         self._q: Optional[asyncio.Queue] = None
         self._items: List[CommentItem] = []
-        # Shared state borrowed from feed collection primitives for consistency
-        self._state: Optional[FeedCollectionState[CommentItem]] = None
+        # Shared state borrowed from note collection primitives for consistency
+        self._state: Optional[NoteNetCollectionState[CommentItem]] = None
         self._delegate: Optional[CommentsServiceDelegate] = None
         self._stop_decider = None
 
@@ -51,7 +51,7 @@ class XiaohongshuCommentService(BaseSiteService):
         self._delegate = delegate
 
     def set_stop_decider(self, decider) -> None:  # pragma: no cover - optional support
-        """Set a stop decider with the same signature as Feed StopDecider.
+        """Set a stop decider with the same signature as Note StopDecider.
 
         page, all_raw, last_raw, all_items, last_batch, elapsed, extra_config, last_view -> bool
         """
@@ -63,7 +63,7 @@ class XiaohongshuCommentService(BaseSiteService):
         # 订阅评论接口（按需调整正则以适配真实路径）
         self._q = self.bus.subscribe(r".*/note/comments.*", kind="response")
         # 初始化 state
-        self._state = FeedCollectionState[CommentItem](page=page, event=asyncio.Event())
+        self._state = NoteNetCollectionState[CommentItem](page=page, event=asyncio.Event())
         if self._delegate:
             try:
                 await self._delegate.on_attach(page)
@@ -122,14 +122,14 @@ class XiaohongshuCommentService(BaseSiteService):
             pass
 
         # Delegate hooks for PagedCollector
-        async def _on_resp(rv: ResponseView, state: FeedCollectionState[CommentItem]) -> None:
+        async def _on_resp(rv: ResponseView, state: NoteNetCollectionState[CommentItem]) -> None:
             if self._delegate:
                 try:
                     await self._delegate.on_response(rv, state)
                 except Exception:
                     pass
 
-        async def _on_items(batch: List[CommentItem], state: FeedCollectionState[CommentItem]) -> List[CommentItem]:
+        async def _on_items(batch: List[CommentItem], state: NoteNetCollectionState[CommentItem]) -> List[CommentItem]:
             if self._delegate:
                 try:
                     processed = await self._delegate.on_items_collected(batch, state)
