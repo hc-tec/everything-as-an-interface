@@ -88,4 +88,36 @@ class PublishConfig:
     allow_save: bool = True
     original_declaration: bool = False
     schedule_time: Optional[str] = None  # ISO format
-    topic_id: Optional[str] = None 
+    topic_id: Optional[str] = None
+
+
+@dataclass
+class AuthorInfo:
+    user_id: str
+    username: str
+    avatar: str
+
+@dataclass
+class NoteStatistics:
+    like_num: str      # 点赞数量
+    collect_num: str   # 收藏数量
+    chat_num: str      # 评论数量
+
+@dataclass
+class VideoInfo:
+    duration_sec: int
+    src: str
+
+@dataclass
+class NoteDetailsItem:
+    id: str
+    title: str
+    author_info: AuthorInfo
+    tags: List[str]
+    date: str
+    ip_zh: str
+    comment_num: str
+    statistic: NoteStatistics
+    images: Optional[list[str]]
+    video: Optional[VideoInfo]
+    timestamp: str

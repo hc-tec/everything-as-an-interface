@@ -16,8 +16,10 @@ from src.core.task_config import TaskConfig
 from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
 from src.services.base import NoteCollectArgs
-from src.services.xiaohongshu import (
+from src.services.xiaohongshu.comments import (
     XiaohongshuCommentService,
+)
+from src.services.xiaohongshu.note_net import (
     XiaohongshuNoteNetService,
 )
 from src.utils import wait_until_result

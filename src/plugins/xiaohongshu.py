@@ -21,6 +21,7 @@ from src.services.xiaohongshu.collections.note_net_collection import (
     run_network_collection,
     record_response as feed_record_response,
 )
+from src.services.xiaohongshu.models import AuthorInfo, NoteStatistics, NoteDetailsItem
 
 logger = logging.getLogger("plugin.xiaohongshu")
 
@@ -31,36 +32,7 @@ logger = logging.getLogger("plugin.xiaohongshu")
 BASE_URL = "https://www.xiaohongshu.com"
 LOGIN_URL = f"{BASE_URL}/login"
 
-@dataclass
-class AuthorInfo:
-    user_id: str
-    username: str
-    avatar: str
 
-@dataclass
-class NoteStatistics:
-    like_num: str      # 点赞数量
-    collect_num: str   # 收藏数量
-    chat_num: str      # 评论数量
-
-@dataclass
-class VideoInfo:
-    duration_sec: int
-    src: str
-
-@dataclass
-class FavoriteItem:
-    id: str
-    title: str
-    author_info: AuthorInfo
-    tags: List[str]
-    date: str
-    ip_zh: str
-    comment_num: str
-    statistic: NoteStatistics
-    images: Optional[list[str]]
-    video: Optional[VideoInfo]
-    timestamp: str
 
 
 class XiaohongshuPlugin(BasePlugin):
@@ -78,12 +50,12 @@ class XiaohongshuPlugin(BasePlugin):
         # 页面注入：使用 self.page
         self.last_favorites: List[Dict[str, Any]] = []
         self._unbind_net_rules: Optional[Callable[[], None]] = None
-        self._net_note_items: List[FavoriteItem] = []
+        self._net_note_items: List[NoteDetailsItem] = []
         self._video_session: Optional[Mp4DownloadSession] = None
         self.ctx: Optional[PluginContext] = None
         self._net_note_event: Optional[asyncio.Event] = None
         # 用户可插入的停止判定函数与网络原始响应记录
-        self._stop_decider: Optional[Callable[[Any, List[Any], Optional[Any], List[FavoriteItem], List[FavoriteItem], float, Dict[str, Any], Optional[ResponseView]], Any]] = None
+        self._stop_decider: Optional[Callable[[Any, List[Any], Optional[Any], List[NoteDetailsItem], List[NoteDetailsItem], float, Dict[str, Any], Optional[ResponseView]], Any]] = None
         self._net_responses: List[Any] = []
         self._net_last_response: Optional[Any] = None
         self._net_last_response_view: Optional[ResponseView] = None
@@ -279,7 +251,7 @@ class XiaohongshuPlugin(BasePlugin):
         except Exception:
             return False
 
-    def set_stop_decider(self, decider: Callable[[Any, List[Any], Optional[Any], List[FavoriteItem], List[FavoriteItem], float, Dict[str, Any], Optional[ResponseView]], Any]) -> None:
+    def set_stop_decider(self, decider: Callable[[Any, List[Any], Optional[Any], List[NoteDetailsItem], List[NoteDetailsItem], float, Dict[str, Any], Optional[ResponseView]], Any]) -> None:
         """Set a custom stop-decider callback for network-driven collection.
 
         The callback signature:
@@ -287,8 +259,8 @@ class XiaohongshuPlugin(BasePlugin):
                 page: Any,
                 all_raw_responses: List[Any],
                 last_raw_response: Optional[Any],
-                all_parsed_items: List[FavoriteItem],
-                last_batch_parsed_items: List[FavoriteItem],
+                all_parsed_items: List[NoteDetailsItem],
+                last_batch_parsed_items: List[NoteDetailsItem],
                 elapsed_seconds: float,
                 extra_config: Dict[str, Any],
                 last_response_view: Optional[ResponseView],
@@ -309,7 +281,7 @@ class XiaohongshuPlugin(BasePlugin):
                 self.last_response_view = outer._net_last_response_view
         return _State(self)
 
-    async def _collect_favorites_via_network(self) -> list[FavoriteItem]:
+    async def _collect_favorites_via_network(self) -> list[NoteDetailsItem]:
         # Build config/state and reuse shared collector
         extra = (self.config.extra if isinstance(self.config, TaskConfig) else {}) or {}
         cfg = NoteNetCollectionConfig(
@@ -319,7 +291,7 @@ class XiaohongshuPlugin(BasePlugin):
             auto_scroll=bool(extra.get("auto_scroll", True)),
             scroll_pause_ms=int(extra.get("scroll_pause_ms", 800)),
         )
-        state = NoteNetCollectionState[FavoriteItem](
+        state = NoteNetCollectionState[NoteDetailsItem](
             page=self.page,
             event=self._net_note_event or asyncio.Event(),
             items=self._net_note_items,
@@ -347,12 +319,12 @@ class XiaohongshuPlugin(BasePlugin):
         self._net_note_event = state.event
         return results
 
-    async def _get_favorites(self) -> list[FavoriteItem]:
+    async def _get_favorites(self) -> list[NoteDetailsItem]:
         if not self.page:
             logger.error("Page 未注入")
             return []
         try:
-            notes: List[FavoriteItem] = []
+            notes: List[NoteDetailsItem] = []
             if getattr(self.config, "need_sniff_network", True):
                 # Network-driven collection with stop conditions
                 collected = await self._collect_favorites_via_network()
@@ -477,7 +449,7 @@ class XiaohongshuPlugin(BasePlugin):
         logger.info(f"读取笔记数据：点赞数量={like_num_val} 收藏数量={collect_num_val} 评论数量={chat_num_val}")
         return like_num_val, collect_num_val, chat_num_val
 
-    async def _parse_note_from_dom(self, item: ElementHandle) -> Optional[FavoriteItem]:
+    async def _parse_note_from_dom(self, item: ElementHandle) -> Optional[NoteDetailsItem]:
         # 点击笔记，查看笔记详情
         cover_ele = await item.query_selector(".title")
         await cover_ele.click()
@@ -522,7 +494,7 @@ class XiaohongshuPlugin(BasePlugin):
 
         logger.info("\n\n")
 
-        return FavoriteItem(
+        return NoteDetailsItem(
             id=item_id,
             title=title_val,
             author_info=AuthorInfo(username=author_username_val, avatar=author_avatar_val, user_id=None),
@@ -536,7 +508,7 @@ class XiaohongshuPlugin(BasePlugin):
             timestamp=datetime.now().isoformat(),
         )
 
-    async def _parse_note_from_network(self, resp_data: Dict[str, Any]) -> Optional[FavoriteItem]:
+    async def _parse_note_from_network(self, resp_data: Dict[str, Any]) -> Optional[NoteDetailsItem]:
         if not resp_data:
             return None
         items = resp_data if isinstance(resp_data, list) else [resp_data]
@@ -562,7 +534,7 @@ class XiaohongshuPlugin(BasePlugin):
                     chat_num=int(comment_num or 0),
                 )
                 images = [image.get("url_default") for image in note_card.get("image_list", [])]
-                self._net_note_items.append(FavoriteItem(
+                self._net_note_items.append(NoteDetailsItem(
                     id=id,
                     title=title,
                     author_info=author_info,

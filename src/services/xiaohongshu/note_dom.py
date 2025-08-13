@@ -11,18 +11,18 @@ from src.services.xiaohongshu.collections.note_dom_collection import (
     DomCollectionState,
     run_dom_collection,
 )
-from src.plugins.xiaohongshu import FavoriteItem, AuthorInfo, NoteStatistics
+from src.services.xiaohongshu.models import AuthorInfo, NoteStatistics, NoteDetailsItem
 from src.utils.scrolling import DefaultScrollStrategy, SelectorScrollStrategy, PagerClickStrategy, ScrollStrategy
 
 
-class XiaohongshuDomNoteService(NoteService[FavoriteItem]):
+class XiaohongshuDomNoteService(NoteService[NoteDetailsItem]):
     def __init__(self) -> None:
         super().__init__()
         self.cfg = DomCollectionConfig()
 
     async def attach(self, page: Page) -> None:
         self.page = page
-        self.state = DomCollectionState[FavoriteItem](page=page)
+        self.state = DomCollectionState[NoteDetailsItem](page=page)
         # Delegate hook
         if self._delegate:
             try:
@@ -46,7 +46,7 @@ class XiaohongshuDomNoteService(NoteService[FavoriteItem]):
     def configure(self, cfg: DomCollectionConfig) -> None:
         self.cfg = cfg
 
-    async def collect(self, args: NoteCollectArgs) -> List[FavoriteItem]:
+    async def collect(self, args: NoteCollectArgs) -> List[NoteDetailsItem]:
         if not self.page or not self.state:
             raise RuntimeError("Service not attached to a Page")
 
@@ -77,7 +77,7 @@ class XiaohongshuDomNoteService(NoteService[FavoriteItem]):
             except Exception:
                 pass
 
-        async def extract_once(page: Page, acc: List[FavoriteItem]) -> int:
+        async def extract_once(page: Page, acc: List[NoteDetailsItem]) -> int:
             added = 0
             items = await page.query_selector_all(".tab-content-item:nth-child(2) .note-item")
             for item in items:
@@ -107,7 +107,7 @@ class XiaohongshuDomNoteService(NoteService[FavoriteItem]):
         return results
 
     # 下面的解析逻辑与插件一致，必要时可重用或抽到 parser 模块
-    async def _parse_note_from_dom(self, item: ElementHandle) -> Optional[FavoriteItem]:
+    async def _parse_note_from_dom(self, item: ElementHandle) -> Optional[NoteDetailsItem]:
         try:
             cover_ele = await item.query_selector(".title")
             if cover_ele:
@@ -181,7 +181,7 @@ class XiaohongshuDomNoteService(NoteService[FavoriteItem]):
                 except Exception:
                     pass
 
-            return FavoriteItem(
+            return NoteDetailsItem(
                 id=item_id,
                 title=title_val,
                 author_info=AuthorInfo(username=username_val, avatar=avatar_val, user_id=None),

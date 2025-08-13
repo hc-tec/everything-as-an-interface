@@ -19,7 +19,7 @@ from src.services.xiaohongshu.models import AuthorInfo, NoteStatistics, NoteDeta
 from src.utils.scrolling import DefaultScrollStrategy, SelectorScrollStrategy, PagerClickStrategy, ScrollStrategy
 
 
-class XiaohongshuNoteNetService(NoteService[NoteDetailsItem]):
+class XiaohongshuNoteBriefNetService(NoteService[NoteDetailsItem]):
     def __init__(self) -> None:
         super().__init__()
         self.cfg = NoteNetCollectionConfig()
@@ -218,4 +218,4 @@ class XiaohongshuNoteNetService(NoteService[NoteDetailsItem]):
                 )
             except Exception:
                 continue
-        return results 
+        return results
