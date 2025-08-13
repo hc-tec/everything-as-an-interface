@@ -1,9 +1,13 @@
+
 import asyncio
+import logging
 from typing import Any, Dict, List, Optional
 
 from playwright.async_api import async_playwright
 
 from .plugin_context import PluginContext
+
+
 
 class Orchestrator:
     def __init__(
@@ -47,11 +51,21 @@ class Orchestrator:
             self._browser = await self._playwright.chromium.launch(**launch_kwargs)
 
     async def stop(self) -> None:
-        if self._browser:
-            await self._browser.close()
+        try:
+            if self._browser:
+                await self._browser.close()
+                self._browser = None
+        except Exception as e:
+            logging.warning(f"浏览器关闭失败: {str(e)}")
+        finally:
             self._browser = None
-        if self._playwright:
-            await self._playwright.stop()
+
+        try:
+            if self._playwright:
+                await self._playwright.stop()
+        except Exception:
+            logging.warning(f"playwright关闭失败: {str(e)}")
+        finally:
             self._playwright = None
 
     async def allocate_context_page(

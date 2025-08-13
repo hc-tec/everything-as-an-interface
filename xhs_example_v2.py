@@ -3,6 +3,8 @@
 万物皆接口 - 示例程序（注入式上下文 + 调度订阅）
 """
 
+import sys
+import signal
 import asyncio
 import json
 import logging
@@ -100,15 +102,30 @@ async def main():
     print("调度器已启动，按Ctrl+C停止")
     print("首次运行时会打开浏览器要求手动登录")
 
-    try:
-        while True:
-            await asyncio.sleep(1)
-    except KeyboardInterrupt:
-        print("正在停止...")
-    finally:
-        await system.scheduler.stop()
-        await orchestrator.stop()
-        print("已停止")
+    stop_event = asyncio.Event()
+
+    loop = asyncio.get_running_loop()
+
+    # 跨平台信号桥接：非 Windows 用 add_signal_handler；Windows 用 signal.signal + call_soon_threadsafe
+    if sys.platform == "win32":
+        def _win_sig_handler(signum, frame):
+            # 在信号处理器里不能直接触碰 asyncio 对象，用线程安全的方式投递回事件循环
+            loop.call_soon_threadsafe(stop_event.set)
+        # Ctrl+C
+        signal.signal(signal.SIGINT, _win_sig_handler)
+        # Ctrl+Break（有的终端可用）
+        if hasattr(signal, "SIGBREAK"):
+            signal.signal(signal.SIGBREAK, _win_sig_handler)
+    else:
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            loop.add_signal_handler(sig, stop_event.set)
+
+    await stop_event.wait()
+
+    print("正在停止...")
+    await system.scheduler.stop()
+    await orchestrator.stop()
+    print("已停止")
 
 if __name__ == "__main__":
     asyncio.run(main()) 
