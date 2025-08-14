@@ -29,6 +29,8 @@ async def on_new_favorite(data: Dict[str, Any]) -> None:
         for idx, item in enumerate(data['data'], 1):
             print(f"\n{idx}. {item['title']}")
         print("="*50 + "\n")
+        with open("./data/note-briefs.json", "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
     except Exception as e:
         print(f"on_new_favorite, {e}")
 

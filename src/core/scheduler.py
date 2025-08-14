@@ -263,7 +263,7 @@ class Scheduler:
             data = await plugin.fetch()
             await plugin.stop()
             # 释放上下文
-            await self._orchestrator.release_context_page(ctx)
+            # await self._orchestrator.release_context_page(ctx)
             # 回调与统计
             task.last_data = data
             task.success_count += 1

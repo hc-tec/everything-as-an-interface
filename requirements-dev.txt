@@ -1,3 +1,4 @@
+pymongo
 pytest>=7.0.0
 pytest-asyncio>=0.20.0
 black>=22.12.0

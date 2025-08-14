@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import contextlib
 from typing import Any, Dict, List, Optional
 
 from playwright.async_api import Page
@@ -11,8 +10,8 @@ from src.services.xiaohongshu.collections.note_net_collection import (
     NoteNetCollectionConfig,
     NoteNetCollectionState,
     run_network_collection,
-    record_response,
 )
+from src.services.helpers import ScrollHelper, NetConsumeHelper
 from src.utils.net_rule_bus import NetRuleBus, MergedEvent
 from src.utils.net_rules import ResponseView
 from src.services.xiaohongshu.models import AuthorInfo, NoteStatistics, NoteDetailsItem
@@ -23,24 +22,18 @@ class XiaohongshuNoteNetService(NoteService[NoteDetailsItem]):
     def __init__(self) -> None:
         super().__init__()
         self.cfg = NoteNetCollectionConfig()
-        self._bus: Optional[NetRuleBus] = None
-        self._merged_q: Optional[asyncio.Queue] = None
-        self._subs_meta: Dict[int, tuple[str, str]] = {}
-        self._consumer: Optional[asyncio.Task] = None
+        self._net_helper: Optional[NetConsumeHelper[NoteDetailsItem]] = None
 
     async def attach(self, page: Page) -> None:
         self.page = page
         self.state = NoteNetCollectionState[NoteDetailsItem](page=page, event=asyncio.Event())
 
-        # Bind NetRuleBus and subscribe to note responses (multi-pattern ready)
-        self._bus = NetRuleBus()
-        self._unbind = await self._bus.bind(page)
-        self._merged_q, self._subs_meta = self._bus.subscribe_many([
+        # Bind NetRuleBus and start consumer via helper
+        self._net_helper = NetConsumeHelper(state=self.state, delegate=self._delegate)
+        await self._net_helper.bind(page, [
             (r".*/feed", "response"),
-            # Add more patterns if needed: (r".*/another_endpoint", "response")
         ])
-        # Start background consumer
-        self._consumer = asyncio.create_task(self._consume_loop())
+        await self._net_helper.start(default_parse_items=self._parse_items_default_wrapper)
 
         # Delegate hook
         if self._delegate:
@@ -57,14 +50,11 @@ class XiaohongshuNoteNetService(NoteService[NoteDetailsItem]):
             except Exception:
                 pass
         # Stop consumer
-        if self._consumer:
+        if self._net_helper:
             try:
-                self._consumer.cancel()
-                with contextlib.suppress(asyncio.CancelledError):
-                    await self._consumer
+                await self._net_helper.stop()
             except Exception:
                 pass
-            self._consumer = None
         await super().detach()
 
     def set_stop_decider(self, decider) -> None:
@@ -78,26 +68,8 @@ class XiaohongshuNoteNetService(NoteService[NoteDetailsItem]):
         if not self.page or not self.state:
             raise RuntimeError("Service not attached to a Page")
 
-        async def on_scroll() -> None:
-            try:
-                strat: ScrollStrategy
-                pause = self._service_config.scroll_pause_ms or self.cfg.scroll_pause_ms
-                # Prefer ServiceConfig if specified
-                if self._service_config.scroll_mode == "selector" and self._service_config.scroll_selector:
-                    strat = SelectorScrollStrategy(self._service_config.scroll_selector, pause_ms=pause)
-                elif self._service_config.scroll_mode == "pager" and self._service_config.pager_selector:
-                    strat = PagerClickStrategy(self._service_config.pager_selector, wait_ms=pause)
-                else:
-                    extra = (args.extra_config or {})
-                    if extra.get("scroll_selector"):
-                        strat = SelectorScrollStrategy(extra["scroll_selector"], pause_ms=pause)
-                    elif extra.get("pager_selector"):
-                        strat = PagerClickStrategy(extra["pager_selector"], wait_ms=pause)
-                    else:
-                        strat = DefaultScrollStrategy(pause_ms=pause)
-                await strat.scroll(self.page)
-            except Exception:
-                pass
+        pause = self._service_config.scroll_pause_ms or self.cfg.scroll_pause_ms
+        on_scroll = ScrollHelper.build_on_scroll(self.page, service_config=self._service_config, pause_ms=pause, extra=args.extra_config)
 
         items = await run_network_collection(
             self.state,
@@ -108,74 +80,9 @@ class XiaohongshuNoteNetService(NoteService[NoteDetailsItem]):
         )
         return items
 
-    async def _consume_loop(self) -> None:
-        if not self._merged_q:
-            return
-        while True:
-            try:
-                evt: MergedEvent = await self._merged_q.get()
-            except asyncio.CancelledError:
-                break
-            except Exception:
-                continue
-
-            if not isinstance(evt.view, ResponseView):
-                continue
-
-            try:
-                data = evt.view.data()
-            except Exception:
-                data = None
-
-            if not data or not isinstance(data, dict) or data.get("code") != 0:
-                continue
-
-            # Delegate can observe raw response first
-            if self._delegate and self.state:
-                try:
-                    await self._delegate.on_response(evt.view, self.state)
-                except Exception:
-                    pass
-
-            # Whether to record into state.raw_responses/last_response
-            should_record = True
-            if self._delegate:
-                try:
-                    should_record = bool(self._delegate.should_record_response(data, evt.view))
-                except Exception:
-                    should_record = True
-            if should_record and self.state:
-                record_response(self.state, data, evt.view)
-
-            # Let delegate parse items first; if returns None, fallback to default
-            parsed: Optional[List[NoteDetailsItem]] = None
-            if self._delegate:
-                try:
-                    parsed = await self._delegate.parse_items(data)
-                except Exception:
-                    parsed = None
-
-            if parsed is None:
-                # Default parser
-                items_payload = data.get("data", {}).get("items", [])
-                parsed = await self._parse_items_default(items_payload)
-
-            # Post-process via delegate and append to state
-            if parsed and self.state:
-                try:
-                    if self._delegate:
-                        parsed = await self._delegate.on_items_collected(parsed, self.state)
-                except Exception:
-                    pass
-                try:
-                    self.state.items.extend(parsed)
-                except Exception:
-                    pass
-                if self.state.event:
-                    try:
-                        self.state.event.set()
-                    except Exception:
-                        pass
+    async def _parse_items_default_wrapper(self, payload: Dict[str, Any]) -> List[NoteDetailsItem]:
+        items_payload = payload.get("items", [])
+        return await self._parse_items_default(items_payload)
 
     async def _parse_items_default(self, resp_items: List[Dict[str, Any]]) -> List[NoteDetailsItem]:
         results: List[NoteDetailsItem] = []
