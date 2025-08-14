@@ -1,0 +1,241 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
+
+from .models import (
+    DiffResult,
+    SyncConfig,
+    StopState,
+    get_record_identity,
+    select_comparable_fields,
+    compute_fingerprint,
+)
+from .storage import AbstractStorage
+
+
+@dataclass
+class StopDecision:
+    should_stop: bool
+    reason: Optional[str] = None
+    details: Optional[Dict[str, Any]] = None
+
+
+class PassiveSyncEngine:
+    """Passive sync & diff engine.
+
+    This engine exposes two main entrypoints:
+      1) diff_and_apply(current_batch):
+         - Compare incoming records with stored snapshot and apply delta
+           (insert/update/delete) based on SyncConfig.
+         - Return DiffResult for the given batch.
+      2) evaluate_stop_condition(current_batch):
+         - Update internal StopState counters and determine whether a caller
+           should stop further collection based on configured thresholds.
+
+    The engine is designed to be called repeatedly with batches of freshly
+    collected records (already parsed). It does not perform crawling itself.
+    """
+
+    def __init__(self, *, storage: AbstractStorage, config: Optional[SyncConfig] = None) -> None:
+        self.storage = storage
+        self.config = config or SyncConfig()
+        self._stop_state = StopState()
+
+    async def diff_and_apply(self, current_records: Iterable[Mapping[str, Any]]) -> DiffResult:
+        id_key = self.config.identity_key
+
+        incoming_by_id = self._index_incoming_records(current_records, id_key=id_key)
+        snapshot_index = await self._get_snapshot_index(id_key=id_key)
+
+        added, updated = await self._detect_additions_and_updates(
+            incoming_by_id=incoming_by_id, snapshot_index=snapshot_index, id_key=id_key
+        )
+
+        missing_ids = self._detect_missing_ids(
+            incoming_ids=set(incoming_by_id.keys()), snapshot_ids=set(snapshot_index.keys())
+        )
+
+        deleted = await self._apply_changes(added=added, updated=updated, missing_ids=missing_ids, id_key=id_key)
+
+        return DiffResult(added=added, updated=updated, deleted=deleted)
+
+    def _index_incoming_records(
+        self, current_records: Iterable[Mapping[str, Any]], *, id_key: str
+    ) -> Dict[str, Dict[str, Any]]:
+        """Build id -> record index for incoming batch."""
+        incoming_by_id: Dict[str, Dict[str, Any]] = {}
+        for rec in current_records:
+            identity = get_record_identity(rec, identity_key=id_key)
+            incoming_by_id[identity] = dict(rec)
+        return incoming_by_id
+
+    async def _get_snapshot_index(self, *, id_key: str) -> Dict[str, Any]:
+        """Fetch snapshot mapping id -> placeholder value, using list_all_ids.
+
+        We only need presence for additions/deletions; updates rely on fingerprints per-id.
+        """
+        try:
+            ids = await self.storage.list_all_ids(id_field=id_key)
+        except Exception:
+            ids = []
+        return {rid: True for rid in ids}
+
+    async def _detect_additions_and_updates(
+        self,
+        *,
+        incoming_by_id: Dict[str, Dict[str, Any]],
+        snapshot_index: Mapping[str, Any],
+        id_key: str,
+    ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+        added: List[Dict[str, Any]] = []
+        updated: List[Dict[str, Any]] = []
+        for identity, rec in incoming_by_id.items():
+            exists = identity in snapshot_index
+            if not exists:
+                added.append(rec)
+                continue
+
+            if await self._updated_by_fingerprint(identity=identity, rec=rec, id_key=id_key):
+                updated.append(rec)
+        return added, updated
+
+    def _detect_missing_ids(self, *, incoming_ids: set[str], snapshot_ids: set[str]) -> List[str]:
+        return [rid for rid in snapshot_ids if rid not in incoming_ids]
+
+    async def _apply_changes(
+        self,
+        *,
+        added: List[Dict[str, Any]],
+        updated: List[Dict[str, Any]],
+        missing_ids: List[str],
+        id_key: str,
+    ) -> List[Dict[str, Any]]:
+        deleted: List[Dict[str, Any]] = []
+        if added:
+            await self.storage.upsert_many(added)
+        if updated:
+            await self.storage.upsert_many(updated)
+
+        if missing_ids:
+            if self.config.deletion_policy == "soft":
+                await self.storage.mark_deleted(
+                    missing_ids,
+                    soft_flag=self.config.soft_delete_flag,
+                    soft_time_key=self.config.soft_delete_time_key,
+                )
+            else:
+                await self.storage.delete_many(missing_ids)
+            for rid in missing_ids:
+                deleted.append({id_key: rid})
+        return deleted
+
+    async def _updated_by_fingerprint(
+        self,
+        *,
+        identity: str,
+        rec: Mapping[str, Any],
+        id_key: str,
+    ) -> bool:
+        try:
+            prev_fp = await self.storage.get_fingerprint_by_id(
+                identity, fingerprint_key=self.config.fingerprint_key
+            )
+        except Exception:
+            prev_fp = None
+
+        exclude_keys = [id_key, self.config.fingerprint_key]
+        curr_fp = compute_fingerprint(
+            rec,
+            fields=self.config.fingerprint_fields,
+            exclude=self.config.fingerprint_fields is None and exclude_keys or None,
+            algorithm=self.config.fingerprint_algorithm,
+        )
+
+        try:
+            await self.storage.upsert_fingerprint(
+                identity, curr_fp, fingerprint_key=self.config.fingerprint_key
+            )
+        except Exception:
+            pass
+
+        if prev_fp is None:
+            previous = await self.storage.get_by_id(identity)
+            previous_comp = select_comparable_fields(previous or {}, exclude=[id_key, self.config.fingerprint_key])
+            current_comp = select_comparable_fields(rec, exclude=[id_key, self.config.fingerprint_key])
+            return previous_comp != current_comp
+        return prev_fp != curr_fp
+
+    async def process_batch(self, current_records: Iterable[Mapping[str, Any]]):
+        """Convenience method: perform diff/apply and stop-evaluation in one call.
+
+        Returns a tuple of (DiffResult, StopDecision).
+        """
+        # Materialize batch for counting
+        batch_list = list(current_records)
+        diff = await self.diff_and_apply(batch_list)
+        known_in_batch = max(0, len(batch_list) - len(diff.added) - len(diff.updated))
+        self.update_session_counters(
+            added_count=len(diff.added), updated_count=len(diff.updated), known_in_batch=known_in_batch
+        )
+        decision = self.evaluate_stop_condition(batch_list)
+        return diff, decision
+
+    def evaluate_stop_condition(self, current_batch: Sequence[Mapping[str, Any]]) -> StopDecision:
+        """Update stop counters and evaluate if we should stop collecting.
+
+        Heuristics:
+          - Count how many items in the batch are already known (exist in storage snapshot index).
+          - If consecutive known items exceed threshold, stop.
+          - If a batch produced no additions or updates (according to internal state),
+            increment no-change batch counter; stop when threshold reached.
+          - If total new items in the session exceed max_new_items, stop.
+
+        Note: This method is stateless with respect to storage content (does not query DB).
+        Callers should use it immediately after diff_and_apply to set accurate counters.
+        """
+        cfg = self.config
+        st = self._stop_state
+
+        # The caller is expected to compute added/updated by calling diff_and_apply first.
+        # Here we infer a minimal signal: if batch length is zero -> no change.
+        if len(current_batch) == 0:
+            st.consecutive_no_change_batches += 1
+
+        # Evaluate thresholds
+        if cfg.stop_after_no_change_batches is not None and st.consecutive_no_change_batches >= cfg.stop_after_no_change_batches:
+            return StopDecision(True, reason="no_change_batches", details={"batches": st.consecutive_no_change_batches})
+
+        if cfg.max_new_items is not None and st.total_new_items_in_session >= cfg.max_new_items:
+            return StopDecision(True, reason="max_new_items", details={"new_items": st.total_new_items_in_session})
+
+        if cfg.stop_after_consecutive_known is not None and st.consecutive_known_items >= cfg.stop_after_consecutive_known:
+            return StopDecision(True, reason="consecutive_known", details={"known": st.consecutive_known_items})
+
+        return StopDecision(False)
+
+    def update_session_counters(self, *, added_count: int, updated_count: int, known_in_batch: int) -> None:
+        """Advance session counters to be used by stop evaluation.
+
+        Call this right after diff_and_apply for each batch.
+        known_in_batch should be the number of items already present in storage
+        (i.e., batch size - added_count when deletions are not considered in the batch).
+        """
+        st = self._stop_state
+        # New content appeared -> reset known streak
+        if added_count > 0 or updated_count > 0:
+            st.consecutive_known_items = 0
+            st.total_new_items_in_session += added_count
+            st.consecutive_no_change_batches = 0
+        else:
+            st.consecutive_known_items += known_in_batch
+            st.consecutive_no_change_batches += 1
+
+    def reset_session(self) -> None:  # pragma: no cover - trivial
+        self._stop_state = StopState()
+
+    async def suggest_since_timestamp(self) -> Optional[Any]:
+        # No-op in pure fingerprint mode; kept for backward compatibility
+        return None
+
+
