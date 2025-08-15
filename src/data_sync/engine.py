@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
+from src.common.plugin import StopDecision
 
 from .models import (
     DiffResult,
@@ -14,11 +15,7 @@ from .models import (
 from .storage import AbstractStorage
 
 
-@dataclass
-class StopDecision:
-    should_stop: bool
-    reason: Optional[str] = None
-    details: Optional[Dict[str, Any]] = None
+
 
 
 class PassiveSyncEngine:
@@ -117,17 +114,18 @@ class PassiveSyncEngine:
         if updated:
             await self.storage.upsert_many(updated)
 
-        if missing_ids:
-            if self.config.deletion_policy == "soft":
-                await self.storage.mark_deleted(
-                    missing_ids,
-                    soft_flag=self.config.soft_delete_flag,
-                    soft_time_key=self.config.soft_delete_time_key,
-                )
-            else:
-                await self.storage.delete_many(missing_ids)
-            for rid in missing_ids:
-                deleted.append({id_key: rid})
+        # 目前只是一批次的数据到来，不应该进行删除
+        # if missing_ids:
+        #     if self.config.deletion_policy == "soft":
+        #         await self.storage.mark_deleted(
+        #             missing_ids,
+        #             soft_flag=self.config.soft_delete_flag,
+        #             soft_time_key=self.config.soft_delete_time_key,
+        #         )
+        #     else:
+        #         await self.storage.delete_many(missing_ids)
+        #     for rid in missing_ids:
+        #         deleted.append({id_key: rid})
         return deleted
 
     async def _updated_by_fingerprint(
@@ -137,14 +135,21 @@ class PassiveSyncEngine:
         rec: Mapping[str, Any],
         id_key: str,
     ) -> bool:
-        try:
-            prev_fp = await self.storage.get_fingerprint_by_id(
-                identity, fingerprint_key=self.config.fingerprint_key
-            )
-        except Exception:
-            prev_fp = None
 
         exclude_keys = [id_key, self.config.fingerprint_key]
+
+        prev_fp = await self.storage.get_fingerprint_by_id(
+            identity, fingerprint_key=self.config.fingerprint_key
+        )
+        if prev_fp is None:
+            # 重新计算 fingerprint
+            prev_fp = compute_fingerprint(
+                await self.storage.get_by_id(identity),
+                fields=self.config.fingerprint_fields,
+                exclude=self.config.fingerprint_fields is None and exclude_keys or None,
+                algorithm=self.config.fingerprint_algorithm,
+            )
+
         curr_fp = compute_fingerprint(
             rec,
             fields=self.config.fingerprint_fields,
@@ -159,14 +164,9 @@ class PassiveSyncEngine:
         except Exception:
             pass
 
-        if prev_fp is None:
-            previous = await self.storage.get_by_id(identity)
-            previous_comp = select_comparable_fields(previous or {}, exclude=[id_key, self.config.fingerprint_key])
-            current_comp = select_comparable_fields(rec, exclude=[id_key, self.config.fingerprint_key])
-            return previous_comp != current_comp
         return prev_fp != curr_fp
 
-    async def process_batch(self, current_records: Iterable[Mapping[str, Any]]):
+    async def process_batch(self, current_records: Iterable[Mapping[str, Any]]) -> Tuple[DiffResult, StopDecision]:
         """Convenience method: perform diff/apply and stop-evaluation in one call.
 
         Returns a tuple of (DiffResult, StopDecision).

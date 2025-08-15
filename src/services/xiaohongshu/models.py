@@ -123,6 +123,13 @@ class NoteDetailsItem:
     video: Optional[VideoInfo]
     timestamp: str
 
+
+@dataclass
+class NoteAccessInfo:
+    id: str
+    xsec_token: str
+
+
 @dataclass
 class NoteBriefItem:
     id: str

@@ -44,16 +44,20 @@ class SyncConfig:
     fingerprint_fields: Optional[Sequence[str]] = None  # None -> use all fields except bookkeeping keys
     fingerprint_key: str = "_fingerprint"
     fingerprint_algorithm: str = "sha1"  # sha1|sha256
-    prefer_fingerprint: bool = True
 
-
-@dataclass
 class DiffResult:
     """Result of comparing current dataset with the stored snapshot."""
 
     added: List[Dict[str, Any]] = field(default_factory=list)
     updated: List[Dict[str, Any]] = field(default_factory=list)
     deleted: List[Dict[str, Any]] = field(default_factory=list)
+
+    def __init__(self, added: List[Dict[str, Any]],
+                 updated: List[Dict[str, Any]],
+                 deleted: List[Dict[str, Any]]) -> None:
+        self.added = added
+        self.updated = updated
+        self.deleted = deleted
 
     def stats(self) -> Mapping[str, int]:  # pragma: no cover - trivial
         return {
