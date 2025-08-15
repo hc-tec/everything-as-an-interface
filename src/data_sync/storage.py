@@ -102,6 +102,9 @@ class InMemoryStorage(AbstractStorage):
             self._items[identity] = item
         item[fingerprint_key] = fingerprint
 
+    def get_items(self):
+        return self._items.values()
+
 
 class MongoStorage(AbstractStorage):
     """MongoDB-backed storage (optional dependency: motor)."""

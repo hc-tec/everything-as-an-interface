@@ -17,6 +17,9 @@ from src.services.xiaohongshu.models import AuthorInfo, NoteStatistics, NoteBrie
 
 
 class XiaohongshuNoteBriefNetService(NoteService[NoteBriefItem]):
+    """
+    小红书瀑布流笔记抓取服务 - 通过监听网络实现，而非解析 Dom
+    """
     def __init__(self) -> None:
         super().__init__()
         self.cfg = NoteNetCollectionConfig()
@@ -27,24 +30,24 @@ class XiaohongshuNoteBriefNetService(NoteService[NoteBriefItem]):
         self.state = NoteNetCollectionState[NoteBriefItem](page=page, event=asyncio.Event())
 
         # Bind NetRuleBus and start consumer via helper
-        self._net_helper = NetConsumeHelper(state=self.state, delegate=self._delegate)
+        self._net_helper = NetConsumeHelper(state=self.state, delegate=self.delegate)
         await self._net_helper.bind(page, [
             (r".*/note/collect/page/*", "response"),
         ])
         await self._net_helper.start(default_parse_items=self._parse_items_wrapper)
 
         # Delegate hook
-        if self._delegate:
+        if self.delegate.on_attach:
             try:
-                await self._delegate.on_attach(page)
+                await self.delegate.on_attach(page)
             except Exception:
                 pass
 
     async def detach(self) -> None:
         # Delegate hook (before unbind)
-        if self._delegate:
+        if self.delegate.on_detach:
             try:
-                await self._delegate.on_detach()
+                await self.delegate.on_detach()
             except Exception:
                 pass
         # Stop consumer

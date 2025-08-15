@@ -23,7 +23,7 @@ python -m playwright install
 ### 首次运行与登录
 - 运行示例（会启动浏览器，首轮需手动登录）：
 ```bash
-python xhs_example_v2.py
+python xhs_note_brief.py
 ```
 - 首次运行流程：
   - 系统初始化 `EverythingAsInterface`，本地创建 `accounts/` 与 `data/` 目录。
@@ -74,7 +74,7 @@ python xhs_example_v2.py
 
 ### 最小可用示例（一键跑通收藏摘要）
 ```python
-# 片段示意：将 xhs_example_v2.py 中 TaskConfig 的 extra 改为更小量测试
+# 片段示意：将 xhs_note_brief.py 中 TaskConfig 的 extra 改为更小量测试
 TaskConfig(
     cookie_ids=["<你的cookie_id>"],  # 首次登录后在控制台看见
     extra={

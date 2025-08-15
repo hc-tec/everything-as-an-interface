@@ -3,6 +3,8 @@
 万物皆接口 - 示例程序（注入式上下文 + 调度订阅）
 """
 
+import sys
+import signal
 import asyncio
 import json
 import logging
@@ -12,7 +14,8 @@ from typing import Dict, Any
 from src import EverythingAsInterface
 from src.core.orchestrator import Orchestrator
 from src.core.task_config import TaskConfig
-from src.plugins.xiaohongshu import XiaohongshuPlugin
+from src.plugins.xiaohongshu_brief import XiaohongshuNoteBriefPlugin
+from settings import PROJECT_ROOT
 
 async def on_new_favorite(data: Dict[str, Any]) -> None:
     """
@@ -21,16 +24,20 @@ async def on_new_favorite(data: Dict[str, Any]) -> None:
     Args:
         data: 收藏夹数据
     """
-    print("\n" + "="*50)
-    print(f"检测到 {len(data['new_items'])} 条新收藏:")
-    for idx, item in enumerate(data['new_items'], 1):
-        print(f"\n{idx}. {item['title']}")
-    print("="*50 + "\n")
+    try:
+        print("\n" + "="*50)
+        print(f"检测到 {len(data['data'])} 条新收藏:")
+        for idx, item in enumerate(data['data'], 1):
+            print(f"\n{idx}. {item['title']}")
+        print("="*50 + "\n")
+        with open(os.path.join(PROJECT_ROOT, "data/note-diff.json"), "w+", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+    except Exception as e:
+        print(f"on_new_favorite, {e}")
 
 async def main():
-    logging.basicConfig(level=logging.DEBUG)
-    os.makedirs("accounts", exist_ok=True)
-    os.makedirs("data", exist_ok=True)
+    os.makedirs("../accounts", exist_ok=True)
+    os.makedirs("../data", exist_ok=True)
     # 初始化系统
     system = EverythingAsInterface(config={
         "master_key": "your-secret-key",  # 生产环境应使用安全的密钥存储方案
@@ -63,13 +70,21 @@ async def main():
 
     # 添加任务（使用调度器）
     task_id = system.scheduler.add_task(
-        plugin_id="xiaohongshu",
+        plugin_id="xiaohongshu_brief",
         interval=300,  # 5分钟检查一次
         config=TaskConfig(
             # 可选：填写已保存的 cookie_ids 列表，以跳过手动登录
-            cookie_ids=["3d1ab44f-71ea-48eb-96c7-5dca21cc7987"],
+            cookie_ids=["12e12361-b5e3-41ec-ac9e-ef29b675bdb4"],
             extra={
                 "video_output_dir": "videos_data",
+                # NoteNetCollectionConfig
+                "max_items": 10,
+
+                # PassiveSyncEngine Config
+                "deletion_policy": "soft",
+                "stop_after_consecutive_known": 5,
+                "stop_after_no_change_batches": 2,
+                "stop_max_items": 10,
             }
         )
     )
@@ -94,15 +109,30 @@ async def main():
     print("调度器已启动，按Ctrl+C停止")
     print("首次运行时会打开浏览器要求手动登录")
 
-    try:
-        while True:
-            await asyncio.sleep(1)
-    except KeyboardInterrupt:
-        print("正在停止...")
-    finally:
-        await system.scheduler.stop()
-        await orchestrator.stop()
-        print("已停止")
+    stop_event = asyncio.Event()
+
+    loop = asyncio.get_running_loop()
+
+    # 跨平台信号桥接：非 Windows 用 add_signal_handler；Windows 用 signal.signal + call_soon_threadsafe
+    if sys.platform == "win32":
+        def _win_sig_handler(signum, frame):
+            # 在信号处理器里不能直接触碰 asyncio 对象，用线程安全的方式投递回事件循环
+            loop.call_soon_threadsafe(stop_event.set)
+        # Ctrl+C
+        signal.signal(signal.SIGINT, _win_sig_handler)
+        # Ctrl+Break（有的终端可用）
+        if hasattr(signal, "SIGBREAK"):
+            signal.signal(signal.SIGBREAK, _win_sig_handler)
+    else:
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            loop.add_signal_handler(sig, stop_event.set)
+
+    await stop_event.wait()
+
+    print("正在停止...")
+    await system.scheduler.stop()
+    await orchestrator.stop()
+    print("已停止")
 
 if __name__ == "__main__":
     asyncio.run(main()) 

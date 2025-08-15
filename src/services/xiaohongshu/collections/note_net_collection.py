@@ -8,15 +8,10 @@ from typing import Any, Awaitable, Callable, Dict, Generic, List, Optional, Type
 from playwright.async_api import Page
 
 from src.utils.net_rules import ResponseView
-from src.services.collection_common import scroll_page_once as _scroll_page_once
+from src.services.collection_common import scroll_page_once as _scroll_page_once, NetStopDecider
 from src.services.collection_loop import run_generic_collection
 
 T = TypeVar("T")
-
-# Type of the user-provided stop decider
-# page, all_raw_responses, last_raw_response, all_parsed_items, last_batch_parsed_items,
-# elapsed_seconds, extra_config, last_response_view -> bool | Awaitable[bool]
-StopDecider = Callable[[Page, List[Any], Optional[Any], List[T], List[T], float, Dict[str, Any], Optional[ResponseView]], bool | Awaitable[bool]]
 
 
 @dataclass
@@ -39,7 +34,7 @@ class NoteNetCollectionConfig:
 
 
 class NoteNetCollectionState(Generic[T]):
-    """Mutable state for a feed collection session."""
+    """Mutable state for a note net collection session."""
 
     page: Page
     event: Optional[asyncio.Event] = None
@@ -47,11 +42,11 @@ class NoteNetCollectionState(Generic[T]):
     raw_responses: List[Any] = field(default_factory=list)
     last_raw_response: Optional[Any] = None
     last_response_view: Optional[ResponseView] = None
-    stop_decider: Optional[StopDecider[T]] = None
+    stop_decider: Optional[NetStopDecider[T]] = None
 
     def __init__(self, page: Page, event: Optional[asyncio.Event], items: List[T] = field(default_factory=list),
                  raw_responses: List[Any] = field(default_factory=list), last_raw_response: Optional[Any] = None,
-                 last_response_view: Optional[ResponseView] = None, stop_decider: Optional[StopDecider[T]] = None):
+                 last_response_view: Optional[ResponseView] = None, stop_decider: Optional[NetStopDecider[T]] = None):
         self.page = page
         self.event = event
         self.items = items
@@ -104,6 +99,7 @@ async def run_network_collection(
     extra_config: Optional[Dict[str, Any]] = None,
     goto_first: Optional[Callable[[], Awaitable[None]]] = None,
     on_scroll: Optional[Callable[[], Awaitable[None]]] = None,
+    on_tick_start: Optional[Callable[[int, Dict[str, Any]], Awaitable[None]]] = None,
     key_fn: Optional[Callable[[T], Optional[str]]] = None,
 ) -> List[T]:
     """Run a unified network-driven collection loop using the generic engine.
@@ -118,7 +114,7 @@ async def run_network_collection(
     async def on_tick() -> Optional[int]:
         # Wait for event with a short timeout to allow idle detection
         try:
-            await asyncio.wait_for(state.event.wait(), timeout=2.0)
+            await asyncio.wait_for(state.event.wait(), timeout=5.0)
         except asyncio.TimeoutError:
             logging.debug("network collection timed out")
             return 0
@@ -134,6 +130,7 @@ async def run_network_collection(
         await _scroll_page_once(state.page, pause_ms=cfg.scroll_pause_ms)
 
     return await run_generic_collection(
+        extra_config=extra_config,
         page=state.page,
         state=state,
         max_items=cfg.max_items,
@@ -144,5 +141,6 @@ async def run_network_collection(
         goto_first=goto_first,
         on_tick=on_tick,
         on_scroll=on_scroll or default_scroll,
+        on_tick_start=on_tick_start,
         key_fn=key_fn,
     ) 

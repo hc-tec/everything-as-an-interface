@@ -7,7 +7,7 @@ from playwright.async_api import ElementHandle, async_playwright
 
 from src.plugins.xiaohongshu import XiaohongshuPlugin, AuthorInfo, NoteStatistics
 from tests.plugins.mock_browser import  page, mock_page, mock_context, mock_browser
-from tests.test_utils import read_file_with_project_root
+from src.utils.file_util import read_file_with_project_root
 from tests.test_utils.fake_mock_function import fake_sleep, mock_query_selector_click
 from tests.plugins.xiaohongshu.note_card_details import NOTE_CARD_DETAILS
 
