@@ -8,6 +8,7 @@ from playwright.async_api import Page
 
 from .collection_common import scroll_page_once as _scroll_page_once, deduplicate_by as _deduplicate_by
 from src.utils.metrics import metrics
+from ..common.plugin import StopDecision
 
 T = TypeVar("T")
 
@@ -18,6 +19,7 @@ OnTick = Callable[[], Awaitable[Optional[int]] | Optional[int]]
 
 async def run_generic_collection(
     *,
+    extra_config: Optional[Dict[str, Any]] = None,
     page: Page,
     state: Any,
     max_items: int,
@@ -28,18 +30,24 @@ async def run_generic_collection(
     goto_first: Optional[Callable[[], Awaitable[None]]] = None,
     on_tick: Optional[OnTick] = None,
     on_scroll: Optional[Callable[[], Awaitable[None]]] = None,
+    on_tick_start: Optional[Callable[[int, Dict[str, Any]], Awaitable[None]]] = None,
     key_fn: Optional[Callable[[T], Optional[str]]] = None,
 ) -> List[T]:
     if goto_first:
         await goto_first()
-        await asyncio.sleep(0.5)
 
     loop = asyncio.get_event_loop()
     start_ts = loop.time()
     idle_rounds = 0
     last_len = 0
-
+    loop_count = 0
     while True:
+        loop_count += 1
+        if on_tick_start:
+            try:
+                await on_tick_start(loop_count, extra_config)
+            except Exception:
+                pass
         elapsed = loop.time() - start_ts
         if elapsed >= max_seconds:
             metrics.event("collect.exit", reason="timeout", elapsed=elapsed)
@@ -74,6 +82,27 @@ async def run_generic_collection(
             logging.warning("超过最大空转轮数")
             break
 
+        if state.stop_decider:
+            try:
+                new_batch = state.items[last_len:new_len]
+                result = state.stop_decider(
+                    loop_count,
+                    extra_config,
+                    page,
+                    state.raw_responses,
+                    state.last_raw_response,
+                    state.items,
+                    new_batch,
+                    elapsed,
+                    state.last_response_view,
+                )
+                stop_decision: StopDecision = await result if asyncio.iscoroutine(result) else result
+                metrics.event("collector.stop_decider", should_stop=stop_decision.should_stop, elapsed=elapsed)
+                if stop_decision.should_stop:
+                    break
+            except Exception as e:
+                logging.error(f"stop_decider execute failed: {str(e)}")
+
         if auto_scroll:
             if on_scroll:
                 try:
@@ -83,6 +112,7 @@ async def run_generic_collection(
             else:
                 await _scroll_page_once(page, pause_ms=scroll_pause_ms)
             metrics.inc("collect.scrolls")
+
 
     if key_fn is None:
         key_fn = lambda it: getattr(it, "id", None)  # type: ignore[return-value]

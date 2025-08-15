@@ -2,6 +2,8 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Dict, Any, List, Optional, Mapping
 
+from playwright.async_api import Page
+
 from src.core.plugin_context import PluginContext
 from src.core.task_config import TaskConfig
 
@@ -38,7 +40,7 @@ class BasePlugin(ABC):
         self._last_data: Any = None
         self.input_data: Dict[str, Any] = {}
         # 注入的 Playwright Page（或等价对象）
-        self.page: Optional[Any] = None
+        self.page: Optional[Page] = None
         # 注入的运行上下文（可选）
         self.ctx: Optional[PluginContext] = None
         self.account_manager = None

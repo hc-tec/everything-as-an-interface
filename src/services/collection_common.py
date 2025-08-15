@@ -1,11 +1,20 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any, Callable, List, Optional, Sequence, TypeVar
+from typing import Any, Callable, List, Optional, Sequence, TypeVar, Dict, Awaitable
 
 from playwright.async_api import Page
 
+from src.common.plugin import StopDecision
+from src.utils.net_rules import ResponseView
+
 T = TypeVar("T")
+
+# Type of the user-provided stop decider
+# loop_count, extra_config, page, all_raw_responses, last_raw_response, all_parsed_items, last_batch_parsed_items,
+# elapsed_seconds, last_response_view -> bool | Awaitable[bool]
+NetStopDecider = Callable[[int, Dict[str, Any], Page, List[Any], Optional[Any], List[T], List[T], float, Optional[ResponseView]]
+                , StopDecision | Awaitable[StopDecision]]
 
 
 async def scroll_page_once(page: Page, *, pause_ms: int = 800) -> bool:
