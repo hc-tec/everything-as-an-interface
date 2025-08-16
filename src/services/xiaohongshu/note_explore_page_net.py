@@ -1,5 +1,6 @@
-from __future__ import annotations
 
+from __future__ import annotations
+from glom import glom
 import asyncio
 import json
 import logging
@@ -16,7 +17,8 @@ from src.services.xiaohongshu.collections.note_net_collection import (
     NoteNetCollectionState,
     run_network_collection,
 )
-from src.services.xiaohongshu.models import AuthorInfo, NoteStatistics, NoteDetailsItem
+from src.services.xiaohongshu.models import AuthorInfo, NoteStatistics, NoteDetailsItem, VideoInfo
+from src.utils.file_util import write_file_with_project_root
 
 
 def quick_extract_initial_state(html_content):
@@ -91,6 +93,8 @@ class XiaohongshuNoteExplorePageNetService(NoteService[NoteDetailsItem]):
         if not self.page or not self.state:
             raise RuntimeError("Service not attached to a Page")
 
+        self._net_helper.set_extra(args.extra_config)
+
         pause = self._service_config.scroll_pause_ms or self.cfg.scroll_pause_ms
         on_scroll = ScrollHelper.build_on_scroll(self.page, service_config=self._service_config,
                                                  pause_ms=pause, extra=args.extra_config)
@@ -123,28 +127,39 @@ class XiaohongshuNoteExplorePageNetService(NoteService[NoteDetailsItem]):
         try:
             id = note_item["noteId"]
             title = note_item.get("title")
+            desc = note_item.get("desc")
             user = note_item.get("user", {})
             author_info = AuthorInfo(
                 username=user.get("nickname"),
                 avatar=user.get("avatar"),
-                user_id=user.get("user_id"),
-                xsec_token=user.get("xsec_token"),
+                user_id=user.get("userId"),
+                xsec_token=user.get("xsecToken"),
             )
             tag_list = [tag.get("name") for tag in note_item.get("tagList", [])]
             date = note_item.get("time")
             ip_zh = note_item.get("ipLocation")
             interact = note_item.get("interactInfo", {})
-            comment_num = str(interact.get("comment_count", 0))
+            comment_num = str(interact.get("commentCount", 0))
             statistic = NoteStatistics(
-                like_num=str(interact.get("liked_count", 0)),
-                collect_num=str(interact.get("collected_count", 0)),
-                chat_num=str(interact.get("comment_count", 0)),
+                like_num=str(interact.get("likedCount", 0)),
+                collect_num=str(interact.get("collectedCount", 0)),
+                chat_num=str(interact.get("commentCount", 0)),
             )
-            images = [image.get("url_default") for image in note_item.get("imageList", [])]
+            images = [image.get("urlDefault").replace("\u002F", "/") for image in note_item.get("imageList", [])]
+            video = note_item.get("video", None)
+            video_info = None
+            if video:
+                duration_sec = video.get("capa").get("duration")
+                src = glom(video, ("media.stream.h265.0.masterUrl"), default=None)
+                if src:
+                    src = src.replace("\u002F", "/")
+                video_id = video.get("media").get("videoId")
+                video_info = VideoInfo(id=video_id, src=src, duration_sec=duration_sec)
             results.append(
                 NoteDetailsItem(
                     id=id,
                     title=title,
+                    desc=desc,
                     author_info=author_info,
                     tags=tag_list,
                     date=date,
@@ -152,7 +167,7 @@ class XiaohongshuNoteExplorePageNetService(NoteService[NoteDetailsItem]):
                     comment_num=comment_num,
                     statistic=statistic,
                     images=images,
-                    video=None,
+                    video=video_info,
                     timestamp=__import__("datetime").datetime.now().isoformat(),
                 )
             )

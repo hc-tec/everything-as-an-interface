@@ -77,14 +77,15 @@ async def main():
             cookie_ids=["12e12361-b5e3-41ec-ac9e-ef29b675bdb4"],
             extra={
                 "video_output_dir": "videos_data",
+                "storage_file": "data/note-briefs.json",
                 # NoteNetCollectionConfig
-                "max_items": 10,
+                "max_items": 1000,
 
                 # PassiveSyncEngine Config
                 "deletion_policy": "soft",
                 "stop_after_consecutive_known": 5,
                 "stop_after_no_change_batches": 2,
-                "stop_max_items": 10,
+                "stop_max_items": 1000,
             }
         )
     )

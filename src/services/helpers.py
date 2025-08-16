@@ -200,10 +200,10 @@ class NetConsumeHelper(Generic[T]):
                     parsed = []
 
             # Post-process via delegate and append to state
-            if parsed and self.state:
+            if self.state:
                 try:
                     if self.delegate.on_items_collected:
-                        parsed = await self.delegate.on_items_collected(parsed, self.state)
+                        parsed = await self.delegate.on_items_collected(parsed, self._consume_count, self._extra, self.state)
                 except Exception:
                     pass
                 try:

@@ -36,6 +36,7 @@ class NoteBriefDelegate(NetServiceDelegate[NoteBriefItem]):
 
     def __init__(self, config: Dict[str, Any]):
         self.storage = InMemoryStorage()
+        self.config = config
         self.sync_engine = PassiveSyncEngine(
             storage=self.storage,
             config=SyncConfig(
@@ -52,7 +53,7 @@ class NoteBriefDelegate(NetServiceDelegate[NoteBriefItem]):
 
     async def load_storage_from_file(self):
         try:
-            local_data = read_json_with_project_root("data/note-briefs1.json")
+            local_data = read_json_with_project_root(self.config.get("storage_file", "data/note-briefs.json"))
             if local_data["count"] != 0:
                 await self.storage.upsert_many(local_data["data"])
                 logger.debug(f"Loaded note-briefs.json, Data count: {local_data['count']}")
@@ -66,13 +67,15 @@ class NoteBriefDelegate(NetServiceDelegate[NoteBriefItem]):
             "count": len(items),
             "data": items,
         }
-        write_json_with_project_root(res, "data/note-briefs2.json")
+        write_json_with_project_root(res, self.config.get("storage_file", "data/note-briefs.json"))
 
     def get_diff(self) -> DiffResult:
         return self._diff
 
     async def on_items_collected(self, items: List[NoteBriefItem],
-                                 state: Optional[NoteNetCollectionState[NoteBriefItem]]) \
+                                 consume_count: int,
+                                 extra: Dict[str, Any],
+                                 state: Any) \
             -> List[NoteBriefItem]:
         diff, decision = await self.sync_engine.process_batch([asdict(item) for item in items])
         logger.debug("added: %s", len(diff.added))

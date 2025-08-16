@@ -19,10 +19,10 @@ from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
 from src.services.base import NoteCollectArgs, T
 from src.services.xiaohongshu.collections.note_net_collection import NoteNetCollectionConfig, NoteNetCollectionState
-from src.services.xiaohongshu.models import NoteAccessInfo
+from src.services.xiaohongshu.models import NoteAccessInfo, NoteDetailsItem
 from src.services.xiaohongshu.note_explore_page_net import XiaohongshuNoteExplorePageNetService
 from src.utils import wait_until_result
-from src.utils.file_util import read_json_with_project_root
+from src.utils.file_util import read_json_with_project_root, write_json_with_project_root
 
 logger = logging.getLogger("plugin.xiaohongshu_detail")
 
@@ -51,6 +51,8 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
         
         # Initialize services (will be attached during setup)
         self._note_explore_net_service: Optional[XiaohongshuNoteExplorePageNetService] = None
+
+        self._access_failed_notes: List[NoteAccessInfo] = []
 
 
     # -----------------------------
@@ -114,7 +116,7 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
         try:
             diff_file_path = self.config.extra.get("diff_file")
             diff_data = read_json_with_project_root(diff_file_path)
-            if diff_data["success"]:
+            if diff_data.get("count") > 0:
                 diff = diff_data["data"]
                 return await self._collect_details(diff)
             raise Exception(diff_data.get("error"))
@@ -133,8 +135,8 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
                                             extra: Dict[str, Any]):
         access_info: NoteAccessInfo = extra.get("access_info")[loop_count - 1]
         note_explore_page = f"https://www.xiaohongshu.com/explore/{access_info.id}?xsec_token={access_info.xsec_token}&xsec_source=pc_feed"
-        await self.page.goto(note_explore_page, wait_until="domcontentloaded")
-        await asyncio.sleep(0.5)
+        await self.page.goto(note_explore_page, wait_until="load")
+        await asyncio.sleep(10)
 
     @staticmethod
     async def stop_to_note_explore_page_when_all_collected(
@@ -145,6 +147,16 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
         if is_all_collected:
             return StopDecision(should_stop=True, reason="All notes collected", details=None)
         return StopDecision(should_stop=False, reason=None, details=None)
+
+    # 通过此函数将访问失败的笔记ID记下来
+    async def on_items_collected(self, items: List[NoteDetailsItem],
+                                 consume_count: int,
+                                 extra: Dict[str, Any],
+                                 state: Any) -> List[NoteDetailsItem]:
+        if not items:
+            access_info = extra.get("access_info")[consume_count - 1]
+            self._access_failed_notes.append(access_info)
+        return items
 
     async def _collect_details(self, added: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Collect detailed information for specified note IDs."""
@@ -158,6 +170,7 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
         logger.info(f"Collecting details for {len(added_briefs_items)} notes")
         # 利用此回调，我们可以让网页跳转到笔记详情页
         self._note_explore_net_service.set_stop_decider(self.stop_to_note_explore_page_when_all_collected)
+        self._note_explore_net_service.set_delegate_on_items_collected(self.on_items_collected)
         # 小红书进入笔记详情，必须得有两个参数，一个是 id，另一个是 xsec_token
         note_access_info = [
             NoteAccessInfo(id=item["id"], xsec_token=item["xsec_token"])
@@ -181,6 +194,15 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
             details_data = [asdict(detail) for detail in valid_details]
             
             logger.info(f"Successfully collected {len(details_data)} details out of {len(added_briefs_items)} requested")
+
+            logger.info(f"Collect failed notes, total: {len(self._access_failed_notes)}")
+            write_json_with_project_root({
+                "success": False,
+                "data": [asdict(access_info) for access_info in self._access_failed_notes],
+                "count": len(self._access_failed_notes),
+                "plugin_id": self.plugin_id,
+                "version": self.version,
+            }, self.config.extra.get("failed_file"))
             
             return {
                 "success": True,
@@ -189,7 +211,6 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
                 "requested_count": len(added_briefs_items),
                 "plugin_id": self.plugin_id,
                 "version": self.version,
-                "task_type": "details",
             }
             
         except Exception as e:

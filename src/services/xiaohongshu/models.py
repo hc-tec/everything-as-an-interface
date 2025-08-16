@@ -108,11 +108,13 @@ class NoteStatistics:
 class VideoInfo:
     duration_sec: int
     src: str
+    id: str
 
 @dataclass
 class NoteDetailsItem:
     id: str
     title: str
+    desc: str
     author_info: AuthorInfo
     tags: List[str]
     date: str

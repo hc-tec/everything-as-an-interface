@@ -30,7 +30,7 @@ async def on_new_favorite(data: Dict[str, Any]) -> None:
         for idx, item in enumerate(data['data'], 1):
             print(f"\n{idx}. {item['title']}")
         print("="*50 + "\n")
-        with open(os.path.join(PROJECT_ROOT, "data/note-details.json"), "w+", encoding="utf-8") as f:
+        with open(os.path.join(PROJECT_ROOT, "data/note-details5.json"), "w+", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
     except Exception as e:
         print(f"on_new_favorite, {e}")
@@ -71,20 +71,23 @@ async def main():
     # 添加任务（使用调度器）
     task_id = system.scheduler.add_task(
         plugin_id="xiaohongshu_detail",
-        interval=300,  # 5分钟检查一次
+        interval=1000000,  # 10分钟检查一次
         config=TaskConfig(
             # 可选：填写已保存的 cookie_ids 列表，以跳过手动登录
             cookie_ids=["12e12361-b5e3-41ec-ac9e-ef29b675bdb4"],
             extra={
                 "video_output_dir": "videos_data",
-                "diff_file": "data/note-diff.json",
+                "diff_file": "data/failed_notes.json",
+                "failed_file": "data/failed_notes.json",
                 # NoteNetCollectionConfig
-                "max_items": 10,
+                "max_items": 999,
+                "max_idle_rounds": 999,
+                "max_seconds": 99999,
                 # PassiveSyncEngine Config
                 "deletion_policy": "soft",
                 "stop_after_consecutive_known": 5,
                 "stop_after_no_change_batches": 2,
-                "stop_max_items": 10,
+                "stop_max_items": 999,
             }
         )
     )

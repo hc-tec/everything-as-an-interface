@@ -7,6 +7,10 @@ def read_file_with_project_root(file_path):
         html = f.read()
     return html
 
+def write_file_with_project_root(data, file_path):
+    with open(os.path.join(PROJECT_ROOT, file_path), 'w', encoding='utf-8') as f:
+        f.write(data)
+
 def read_json_with_project_root(file_path):
     with open(os.path.join(PROJECT_ROOT, file_path), 'r', encoding='utf-8') as f:
         return json.loads(f.read())
