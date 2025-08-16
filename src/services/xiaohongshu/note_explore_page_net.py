@@ -88,6 +88,8 @@ class XiaohongshuNoteExplorePageNetService(NoteService[NoteDetailsItem]):
         return items
 
     async def _parse_items_wrapper(self, payload: Dict[str, Any]) -> List[NoteDetailsItem]:
+        if payload is None:
+            return []
         js_content = quick_extract_initial_state(payload)
         if js_content:
             data = await self.page.evaluate(f"window.__INITIAL_STATE__ = {js_content}")
