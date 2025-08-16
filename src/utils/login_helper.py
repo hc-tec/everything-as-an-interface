@@ -187,7 +187,7 @@ class LoginHelper:
                     logger.debug(f"访问探测页面触发Cookie识别: {test_url}")
                     # 访问探测页面
                     await self.page.goto(test_url, wait_until="domcontentloaded")
-                    await asyncio.sleep(2)
+                    await asyncio.sleep(1)
                     
                 except Exception as e:
                     logger.debug(f"访问探测页面失败: {e}")

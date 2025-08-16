@@ -1,14 +1,54 @@
-import asyncio
+import datetime
+import json
 import logging
+import os
+import re
+import time
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
 from playwright.async_api import Page
 
-from src.core.task_config import TaskConfig
-from src.core.account_manager import AccountManager
+from settings import PROJECT_ROOT
 from src.core.plugin_context import PluginContext
+from src.core.task_config import TaskConfig
+from src.utils.file_util import write_json_with_project_root
+from src.utils.global_response_listener import add_global_response_listener
 from src.utils.login_helper import create_login_helper
+from src.utils.net_rules import ResponseView
+
+
+async def download_response_to_file(resp_view: ResponseView) -> None:
+    response = resp_view._original
+    # 获取响应内容（字节流转成文本）
+    body = resp_view.data()
+
+    try:
+        body = json.loads(body)
+    except Exception as e:
+        pass
+
+    # 获取请求信息
+    request = response.request
+
+    data = {
+        "url": response.url,
+        "status": response.status,
+        "request_headers": request.headers,
+        "response_headers": response.headers,
+        "body": body
+    }
+
+    url = re.sub(r'[\\/:*?"<>|]', "_", response.url)
+
+    os.makedirs(os.path.join(PROJECT_ROOT, "private_data"), exist_ok=True)
+    os.makedirs(os.path.join(PROJECT_ROOT, "private_data", url), exist_ok=True)
+    # 保存文件（用时间戳区分）
+    format_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"private_data/{url}/response_{format_time}_{time.time()}.json"
+    write_json_with_project_root(data, filename)
+
+
 
 logger = logging.getLogger("base_plugin")
 
@@ -49,6 +89,7 @@ class BasePlugin(ABC):
         self.account_manager = None
         # 新增：延迟创建的登录助手
         self._login_helper = None
+        add_global_response_listener(download_response_to_file)
     
     def configure(self, config: TaskConfig) -> None:
         """
