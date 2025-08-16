@@ -15,7 +15,7 @@ from src.services.collection_common import scroll_page_once as _scroll_page_once
 from src.services.collection_loop import run_generic_collection
 
 @dataclass
-class DomCollectionConfig:
+class NoteDomCollectionConfig:
     max_items: int = 1000
     max_seconds: int = 600
     max_idle_rounds: int = 2
@@ -24,14 +24,14 @@ class DomCollectionConfig:
 
 
 @dataclass
-class DomCollectionState(Generic[T]):
+class NoteDomCollectionState(Generic[T]):
     page: Page
     items: List[T] = field(default_factory=list)
 
 
 async def run_dom_collection(
-    state: DomCollectionState[T],
-    cfg: DomCollectionConfig,
+    state: NoteDomCollectionState[T],
+    cfg: NoteDomCollectionConfig,
     *,
     goto_first: Optional[Callable[[], Awaitable[None]]] = None,
     extract_once: ExtractOnce[T] = None,

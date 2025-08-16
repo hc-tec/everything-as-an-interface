@@ -17,11 +17,10 @@ from src.core.task_config import TaskConfig
 from src.data_sync import SyncConfig, InMemoryStorage, PassiveSyncEngine, DiffResult
 from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
-from src.services.base import NoteCollectArgs, NetServiceDelegate
-from src.services.xiaohongshu.collections.note_net_collection import NoteNetCollectionConfig, NoteNetCollectionState
+from src.services.base import NoteCollectArgs, NetServiceDelegate, ServiceConfig
+from src.services.xiaohongshu.collections.note_net_collection import NoteNetCollectionState
 from src.services.xiaohongshu.models import NoteBriefItem
 from src.services.xiaohongshu.note_brief_net import XiaohongshuNoteBriefNetService
-from src.utils import wait_until_result
 from src.utils.file_util import read_json_with_project_root, write_json_with_project_root
 
 logger = logging.getLogger("plugin.xiaohongshu_brief")
@@ -104,6 +103,13 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
     - Plugin formats and returns results
     """
 
+    # 平台/登录配置（供 BasePlugin 通用登录逻辑使用）
+    LOGIN_URL = "https://www.xiaohongshu.com/login"
+    PLATFORM_ID = "xiaohongshu"
+    LOGGED_IN_SELECTORS = [
+        ".reds-img-box",
+    ]
+
     def __init__(self) -> None:
         super().__init__()
         self.plugin_id = PLUGIN_ID
@@ -143,7 +149,7 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
             # Set custom stop conditions if specified
             self._note_brief_net_service.set_stop_decider(self._note_brief_delegate.make_stop_decision)
 
-            logger.info("All Xiaohongshu services initialized and attached")
+            logger.info("XiaohongshuNoteBriefPlugin service initialized and attached")
 
         except Exception as e:
             logger.error(f"Service setup failed: {e}")
@@ -245,13 +251,13 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
                 "error": str(e),
             }
 
-    def _build_note_net_config(self) -> NoteNetCollectionConfig:
+    def _build_note_net_config(self) -> ServiceConfig:
         """Build NoteNetCollectionConfig from task config."""
         if not self.config or not self.config.extra:
-            return NoteNetCollectionConfig()
+            return ServiceConfig()
         
         extra = self.config.extra
-        return NoteNetCollectionConfig(
+        return ServiceConfig(
             max_items=extra.get("max_items", 1000),
             max_seconds=extra.get("max_seconds", 600),
             max_idle_rounds=extra.get("max_idle_rounds", 2),
@@ -266,78 +272,6 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
             return StopDecision(should_stop=False, reason=None, details=None)
         
         return custom_stop_decider
-
-    async def _try_cookie_login(self) -> bool:
-        if not self.page:
-            return False
-        cookie_ids: List[str] = list(self.config.get("cookie_ids", []))
-        if self.account_manager and cookie_ids:
-            try:
-                merged = self.account_manager.merge_cookies(cookie_ids)
-                if merged:
-                    await self.page.context.add_cookies(merged)
-                    await self.page.goto(BASE_URL)
-                    await asyncio.sleep(2)
-                    if await self._is_logged_in():
-                        logger.info("使用配置的 Cookie 登录成功")
-                        return True
-                    logger.warning("提供的 Cookie 未生效")
-            except Exception as exc:  # noqa: BLE001
-                logger.error(f"注入 Cookie 失败: {exc}")
-        return False
-
-    async def _manual_login(self) -> bool:
-        if not self.page:
-            return False
-        try:
-            await self.page.goto(LOGIN_URL)
-            await asyncio.sleep(1)
-            logger.info("请在浏览器中手动登录小红书，系统会自动检测登录状态…")
-            async def check_login():
-                if await self._is_logged_in():
-                    logger.info("检测到登录成功")
-                    try:
-                        cookies = await self.page.context.cookies()
-                        if cookies and self.account_manager:
-                            cookie_id = self.account_manager.add_cookies(
-                                "xiaohongshu", cookies, name="登录获取"
-                            )
-                            if cookie_id:
-                                logger.info(f"Cookie 已保存: {cookie_id}")
-                    except Exception as exc:  # noqa: BLE001
-                        logger.warning(f"获取或保存 Cookie 失败: {exc}")
-                    return True
-                return None
-            await wait_until_result(check_login, timeout=120000)
-            return False
-        except Exception as exc:  # noqa: BLE001
-            logger.error(f"手动登录过程异常: {exc}")
-            return False
-
-    async def _is_logged_in(self) -> bool:
-        """Check if user is logged in by looking for user profile elements."""
-        try:
-            if not self.page:
-                return False
-            
-            # Look for user avatar or profile menu
-            user_indicators = [
-                '.reds-img-box',
-            ]
-            
-            for selector in user_indicators:
-                try:
-                    element = await self.page.wait_for_selector(selector, timeout=3000)
-                    if element:
-                        return True
-                except:
-                    continue
-            
-            return False
-            
-        except Exception as e:
-            logger.warning(f"Login check failed: {e}")
-            return False
 
 
 @register_plugin(PLUGIN_ID)

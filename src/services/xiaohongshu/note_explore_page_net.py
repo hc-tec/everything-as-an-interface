@@ -11,34 +11,16 @@ from playwright.async_api import Page
 
 from src.services.base import NoteService, NoteCollectArgs
 from src.services.collection_common import NetStopDecider
-from src.services.helpers import ScrollHelper, NetConsumeHelper
+from src.services.net_consume_helpers import NetConsumeHelper
+from src.services.scroll_helper import ScrollHelper
 from src.services.xiaohongshu.collections.note_net_collection import (
-    NoteNetCollectionConfig,
     NoteNetCollectionState,
     run_network_collection,
 )
 from src.services.xiaohongshu.models import AuthorInfo, NoteStatistics, NoteDetailsItem, VideoInfo
+from src.services.xiaohongshu.parsers import quick_extract_initial_state, parse_details_from_network
 from src.utils.file_util import write_file_with_project_root
 
-
-def quick_extract_initial_state(html_content):
-    """
-    快速提取HTML文件中的window.__INITIAL_STATE__
-
-    Args:
-        html_content (str): HTML文档
-    """
-
-    # 正则表达式：匹配包含window.__INITIAL_STATE__的script标签
-    pattern = r'<script[^>]*>.*?window\.__INITIAL_STATE__\s*=\s*(.+?)(?=\s*;|\s*</script>|\s*$).*?</script>'
-
-    match = re.search(pattern, html_content, re.DOTALL | re.IGNORECASE)
-
-    if match:
-        state_value = match.group(1).strip()
-        logging.debug("找到 window.__INITIAL_STATE__:")
-        return state_value
-    return None
 
 class XiaohongshuNoteExplorePageNetService(NoteService[NoteDetailsItem]):
     """
@@ -46,7 +28,6 @@ class XiaohongshuNoteExplorePageNetService(NoteService[NoteDetailsItem]):
     """
     def __init__(self) -> None:
         super().__init__()
-        self.cfg = NoteNetCollectionConfig()
         self._net_helper: Optional[NetConsumeHelper[NoteDetailsItem]] = None
 
     async def attach(self, page: Page) -> None:
@@ -86,22 +67,19 @@ class XiaohongshuNoteExplorePageNetService(NoteService[NoteDetailsItem]):
         if self.state:
             self.state.stop_decider = decider
 
-    def configure(self, cfg: NoteNetCollectionConfig) -> None:
-        self.cfg = cfg
-
     async def collect(self, args: NoteCollectArgs) -> List[NoteDetailsItem]:
         if not self.page or not self.state:
             raise RuntimeError("Service not attached to a Page")
 
         self._net_helper.set_extra(args.extra_config)
 
-        pause = self._service_config.scroll_pause_ms or self.cfg.scroll_pause_ms
+        pause = self._service_config.scroll_pause_ms
         on_scroll = ScrollHelper.build_on_scroll(self.page, service_config=self._service_config,
                                                  pause_ms=pause, extra=args.extra_config)
 
         items = await run_network_collection(
             self.state,
-            self.cfg,
+            self._service_config,
             extra_config=args.extra_config or {},
             goto_first=args.goto_first,
             on_scroll=on_scroll,
@@ -119,58 +97,6 @@ class XiaohongshuNoteExplorePageNetService(NoteService[NoteDetailsItem]):
                 if "note" in value:
                     note = value["note"]
                     break
-            return await self._parse_items(note)
+            return parse_details_from_network(note)
         return []
 
-    async def _parse_items(self, note_item: Dict[str, Any]) -> List[NoteDetailsItem]:
-        results: List[NoteDetailsItem] = []
-        try:
-            id = note_item["noteId"]
-            title = note_item.get("title")
-            desc = note_item.get("desc")
-            user = note_item.get("user", {})
-            author_info = AuthorInfo(
-                username=user.get("nickname"),
-                avatar=user.get("avatar"),
-                user_id=user.get("userId"),
-                xsec_token=user.get("xsecToken"),
-            )
-            tag_list = [tag.get("name") for tag in note_item.get("tagList", [])]
-            date = note_item.get("time")
-            ip_zh = note_item.get("ipLocation")
-            interact = note_item.get("interactInfo", {})
-            comment_num = str(interact.get("commentCount", 0))
-            statistic = NoteStatistics(
-                like_num=str(interact.get("likedCount", 0)),
-                collect_num=str(interact.get("collectedCount", 0)),
-                chat_num=str(interact.get("commentCount", 0)),
-            )
-            images = [image.get("urlDefault").replace("\u002F", "/") for image in note_item.get("imageList", [])]
-            video = note_item.get("video", None)
-            video_info = None
-            if video:
-                duration_sec = video.get("capa").get("duration")
-                src = glom(video, ("media.stream.h265.0.masterUrl"), default=None)
-                if src:
-                    src = src.replace("\u002F", "/")
-                video_id = video.get("media").get("videoId")
-                video_info = VideoInfo(id=video_id, src=src, duration_sec=duration_sec)
-            results.append(
-                NoteDetailsItem(
-                    id=id,
-                    title=title,
-                    desc=desc,
-                    author_info=author_info,
-                    tags=tag_list,
-                    date=date,
-                    ip_zh=ip_zh,
-                    comment_num=comment_num,
-                    statistic=statistic,
-                    images=images,
-                    video=video_info,
-                    timestamp=__import__("datetime").datetime.now().isoformat(),
-                )
-            )
-        except Exception as e:
-            logging.error("note parse error", exc_info=e)
-        return results 

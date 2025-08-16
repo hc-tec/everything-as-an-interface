@@ -70,7 +70,7 @@ async def main():
 
     # 添加任务（使用调度器）
     task_id = system.scheduler.add_task(
-        plugin_id="xiaohongshu_detail",
+        plugin_id="xiaohongshu_details",
         interval=1000000,  # 10分钟检查一次
         config=TaskConfig(
             # 可选：填写已保存的 cookie_ids 列表，以跳过手动登录

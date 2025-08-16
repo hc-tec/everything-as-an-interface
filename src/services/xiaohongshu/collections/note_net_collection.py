@@ -13,26 +13,6 @@ from src.services.collection_loop import run_generic_collection
 
 T = TypeVar("T")
 
-
-@dataclass
-class NoteNetCollectionConfig:
-    """Configuration for network-driven note collection.
-
-    Attributes:
-        max_items: Stop when collected at least this many items.
-        max_seconds: Stop after this many seconds.
-        max_idle_rounds: Stop after this many consecutive rounds with no new items.
-        auto_scroll: Whether to scroll to bottom between rounds.
-        scroll_pause_ms: Pause after each scroll, in milliseconds.
-    """
-
-    max_items: int = 1000
-    max_seconds: int = 600
-    max_idle_rounds: int = 2
-    auto_scroll: bool = True
-    scroll_pause_ms: int = 800
-
-
 class NoteNetCollectionState(Generic[T]):
     """Mutable state for a note net collection session."""
 
@@ -94,7 +74,7 @@ def record_response(state: NoteNetCollectionState[Any], data: Any, response_view
 
 async def run_network_collection(
     state: NoteNetCollectionState[T],
-    cfg: NoteNetCollectionConfig,
+    cfg: "ServiceConfig",
     *,
     extra_config: Optional[Dict[str, Any]] = None,
     goto_first: Optional[Callable[[], Awaitable[None]]] = None,
