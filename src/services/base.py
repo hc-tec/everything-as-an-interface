@@ -1,27 +1,26 @@
 from __future__ import annotations
 
-import asyncio
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Any, Awaitable, Callable, Dict, Generic, List, Optional, TypeVar
 
 from playwright.async_api import Page
 
 from src.services.collection_common import NetStopDecider
-from src.services.xiaohongshu.collections.note_net_collection import NoteNetCollectionConfig, NoteNetCollectionState
+from src.services.xiaohongshu.collections.note_net_collection import NoteNetCollectionState
 from src.utils.net_rules import ResponseView
 
 T = TypeVar("T")
 
 # StopDecider = Callable[[Page, List[Any], Optional[Any], List[T], List[T], float, Dict[str, Any], Optional[ResponseView]], bool | Awaitable[bool]]
 
-ServiceDelegateOnAttach = Awaitable[Callable[[Page], None]]
-ServiceDelegateOnDetach = Awaitable[Callable[[], None]]
-ServiceDelegateOnBeforeResponse = Awaitable[Callable[[int, Dict[str, Any], Optional[NoteNetCollectionState[T]]], None]]
-ServiceDelegateOnResponse = Awaitable[Callable[[ResponseView, Optional[NoteNetCollectionState[T]]], None]]
+ServiceDelegateOnAttach = Callable[[Page], Awaitable[None]]
+ServiceDelegateOnDetach = Callable[[], Awaitable[None]]
+ServiceDelegateOnBeforeResponse = Callable[[int, Dict[str, Any], Optional[NoteNetCollectionState[T]]], Awaitable[None]]
+ServiceDelegateOnResponse = Callable[[ResponseView, Optional[NoteNetCollectionState[T]]], Awaitable[None]]
 ServiceDelegateShouldRecordResponse = Callable[[Any, ResponseView], bool]
-ServiceDelegateParseItems = Awaitable[Callable[[Dict[str, Any]], Optional[List[T]]]]
-ServiceDelegateOnItemsCollected = Awaitable[Callable[[List[T], Optional[NoteNetCollectionState[T]]], List[T]]]
+ServiceDelegateParseItems = Callable[[Dict[str, Any]], Awaitable[Optional[List[T]]]]
+ServiceDelegateOnItemsCollected = Callable[[List[T], Optional[NoteNetCollectionState[T]]], Awaitable[List[T]]]
 
 # 上面回调函数的参数格式见下方
 # async def on_attach(self, page: Page) -> None:  # pragma: no cover - default no-op
@@ -77,13 +76,16 @@ class ServiceConfig:
     delay_ms: int = 500
     queue_maxsize: Optional[int] = None
     concurrency: int = 1
-    max_pages: Optional[int] = None
     scroll_pause_ms: int = 800
     max_idle_rounds: int = 2
     max_items: Optional[int] = None
+    max_seconds: int = 600
+    auto_scroll: bool = True
     scroll_mode: Optional[str] = None
     scroll_selector: Optional[str] = None
+    max_pages: Optional[int] = None
     pager_selector: Optional[str] = None
+
 
 
 class BaseSiteService:
@@ -110,7 +112,7 @@ class BaseSiteService:
             except Exception:
                 pass
 
-    def set_service_config(self, cfg: ServiceConfig) -> None:  # pragma: no cover - simple setter
+    def configure(self, cfg: ServiceConfig) -> None:  # pragma: no cover - simple setter
         self._service_config = cfg
 
     def set_delegate_on_attach(self, on_attach: ServiceDelegateOnAttach) -> None:
@@ -173,10 +175,6 @@ class NoteService(NetService, Generic[T]):
 
     @abstractmethod
     def set_stop_decider(self, decider: Optional[NetStopDecider[T]]) -> None:  # pragma: no cover - interface
-        ...
-
-    @abstractmethod
-    def configure(self, cfg: NoteNetCollectionConfig) -> None:  # pragma: no cover - interface
         ...
 
     @abstractmethod

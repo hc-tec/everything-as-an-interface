@@ -9,6 +9,12 @@ from playwright.async_api import Page, Request, Response
 
 from .net_rules import ResponseView, RequestView
 from .metrics import metrics
+from .global_response_listener import notify_global_listeners
+
+NetRuleBusDelegateOnResponse = Callable[[ResponseView], Awaitable[None]]
+
+class NetRuleBusDelegate:
+    on_response: Optional[NetRuleBusDelegateOnResponse] = None
 
 
 @dataclass
@@ -37,6 +43,9 @@ class NetRuleBus:
         self._page: Optional[Page] = None
         self._next_id: int = 1
         self._subs_with_ids: Dict[int, Subscription] = {}
+        self._delegate = NetRuleBusDelegate()
+        # 跟踪每个订阅对应的转发任务，便于取消
+        self._forward_tasks: Dict[int, asyncio.Task] = {}
 
     async def bind(self, page: Page) -> Callable[[], None]:
         if self._bound:
@@ -101,10 +110,27 @@ class NetRuleBus:
                     metrics.inc("netrule.forward")
 
             # Background forwarders
-            asyncio.create_task(forward(q, sub_id, kind))
+            task = asyncio.create_task(forward(q, sub_id, kind))
+            self._forward_tasks[sub_id] = task
             id_to_meta[sub_id] = (pat, kind)
 
         return merged, id_to_meta
+
+    def unsubscribe_many_by_ids(self, ids: List[int]) -> None:
+        """取消一组订阅（通过 subscribe_many 返回的 id）并停止其转发任务。"""
+        for sid in ids:
+            sub = self._subs_with_ids.pop(sid, None)
+            if sub and sub in self._subs:
+                try:
+                    self._subs.remove(sub)
+                except ValueError:
+                    pass
+            task = self._forward_tasks.pop(sid, None)
+            if task:
+                try:
+                    task.cancel()
+                except Exception:
+                    pass
 
     async def _on_request(self, req: Request) -> None:
         url = getattr(req, "url", "")
@@ -119,14 +145,25 @@ class NetRuleBus:
 
     async def _on_response(self, resp: Response) -> None:
         url = getattr(resp, "url", "")
+        notified = False  # 确保全局监听只触发一次
         for sub in self._subs:
             if sub.kind != "response":
                 continue
             if not sub.pattern.search(url):
                 continue
             payload = await self._prefetch_response(resp)
-            await sub.queue.put(ResponseView(resp, payload))
+            resp_view = ResponseView(resp, payload)
+            await sub.queue.put(resp_view)
             metrics.inc("netrule.response_match")
+            # 委托回调（用于本地扩展）
+            if self._delegate.on_response:
+                await self._delegate.on_response(resp_view)
+            # 全局监听器（轻量管理器，不改变 Bus 实例化方式）
+            if not notified:
+                try:
+                    await notify_global_listeners(resp_view)
+                finally:
+                    notified = True
 
     @staticmethod
     async def _snapshot_request(req: Request) -> Dict[str, Any]:
@@ -162,4 +199,4 @@ class NetRuleBus:
                 try:
                     return await resp.body()
                 except Exception:
-                    return None 
+                    return None

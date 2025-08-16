@@ -97,7 +97,10 @@ async def run_generic_collection(
                     state.last_response_view,
                 )
                 stop_decision: StopDecision = await result if asyncio.iscoroutine(result) else result
-                metrics.event("collector.stop_decider", should_stop=stop_decision.should_stop, elapsed=elapsed)
+                metrics.event("collector.stop_decider",
+                              should_stop=stop_decision.should_stop,
+                              stop_reason=stop_decision.reason,
+                              elapsed=elapsed)
                 if stop_decision.should_stop:
                     break
             except Exception as e:

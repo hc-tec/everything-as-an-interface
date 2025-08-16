@@ -1,13 +1,16 @@
+import asyncio
 import logging
 from abc import ABC, abstractmethod
-from typing import Dict, Any, List, Optional, Mapping
+from typing import Any, Dict, List, Optional
 
 from playwright.async_api import Page
 
-from src.core.plugin_context import PluginContext
 from src.core.task_config import TaskConfig
+from src.core.account_manager import AccountManager
+from src.core.plugin_context import PluginContext
+from src.utils.login_helper import create_login_helper
 
-logger = logging.getLogger("plugin")
+logger = logging.getLogger("base_plugin")
 
 class BasePlugin(ABC):
     """
@@ -44,6 +47,8 @@ class BasePlugin(ABC):
         # 注入的运行上下文（可选）
         self.ctx: Optional[PluginContext] = None
         self.account_manager = None
+        # 新增：延迟创建的登录助手
+        self._login_helper = None
     
     def configure(self, config: TaskConfig) -> None:
         """
@@ -63,6 +68,21 @@ class BasePlugin(ABC):
         self.page = self.ctx.page
         self.account_manager = self.ctx.account_manager
         logger.info(f"插件 {self.PLUGIN_ID} 已注入 Context")
+        # 创建登录助手（在有上下文后）
+        self._login_helper = create_login_helper(
+            page=self.page,
+            account_manager=self.account_manager,
+            task_config=self.config,
+            plugin_attrs={
+                # 透传可能存在的类属性，便于向后兼容
+                "LOGIN_URL": getattr(self, "LOGIN_URL", None),
+                "PROBE_URL": getattr(self, "PROBE_URL", None),
+                "HOME_URL": getattr(self, "HOME_URL", None),
+                "PLATFORM_ID": getattr(self, "PLATFORM_ID", None),
+                "LOGGED_IN_SELECTORS": getattr(self, "LOGGED_IN_SELECTORS", None),
+                "COOKIE_DOMAINS": getattr(self, "COOKIE_DOMAINS", None),
+            }
+        )
 
 
     @abstractmethod
@@ -73,6 +93,10 @@ class BasePlugin(ABC):
         Returns:
             是否成功启动
         """
+        valid = self.validate_config()
+        if not valid["valid"]:
+            logger.error("validation failed, error=%s", valid["error"])
+            return valid["valid"]
         self.running = True
         logger.info(f"插件 {self.PLUGIN_ID} 已启动")
         return True
@@ -127,33 +151,54 @@ class BasePlugin(ABC):
         # 默认实现，子类可覆盖
         return {"success": False, "message": "未实现验证码处理"}
 
-    def validate_config(self, config: TaskConfig) -> Dict[str, Any]:
+    def validate_config(self) -> Dict[str, Any]:
         """
         验证配置是否合法
-        
-        Args:
-            config: 配置数据
-            
+
         Returns:
             验证结果，包含是否成功和错误信息
         """
         # 默认实现，子类应当覆盖
         return {"valid": True, "errors": []}
 
-    @abstractmethod
-    async def _try_cookie_login(self):
-        ...
+    def _get_auth_config(self) -> Dict[str, Any]:
+        """
+        兼容旧接口：从任务与插件属性构建认证配置。
+        注意：具体登录流程已迁移到 login_helper。
+        """
+        # 复用 login_helper 的解析结果，避免重复逻辑
+        if not self._login_helper:
+            return {}
+        return self._login_helper.auth_config.get_config()
 
-    @abstractmethod
-    async def _manual_login(self):
-        ...
+    async def _try_cookie_login(self) -> bool:
+        """兼容旧接口：委托给 login_helper 实现。"""
+        if not self._login_helper:
+            return False
+        # BasePlugin 层不做站点判断，站点专属检查仍由子类 _is_logged_in 覆盖。
+        # 这里将 selectors 传 None，login_helper 会从配置读取。
+        return await self._login_helper.try_cookie_login()
+
+    async def _manual_login(self, login_url: Optional[str] = None) -> bool:
+        """兼容旧接口：委托给 login_helper 实现。"""
+        if not self._login_helper:
+            return False
+        return await self._login_helper.manual_login(login_url=login_url)
 
     async def _ensure_logged_in(self) -> bool:
-        if not self.page:
+        """
+        确保登录状态：优先 Cookie 登录；失败则引导手动登录。
+        """
+        if not self._login_helper:
             return False
-        # 1) 优先尝试 Cookie 登录
-        if await self._try_cookie_login():
-            return True
-        # 2) 回退手动登录
-        logger.info("需要手动登录，正在打开登录页…")
-        return await self._manual_login()
+        return await self._login_helper.ensure_logged_in()
+
+    async def _is_logged_in(self) -> bool:
+        """
+        通用的登录检测：默认委托给 login_helper，子类可覆盖为站点专属逻辑。
+        """
+        if not self._login_helper:
+            return False
+        # 允许通过类属性 LOGGED_IN_SELECTORS 传递默认选择器
+        selectors = getattr(self, "LOGGED_IN_SELECTORS", None)
+        return await self._login_helper.is_logged_in(selectors=selectors)
