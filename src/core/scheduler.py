@@ -270,7 +270,10 @@ class Scheduler:
             
             # 如果有回调函数，则调用
             if task.callback and data:
-                await task.callback(data)
+                await task.callback({
+                    "task_config_extra": task.config.extra,
+                    **data
+                })
                 
             logger.info(f"任务执行成功: {task.task_id}")
         except Exception as e:

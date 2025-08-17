@@ -20,9 +20,9 @@ from settings import PROJECT_ROOT
 async def on_new_favorite(data: Dict[str, Any]) -> None:
     """
     新收藏处理回调函数
-    
+
     Args:
-        data: 收藏夹数据
+        data: { **收藏夹数据, "task_config_extra": 任务配置额外参数 }
     """
     try:
         print("\n" + "="*50)

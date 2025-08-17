@@ -17,20 +17,23 @@ from src.core.task_config import TaskConfig
 from src.plugins.xiaohongshu_search import XiaohongshuNoteSearchPlugin
 from settings import PROJECT_ROOT
 
+
 async def on_new_favorite(data: Dict[str, Any]) -> None:
     """
     新收藏处理回调函数
-    
+
     Args:
-        data: 收藏夹数据
+        data: { **收藏夹数据, "task_config_extra": 任务配置额外参数 }
     """
     try:
+        task_config_extra = data["task_config_extra"]
         print("\n" + "="*50)
         print(f"检测到 {len(data['data'])} 条新收藏:")
         for idx, item in enumerate(data['data'], 1):
             print(f"\n{idx}. {item['title']}")
         print("="*50 + "\n")
-        with open(os.path.join(PROJECT_ROOT, "data/note-search.json"), "w+", encoding="utf-8") as f:
+        search_words = task_config_extra.get("search_words", "")
+        with open(os.path.join(PROJECT_ROOT, f"data/note-search-{search_words}.json"), "w+", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
     except Exception as e:
         print(f"on_new_favorite, {e}")
@@ -76,7 +79,7 @@ async def main():
             # 可选：填写已保存的 cookie_ids 列表，以跳过手动登录
             cookie_ids=["12e12361-b5e3-41ec-ac9e-ef29b675bdb4"],
             extra={
-                "search_words": "咖啡馆探店",
+                "search_words": "摄影",
                 # NoteNetCollectionConfig
                 "max_items": 10,
             }
