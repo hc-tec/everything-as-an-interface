@@ -7,7 +7,7 @@ import httpx
 import uuid
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from typing import Dict, Any, List, Optional, Callable, Awaitable
+from typing import Dict, Any, List, Optional, Callable, Awaitable, Union
 from datetime import datetime
 
 logger = logging.getLogger("notification")
@@ -15,7 +15,7 @@ logger = logging.getLogger("notification")
 class NotificationChannel:
     """通知渠道基类"""
     
-    def __init__(self, channel_id: str, name: str, config: Dict[str, Any]):
+    def __init__(self, channel_id: str, name: str, config: Dict[str, Any]) -> None:
         """
         初始化通知渠道
         
@@ -212,7 +212,7 @@ class CustomChannel(NotificationChannel):
     """自定义通知渠道"""
     
     def __init__(self, channel_id: str, name: str, config: Dict[str, Any], 
-                handler: Callable[[str, str, str, Dict[str, Any]], Awaitable[Dict[str, Any]]]):
+                handler: Callable[[str, str, str, Dict[str, Any]], Awaitable[Dict[str, Any]]]) -> None:
         """
         初始化自定义通知渠道
         
@@ -249,7 +249,7 @@ class Notification:
     """通知对象，表示一条通知记录"""
     
     def __init__(self, notification_id: str, title: str, message: str, level: str, 
-                data: Dict[str, Any], channels: List[str] = None):
+                data: Dict[str, Any], channels: Optional[List[str]] = None) -> None:
         """
         初始化通知
         
@@ -287,7 +287,7 @@ class Notification:
 class NotificationCenter:
     """通知中心：负责管理和发送通知"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         """初始化通知中心"""
         self.channels: Dict[str, NotificationChannel] = {}
         self.notifications: List[Notification] = []
@@ -305,7 +305,7 @@ class NotificationCenter:
         # 注册默认渠道
         self.register_channel("console", "控制台通知", {}, ConsoleChannel)
     
-    def register_channel(self, channel_id: str, name: str, config: Dict[str, Any], channel_class) -> str:
+    def register_channel(self, channel_id: str, name: str, config: Dict[str, Any], channel_class: type) -> str:
         """
         注册通知渠道
         
@@ -465,8 +465,8 @@ class NotificationCenter:
         logger.info(f"设置渠道 {channel_id} 的通知级别阈值: {level}")
         return True
     
-    async def send_notification(self, title: str, message: str, level: str = None, 
-                             data: Dict[str, Any] = None, channels: List[str] = None) -> str:
+    async def send_notification(self, title: str, message: str, level: Optional[str] = None, 
+                             data: Optional[Dict[str, Any]] = None, channels: Optional[List[str]] = None) -> str:
         """
         发送通知
         
@@ -566,7 +566,7 @@ class NotificationCenter:
                 return notification.to_dict()
         return None
     
-    def get_all_notifications(self, limit: int = None) -> List[Dict[str, Any]]:
+    def get_all_notifications(self, limit: Optional[int] = None) -> List[Dict[str, Any]]:
         """
         获取所有通知
         
@@ -584,4 +584,4 @@ class NotificationCenter:
         
         if limit and limit > 0:
             return notifications[:limit]
-        return notifications 
+        return notifications

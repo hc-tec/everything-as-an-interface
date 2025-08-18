@@ -15,7 +15,7 @@ class Subscriber:
     def __init__(self, 
                 subscriber_id: str, 
                 callback: Callable[[Dict[str, Any]], Awaitable[None]],
-                filters: Optional[Dict[str, Any]] = None):
+                filters: Optional[Dict[str, Any]] = None) -> None:
         """
         初始化订阅者
         
@@ -98,7 +98,7 @@ class Subscriber:
 class Topic:
     """主题类，表示一个数据主题"""
     
-    def __init__(self, topic_id: str, name: str, description: str = ""):
+    def __init__(self, topic_id: str, name: str, description: str = "") -> None:
         """
         初始化主题
         
@@ -249,7 +249,7 @@ class Topic:
 class SubscriptionSystem:
     """订阅系统：负责管理主题和订阅关系"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         """初始化订阅系统"""
         self.topics: Dict[str, Topic] = {}
     
@@ -407,4 +407,4 @@ class SubscriptionSystem:
         if not topic:
             return None
             
-        return topic.last_data 
+        return topic.last_data

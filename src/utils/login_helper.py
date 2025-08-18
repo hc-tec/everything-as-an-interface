@@ -22,7 +22,7 @@ class AuthConfig:
     
     def __init__(self, 
                  task_config: Optional[TaskConfig] = None,
-                 plugin_attrs: Optional[Dict[str, Any]] = None):
+                 plugin_attrs: Optional[Dict[str, Any]] = None) -> None:
         """
         初始化认证配置
         
@@ -101,7 +101,7 @@ class LoginHelper:
     def __init__(self, 
                  page: Page,
                  account_manager: Optional[AccountManager] = None,
-                 auth_config: Optional[AuthConfig] = None):
+                 auth_config: Optional[AuthConfig] = None) -> None:
         """
         初始化登录助手
         

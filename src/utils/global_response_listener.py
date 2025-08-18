@@ -16,7 +16,7 @@ GlobalResponseListener = Callable[[ResponseView], Awaitable[None]]
 class GlobalResponseListenerManager:
     """全局响应监听器管理器"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self._listeners: List[GlobalResponseListener] = []
     
     def add_listener(self, listener: GlobalResponseListener) -> None:

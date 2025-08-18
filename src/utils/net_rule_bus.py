@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import re
 from dataclasses import dataclass
-from typing import Any, Awaitable, Callable, Dict, List, Optional, Pattern, Tuple
+from typing import Any, Awaitable, Callable, Dict, List, Optional, Pattern, Tuple, Union
 
 from playwright.async_api import Page, Request, Response
 
@@ -21,14 +21,14 @@ class NetRuleBusDelegate:
 class Subscription:
     pattern: Pattern[str]
     kind: str  # "request" | "response"
-    queue: asyncio.Queue
+    queue: asyncio.Queue[Union[RequestView, ResponseView]]
 
 
 @dataclass
 class MergedEvent:
     sub_id: int
     kind: str
-    view: Optional[ResponseView, RequestView]
+    view: Union[ResponseView, RequestView]
 
 
 class NetRuleBus:
@@ -64,24 +64,38 @@ class NetRuleBus:
             self._bound = False
         return unbind
 
-    def subscribe(self, pattern: str, *, kind: str = "response", flags: int = 0) -> asyncio.Queue:
+    def subscribe(self, pattern: str, *, kind: str = "response", flags: int = 0) -> asyncio.Queue[Union[RequestView, ResponseView]]:
+        """订阅网络事件模式。
+        
+        Args:
+            pattern: 正则表达式模式
+            kind: 事件类型，"request" 或 "response"
+            flags: 正则表达式标志
+            
+        Returns:
+            异步队列，用于接收匹配的网络事件
+        """
         compiled = re.compile(pattern, flags)
-        q: asyncio.Queue = asyncio.Queue()
+        q: asyncio.Queue[Union[RequestView, ResponseView]] = asyncio.Queue()
         sub = Subscription(pattern=compiled, kind=kind, queue=q)
         self._subs.append(sub)
         metrics.inc("netrule.subscribe")
         return q
 
-    def subscribe_many(self, patterns: List[Tuple[str, str, int]] | List[Tuple[str, str]] | List[str]) \
-            -> Tuple[asyncio.Queue, Dict[int, Tuple[str, str]]]:
-        """Subscribe multiple patterns and return a merged queue with (sub_id, kind, view).
+    def subscribe_many(self, patterns: Union[List[Tuple[str, str, int]], List[Tuple[str, str]], List[str]]) \
+            -> Tuple[asyncio.Queue[MergedEvent], Dict[int, Tuple[str, str]]]:
+        """订阅多个模式并返回合并队列。
 
-        patterns elements can be:
-          - (pattern, kind, flags)
-          - (pattern, kind)  # flags defaults to 0
-          - pattern (str)    # kind defaults to "response", flags=0
+        Args:
+            patterns: 模式列表，支持以下格式：
+                - (pattern, kind, flags)
+                - (pattern, kind)  # flags 默认为 0
+                - pattern (str)    # kind 默认为 "response", flags=0
+                
+        Returns:
+            合并队列和ID到元数据的映射
         """
-        merged: asyncio.Queue = asyncio.Queue()
+        merged: asyncio.Queue[MergedEvent] = asyncio.Queue()
         id_to_meta: Dict[int, Tuple[str, str]] = {}
 
         for p in patterns:
@@ -98,16 +112,23 @@ class NetRuleBus:
             compiled = re.compile(pat, flags)
             sub_id = self._next_id
             self._next_id += 1
-            q: asyncio.Queue = asyncio.Queue()
+            q: asyncio.Queue[Union[RequestView, ResponseView]] = asyncio.Queue()
             sub = Subscription(pattern=compiled, kind=kind, queue=q)
             self._subs.append(sub)
             self._subs_with_ids[sub_id] = sub
 
-            async def forward(src_q: asyncio.Queue, sid: int, k: str) -> None:
-                while True:
-                    item = await src_q.get()
-                    await merged.put(MergedEvent(sub_id=sid, kind=k, view=item))
-                    metrics.inc("netrule.forward")
+            async def forward(src_q: asyncio.Queue[Union[RequestView, ResponseView]], sid: int, k: str) -> None:
+                try:
+                    while True:
+                        item = await src_q.get()
+                        await merged.put(MergedEvent(sub_id=sid, kind=k, view=item))
+                        metrics.inc("netrule.forward")
+                except asyncio.CancelledError:
+                    # 任务被取消时正常退出
+                    pass
+                except Exception as e:
+                    # 记录其他异常但不中断
+                    metrics.inc("netrule.forward_error")
 
             # Background forwarders
             task = asyncio.create_task(forward(q, sub_id, kind))
@@ -117,7 +138,11 @@ class NetRuleBus:
         return merged, id_to_meta
 
     def unsubscribe_many_by_ids(self, ids: List[int]) -> None:
-        """取消一组订阅（通过 subscribe_many 返回的 id）并停止其转发任务。"""
+        """取消一组订阅并停止其转发任务。
+        
+        Args:
+            ids: 要取消的订阅ID列表
+        """
         for sid in ids:
             sub = self._subs_with_ids.pop(sid, None)
             if sub and sub in self._subs:
@@ -126,11 +151,43 @@ class NetRuleBus:
                 except ValueError:
                     pass
             task = self._forward_tasks.pop(sid, None)
-            if task:
+            if task and not task.done():
                 try:
                     task.cancel()
+                    metrics.inc("netrule.task_cancelled")
                 except Exception:
                     pass
+    
+    def cleanup_all_tasks(self) -> None:
+        """清理所有转发任务。
+        
+        在NetRuleBus实例销毁前调用，确保所有后台任务正确清理。
+        """
+        for task_id, task in list(self._forward_tasks.items()):
+            if not task.done():
+                try:
+                    task.cancel()
+                    metrics.inc("netrule.task_cancelled")
+                except Exception:
+                    pass
+        self._forward_tasks.clear()
+        self._subs_with_ids.clear()
+        
+    def get_active_subscriptions_count(self) -> int:
+        """获取活跃订阅数量。
+        
+        Returns:
+            当前活跃的订阅数量
+        """
+        return len(self._subs)
+        
+    def get_active_tasks_count(self) -> int:
+        """获取活跃任务数量。
+        
+        Returns:
+            当前活跃的转发任务数量
+        """
+        return len([task for task in self._forward_tasks.values() if not task.done()])
 
     async def _on_request(self, req: Request) -> None:
         url = getattr(req, "url", "")

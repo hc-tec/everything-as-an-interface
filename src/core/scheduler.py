@@ -18,7 +18,7 @@ class Task:
                  plugin_id: str, 
                  interval: int, 
                  callback: Optional[Callable[[Dict[str, Any]], Coroutine[Any, Any, None]]] = None,
-                  config: Optional[TaskConfig] = None):
+                  config: Optional[TaskConfig] = None) -> None:
         """
         初始化任务
         
@@ -73,7 +73,7 @@ class Task:
 class Scheduler:
     """调度器：负责管理和执行自动化任务"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         """初始化调度器"""
         self.tasks: Dict[str, Task] = {}
         self.plugin_manager = None  # 将在外部设置（注册表驱动）
