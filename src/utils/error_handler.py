@@ -208,7 +208,10 @@ async def safe_execute_async(func: Callable[[], Any], default: Any = None, opera
     return await global_error_handler.safe_execute_async(func, default, operation)
 
 
-def setup_logging(level: Union[str, int] = logging.INFO, format_string: Optional[str] = None) -> None:
+def setup_logging(
+        level: Union[str, int] = logging.INFO,
+        filename: Optional[str] = None,
+        format_string: Optional[str] = None) -> None:
     """设置统一的日志配置"""
     if format_string is None:
         format_string = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -225,7 +228,7 @@ def setup_logging(level: Union[str, int] = logging.INFO, format_string: Optional
         format=format_string,
         handlers=[
             logging.StreamHandler(),
-            logging.FileHandler("everything-as-an-interface.log", encoding='utf-8')
+            logging.FileHandler(filename if filename else "everything-as-an-interface.log", encoding='utf-8')
         ]
     )
     

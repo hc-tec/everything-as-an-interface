@@ -12,6 +12,7 @@ from playwright.async_api import Page
 from settings import PROJECT_ROOT
 from src.core.plugin_context import PluginContext
 from src.core.task_config import TaskConfig
+from src.config.plugin_config import PluginConfig
 from src.utils.file_util import write_json_with_project_root
 from src.utils.global_response_listener import add_global_response_listener
 from src.utils.login_helper import create_login_helper
@@ -75,8 +76,9 @@ class BasePlugin(ABC):
     # 插件作者
     PLUGIN_AUTHOR: str = ""
     
-    def __init__(self) -> None:
+    def __init__(self, plugin_config: Optional[PluginConfig] = None) -> None:
         self.config: Optional[TaskConfig] = None
+        self.plugin_config: Optional[PluginConfig] = plugin_config
         self.running: bool = False
         self.accounts: List[Dict[str, Any]] = []
         self.selected_account: Optional[Dict[str, Any]] = None
@@ -199,8 +201,27 @@ class BasePlugin(ABC):
         Returns:
             验证结果，包含是否成功和错误信息
         """
-        # 默认实现，子类应当覆盖
-        return {"valid": True, "errors": []}
+        errors = []
+        
+        # 检查插件是否启用
+        if self.plugin_config and not self.plugin_config.is_plugin_enabled(self.PLUGIN_ID):
+            errors.append(f"插件 {self.PLUGIN_ID} 未启用")
+        
+        return {
+            "valid": len(errors) == 0,
+            "errors": errors
+        }
+    
+    def get_plugin_settings(self) -> Dict[str, Any]:
+        """
+        获取插件设置
+        
+        Returns:
+            插件设置字典
+        """
+        if self.plugin_config:
+            return self.plugin_config.get_plugin_settings(self.PLUGIN_ID)
+        return {}
 
     def _get_auth_config(self) -> Dict[str, Any]:
         """
