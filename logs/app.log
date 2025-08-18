@@ -1,0 +1,26 @@
+2025-08-19 01:58:49,722 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-19 01:58:49,723 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-19 01:58:49,723 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-19 01:58:49,723 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-19 01:58:49,756 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-19 01:58:49,756 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 3 个平台定义
+2025-08-19 01:58:49,757 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 1 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa'])
+2025-08-19 01:58:49,757 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-19 01:58:49,757 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: a980d71b-f1c6-44f1-942c-54d0d2eed189 (小红书收藏夹更新)
+2025-08-19 01:58:49,757 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 a980d71b-f1c6-44f1-942c-54d0d2eed189 添加订阅者: 584575c3-ca48-48c9-a58c-22e0097a9013
+2025-08-19 01:58:49,757 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: ffe70166-77b0-481f-8154-853315b3eb12 (插件: xiaohongshu_details, 间隔: 1000000秒)
+2025-08-19 01:58:50,174 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-19 01:58:50,174 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: ffe70166-77b0-481f-8154-853315b3eb12 (插件: xiaohongshu_details)
+2025-08-19 01:58:50,293 - base_plugin - INFO - base.py:104 - configure - 插件 xiaohongshu_details 已配置
+2025-08-19 01:58:50,293 - base_plugin - INFO - base.py:113 - set_context - 插件 xiaohongshu_details 已注入 Context
+2025-08-19 01:58:50,296 - plugin.xiaohongshu_details - INFO - xiaohongshu_details.py:89 - start - XiaohongshuNoteDetailPlugin service initialized and attached
+2025-08-19 01:58:50,296 - plugin.xiaohongshu_details - INFO - xiaohongshu_details.py:94 - start - 启动小红书详情插件
+2025-08-19 01:58:50,296 - base_plugin - INFO - base.py:144 - start - 插件 xiaohongshu_details 已启动
+2025-08-19 01:58:52,307 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://www.xiaohongshu.com/login
+2025-08-19 01:58:56,387 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .reds-img-box
+2025-08-19 01:58:56,387 - plugin.xiaohongshu_details - INFO - xiaohongshu_details.py:181 - _collect_details - Collecting details for 40 notes
+2025-08-19 01:58:56,858 - root - DEBUG - parsers.py:31 - quick_extract_initial_state - 找到 window.__INITIAL_STATE__:
+2025-08-19 01:59:07,353 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': False, 'stop_reason': None, 'elapsed': 10.96799999999348}
+2025-08-19 01:59:08,626 - root - DEBUG - parsers.py:31 - quick_extract_initial_state - 找到 window.__INITIAL_STATE__:
+2025-08-19 01:59:10,495 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-19 01:59:10,625 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver

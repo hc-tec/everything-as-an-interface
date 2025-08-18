@@ -1,0 +1,58 @@
+{
+  "app": {
+    "environment": "development",
+    "debug": true,
+    "master_key": "your-master-key-here",
+    "accounts_path": "./accounts",
+    "data_path": "./data",
+    "temp_path": "./temp"
+  },
+  "browser": {
+    "channel": "msedge",
+    "headless": false,
+    "viewport_width": 1280,
+    "viewport_height": 800,
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36",
+    "timeout": 30,
+    "proxy_server": null,
+    "proxy_username": null,
+    "proxy_password": null
+  },
+  "database": {
+    "use_mongo": false,
+    "mongo_uri": "mongodb://localhost:27017",
+    "mongo_database": "everything_interface",
+    "sqlite_path": "./data/database.db"
+  },
+  "logging": {
+    "level": "DEBUG",
+    "format_string": "%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(funcName)s - %(message)s",
+    "log_file_path": "./logs/app.log",
+    "logs_dir": "./logs",
+    "file_handler": {
+      "max_bytes": 10485760,
+      "backup_count": 5
+    }
+  },
+  "plugins": {
+    "plugins_dir": "src/plugins",
+    "enabled_plugins": [
+      "xiaohongshu_search",
+      "xiaohongshu_brief",
+      "xiaohongshu_details"
+    ],
+    "disabled_plugins": [],
+    "plugin_settings": {
+      "xiaohongshu_search": {
+        "max_results": 100,
+        "timeout": 30
+      },
+      "xiaohongshu_brief": {
+        "batch_size": 20
+      }
+    },
+    "auto_discover": true,
+    "reload_on_change": false,
+    "max_concurrent_plugins": 5
+  }
+}
