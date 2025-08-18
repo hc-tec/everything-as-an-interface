@@ -30,7 +30,6 @@ BASE_URL = "https://www.xiaohongshu.com"
 LOGIN_URL = f"{BASE_URL}/login"
 
 PLUGIN_ID = "xiaohongshu_search"
-PLUGIN_VERSION = "1.0.0"
 
 
 class XiaohongshuNoteSearchPlugin(BasePlugin):
@@ -50,12 +49,20 @@ class XiaohongshuNoteSearchPlugin(BasePlugin):
         ".reds-img-box",
     ]
 
+    # 每个插件必须定义唯一的插件ID
+    PLUGIN_ID: str = PLUGIN_ID
+    # 插件名称
+    PLUGIN_NAME: str = __name__
+    # 插件版本
+    PLUGIN_VERSION: str = "2.0.0"
+    # 插件描述
+    PLUGIN_DESCRIPTION: str = f"Xiaohongshu note search plugin (service-based v{PLUGIN_VERSION})"
+    # 插件作者
+    PLUGIN_AUTHOR: str = ""
+
     def __init__(self) -> None:
         super().__init__()
-        self.plugin_id = PLUGIN_ID
-        self.version = PLUGIN_VERSION
-        self.description = f"Xiaohongshu note brief info plugin (service-based {PLUGIN_VERSION})"
-        
+
         # Initialize services (will be attached during setup)
         self._note_search_net_service: Optional[XiaohongshuNoteSearchNetService] = None
 
@@ -125,8 +132,8 @@ class XiaohongshuNoteSearchPlugin(BasePlugin):
                     "success": True,
                     "data": briefs_res["data"],
                     "count": len(briefs_res["data"]),
-                    "plugin_id": self.plugin_id,
-                    "version": self.version,
+                    "plugin_id": PLUGIN_ID,
+                    "version": self.PLUGIN_VERSION,
                 }
             raise Exception(briefs_res["error"])
                 
@@ -136,8 +143,8 @@ class XiaohongshuNoteSearchPlugin(BasePlugin):
                 "success": False,
                 "error": str(e),
                 "data": [],
-                "plugin_id": self.plugin_id,
-                "version": self.version,
+                "plugin_id": PLUGIN_ID,
+                "version": self.PLUGIN_VERSION,
             }
 
     async def _collect_briefs(self) -> Dict[str, Any]:

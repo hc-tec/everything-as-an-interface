@@ -27,7 +27,6 @@ BASE_URL = "https://www.xiaohongshu.com"
 LOGIN_URL = f"{BASE_URL}/login"
 
 PLUGIN_ID = "xiaohongshu_details"
-PLUGIN_VERSION = "2.0.0"
 
 
 class XiaohongshuNoteDetailPlugin(BasePlugin):
@@ -40,6 +39,17 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
     - Plugin formats and returns results
     """
 
+    # 每个插件必须定义唯一的插件ID
+    PLUGIN_ID: str = PLUGIN_ID
+    # 插件名称
+    PLUGIN_NAME: str = __name__
+    # 插件版本
+    PLUGIN_VERSION: str = "2.0.0"
+    # 插件描述
+    PLUGIN_DESCRIPTION: str = f"Xiaohongshu automation plugin (service-based v{PLUGIN_VERSION})"
+    # 插件作者
+    PLUGIN_AUTHOR: str = ""
+
     # 平台/登录配置（供 BasePlugin 通用登录逻辑使用）
     LOGIN_URL = "https://www.xiaohongshu.com/login"
     PLATFORM_ID = "xiaohongshu"
@@ -49,10 +59,7 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
 
     def __init__(self) -> None:
         super().__init__()
-        self.plugin_id = PLUGIN_ID
-        self.version = PLUGIN_VERSION
-        self.description = f"Xiaohongshu automation plugin (service-based v{PLUGIN_VERSION})"
-        
+
         # Initialize services (will be attached during setup)
         self._note_explore_net_service: Optional[XiaohongshuNoteExplorePageNetService] = None
 
@@ -131,8 +138,8 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
                 "success": False,
                 "error": str(e),
                 "data": [],
-                "plugin_id": self.plugin_id,
-                "version": self.version,
+                "plugin_id": PLUGIN_ID,
+                "version": self.PLUGIN_VERSION,
             }
 
     async def navigate_to_note_explore_page(self, loop_count: int,
@@ -204,8 +211,8 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
                 "success": False,
                 "data": [asdict(access_info) for access_info in self._access_failed_notes],
                 "count": len(self._access_failed_notes),
-                "plugin_id": self.plugin_id,
-                "version": self.version,
+                "plugin_id": PLUGIN_ID,
+                "version": self.PLUGIN_VERSION,
             }, self.config.extra.get("failed_file"))
             
             return {
@@ -213,8 +220,8 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
                 "data": details_data,
                 "count": len(details_data),
                 "requested_count": len(added_briefs_items),
-                "plugin_id": self.plugin_id,
-                "version": self.version,
+                "plugin_id": PLUGIN_ID,
+                "version": self.PLUGIN_VERSION,
             }
             
         except Exception as e:

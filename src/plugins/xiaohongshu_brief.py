@@ -29,7 +29,6 @@ BASE_URL = "https://www.xiaohongshu.com"
 LOGIN_URL = f"{BASE_URL}/login"
 
 PLUGIN_ID = "xiaohongshu_brief"
-PLUGIN_VERSION = "2.0.0"
 
 class NoteBriefDelegate(NetServiceDelegate[NoteBriefItem]):
 
@@ -103,6 +102,17 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
     - Plugin formats and returns results
     """
 
+    # 每个插件必须定义唯一的插件ID
+    PLUGIN_ID: str = PLUGIN_ID
+    # 插件名称
+    PLUGIN_NAME: str = __name__
+    # 插件版本
+    PLUGIN_VERSION: str = "2.0.0"
+    # 插件描述
+    PLUGIN_DESCRIPTION: str = f"Xiaohongshu note brief info plugin (service-based v{PLUGIN_VERSION})"
+    # 插件作者
+    PLUGIN_AUTHOR: str = ""
+
     # 平台/登录配置（供 BasePlugin 通用登录逻辑使用）
     LOGIN_URL = "https://www.xiaohongshu.com/login"
     PLATFORM_ID = "xiaohongshu"
@@ -112,10 +122,6 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
 
     def __init__(self) -> None:
         super().__init__()
-        self.plugin_id = PLUGIN_ID
-        self.version = PLUGIN_VERSION
-        self.description = f"Xiaohongshu note brief info plugin (service-based {PLUGIN_VERSION})"
-        
         # Initialize services (will be attached during setup)
         self._note_brief_net_service: Optional[XiaohongshuNoteBriefNetService] = None
 
@@ -197,8 +203,8 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
                     "success": True,
                     "data": diff.added,
                     "count": len(diff.added),
-                    "plugin_id": self.plugin_id,
-                    "version": self.version,
+                    "plugin_id": self.PLUGIN_ID,
+                    "version": self.PLUGIN_VERSION,
                 }
             raise Exception(briefs_res["error"])
                 
@@ -208,8 +214,8 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
                 "success": False,
                 "error": str(e),
                 "data": [],
-                "plugin_id": self.plugin_id,
-                "version": self.version,
+                "plugin_id": self.PLUGIN_ID,
+                "version": self.PLUGIN_VERSION,
             }
 
     async def _collect_briefs(self) -> Dict[str, Any]:

@@ -9,6 +9,7 @@ import logging
 import os
 from typing import Dict, Any
 
+from settings import PROJECT_ROOT
 from src import EverythingAsInterface
 from src.core.orchestrator import Orchestrator
 from src.core.task_config import TaskConfig
@@ -32,10 +33,7 @@ async def main():
     os.makedirs("../accounts", exist_ok=True)
     os.makedirs("../data", exist_ok=True)
     # 初始化系统
-    system = EverythingAsInterface(config={
-        "master_key": "your-secret-key",  # 生产环境应使用安全的密钥存储方案
-        "accounts_path": "./accounts"
-    })
+    system = EverythingAsInterface(config_file=os.path.join(PROJECT_ROOT, "config.example.json"))
 
     # 核心信息打印
     print("系统已初始化")

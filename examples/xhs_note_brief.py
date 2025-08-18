@@ -39,10 +39,7 @@ async def main():
     os.makedirs("../accounts", exist_ok=True)
     os.makedirs("../data", exist_ok=True)
     # 初始化系统
-    system = EverythingAsInterface(config={
-        "master_key": "your-secret-key",  # 生产环境应使用安全的密钥存储方案
-        "accounts_path": "./accounts"
-    })
+    system = EverythingAsInterface(config_file=os.path.join(PROJECT_ROOT, "config.example.json"))
 
     # 核心信息打印
     print("系统已初始化")
@@ -74,7 +71,7 @@ async def main():
         interval=300,  # 5分钟检查一次
         config=TaskConfig(
             # 可选：填写已保存的 cookie_ids 列表，以跳过手动登录
-            cookie_ids=["12e12361-b5e3-41ec-ac9e-ef29b675bdb4"],
+            cookie_ids=["28ba44f1-bb67-41ab-86f0-a3d049d902aa"],
             extra={
                 "video_output_dir": "videos_data",
                 "storage_file": "data/note-briefs1.json",

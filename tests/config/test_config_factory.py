@@ -25,81 +25,84 @@ class TestConfigFactory:
         config = ConfigFactory.create_app_config()
         
         assert isinstance(config, AppConfig)
-        assert config.app_name == "everything-as-interface"
-        assert config.version == "0.1.0"
+        assert config.environment == "development"
         assert config.debug is False
-        assert config.host == "localhost"
-        assert config.port == 8000
+        assert config.log_level == "INFO"
+        assert config.master_key == "default-dev-key"
     
     @patch.dict(os.environ, {
-        "APP_NAME": "test-app",
-        "APP_VERSION": "1.0.0",
+        "ENVIRONMENT": "test",
         "DEBUG": "true",
-        "HOST": "0.0.0.0",
-        "PORT": "9000"
+        "LOG_LEVEL": "DEBUG",
+        "APP_MASTER_KEY": "test-key"
     })
     def test_create_app_config_from_env(self):
         """测试从环境变量创建应用配置"""
         config = ConfigFactory.create_app_config()
         
-        assert config.app_name == "test-app"
-        assert config.version == "1.0.0"
+        assert config.environment == "test"
         assert config.debug is True
-        assert config.host == "0.0.0.0"
-        assert config.port == 9000
+        assert config.log_level == "DEBUG"
+        assert config.master_key == "test-key"
     
     def test_create_browser_config_default(self):
         """测试创建默认浏览器配置"""
         config = ConfigFactory.create_browser_config()
         
         assert isinstance(config, BrowserConfig)
-        assert config.browser_type == "chromium"
-        assert config.headless is True
-        assert config.timeout == 30000
-        assert config.viewport_width == 1920
-        assert config.viewport_height == 1080
+        assert config.channel == "msedge"
+        assert config.headless is False
+        assert config.timeout_ms == 30000
+        assert config.viewport.width == 1280
+        assert config.viewport.height == 800
     
     @patch.dict(os.environ, {
-        "BROWSER_TYPE": "firefox",
-        "HEADLESS": "false",
-        "BROWSER_TIMEOUT": "60000",
-        "VIEWPORT_WIDTH": "1366",
-        "VIEWPORT_HEIGHT": "768"
+        "BROWSER_CHANNEL": "chrome",
+        "BROWSER_HEADLESS": "true",
+        "BROWSER_TIMEOUT_MS": "60000",
+        "BROWSER_VIEWPORT_WIDTH": "1366",
+        "BROWSER_VIEWPORT_HEIGHT": "768"
     })
     def test_create_browser_config_from_env(self):
         """测试从环境变量创建浏览器配置"""
         config = ConfigFactory.create_browser_config()
         
-        assert config.browser_type == "firefox"
-        assert config.headless is False
-        assert config.timeout == 60000
-        assert config.viewport_width == 1366
-        assert config.viewport_height == 768
+        assert config.channel == "chrome"
+        assert config.headless is True
+        assert config.timeout_ms == 60000
+        assert config.viewport.width == 1366
+        assert config.viewport.height == 768
     
     def test_create_database_config_default(self):
         """测试创建默认数据库配置"""
         config = ConfigFactory.create_database_config()
         
         assert isinstance(config, DatabaseConfig)
-        assert config.database_type == "sqlite"
-        assert "memory" in config.database_url or "sqlite" in config.database_url
-        assert config.pool_size == 5
-        assert config.max_overflow == 10
+        assert config.use_mongo is True
+        assert config.use_redis is True
+        assert config.mongo.host == "localhost"
+        assert config.mongo.port == 27017
+        assert config.redis.host == "localhost"
+        assert config.redis.port == 6379
     
     @patch.dict(os.environ, {
-        "DATABASE_TYPE": "postgresql",
-        "DATABASE_URL": "postgresql://user:pass@localhost/db",
-        "DB_POOL_SIZE": "20",
-        "DB_MAX_OVERFLOW": "30"
+        "USE_MONGO": "false",
+        "USE_REDIS": "false",
+        "MONGO_HOST": "mongo.example.com",
+        "MONGO_PORT": "27018",
+        "REDIS_HOST": "redis.example.com",
+        "REDIS_PORT": "6380"
     })
     def test_create_database_config_from_env(self):
         """测试从环境变量创建数据库配置"""
         config = ConfigFactory.create_database_config()
         
-        assert config.database_type == "postgresql"
-        assert config.database_url == "postgresql://user:pass@localhost/db"
-        assert config.pool_size == 20
-        assert config.max_overflow == 30
+        assert config.use_mongo is False
+        assert config.use_redis is False
+        assert config.mongo.host == "mongo.example.com"
+        assert config.mongo.port == 27018
+        assert config.redis.host == "redis.example.com"
+        assert config.redis.port == 6380
     
     def test_create_logging_config_default(self):
         """测试创建默认日志配置"""
@@ -108,16 +111,16 @@ class TestConfigFactory:
         assert isinstance(config, LoggingConfig)
         assert config.level == "INFO"
         assert config.format_string is not None
-        assert config.file_path is not None
-        assert config.max_file_size == 10 * 1024 * 1024  # 10MB
-        assert config.backup_count == 5
+        assert config.log_file_path is not None
+        assert config.file_handler.max_bytes == 10485760  # 10MB
+        assert config.file_handler.backup_count == 5
     
     @patch.dict(os.environ, {
         "LOG_LEVEL": "DEBUG",
         "LOG_FORMAT": "%(name)s - %(message)s",
-        "LOG_FILE": "/tmp/test.log",
-        "LOG_MAX_SIZE": "20971520",  # 20MB
-        "LOG_BACKUP_COUNT": "10"
+        "LOGS_DIR": "D:\\tmp\\logs",
+        "LOG_FILE_MAX_BYTES": "20971520",  # 20MB
+        "LOG_FILE_BACKUP_COUNT": "10"
     })
     def test_create_logging_config_from_env(self):
         """测试从环境变量创建日志配置"""
@@ -125,23 +128,23 @@ class TestConfigFactory:
         
         assert config.level == "DEBUG"
         assert config.format_string == "%(name)s - %(message)s"
-        assert config.file_path == "/tmp/test.log"
-        assert config.max_file_size == 20971520
-        assert config.backup_count == 10
+        assert str(config.logs_dir) == "D:\\tmp\\logs"
+        assert config.file_handler.max_bytes == 20971520
+        assert config.file_handler.backup_count == 10
     
     def test_create_plugin_config_default(self):
         """测试创建默认插件配置"""
         config = ConfigFactory.create_plugin_config()
         
         assert isinstance(config, PluginConfig)
-        assert config.plugin_dir is not None
-        assert config.auto_load is True
-        assert config.enabled_plugins == []
+        assert config.plugins_dir is not None
+        assert config.auto_discover is True
+        assert config.enabled_plugins == ["xiaohongshu_v2"]
         assert config.disabled_plugins == []
     
     @patch.dict(os.environ, {
-        "PLUGIN_DIR": "/custom/plugins",
-        "PLUGIN_AUTO_LOAD": "false",
+        "PLUGINS_DIR": "D:\\custom\\plugins",
+        "PLUGIN_AUTO_DISCOVER": "false",
         "ENABLED_PLUGINS": "plugin1,plugin2,plugin3",
         "DISABLED_PLUGINS": "plugin4,plugin5"
     })
@@ -149,8 +152,8 @@ class TestConfigFactory:
         """测试从环境变量创建插件配置"""
         config = ConfigFactory.create_plugin_config()
         
-        assert config.plugin_dir == "/custom/plugins"
-        assert config.auto_load is False
+        assert str(config.plugins_dir) == "D:\\custom\\plugins"
+        assert config.auto_discover is False
         assert config.enabled_plugins == ["plugin1", "plugin2", "plugin3"]
         assert config.disabled_plugins == ["plugin4", "plugin5"]
     
@@ -171,21 +174,21 @@ class TestConfigFactory:
         assert isinstance(configs["plugin"], PluginConfig)
     
     @patch.dict(os.environ, {
-        "APP_NAME": "test-all",
-        "BROWSER_TYPE": "webkit",
-        "DATABASE_TYPE": "mysql",
+        "ENVIRONMENT": "test-all",
+        "BROWSER_CHANNEL": "webkit",
+        "USE_MONGO": "false",
         "LOG_LEVEL": "WARNING",
-        "PLUGIN_AUTO_LOAD": "false"
+        "PLUGIN_AUTO_DISCOVER": "false"
     })
     def test_create_all_configs_from_env(self):
         """测试从环境变量创建所有配置"""
         configs = ConfigFactory.create_all_configs()
         
-        assert configs["app"].app_name == "test-all"
-        assert configs["browser"].browser_type == "webkit"
-        assert configs["database"].database_type == "mysql"
+        assert configs["app"].environment == "test-all"
+        assert configs["browser"].channel == "webkit"
+        assert configs["database"].use_mongo is False
         assert configs["logging"].level == "WARNING"
-        assert configs["plugin"].auto_load is False
+        assert configs["plugin"].auto_discover is False
     
     def test_load_from_file_not_exists(self):
         """测试加载不存在的配置文件"""
@@ -201,57 +204,66 @@ class TestConfigFactory:
         """测试加载存在的配置文件"""
         env_file = Path(temp_dir) / ".env"
         env_content = """
-APP_NAME=file-test-app
-APP_VERSION=2.0.0
+ENVIRONMENT=file-test-env
+APP_MASTER_KEY=file-test-key
 DEBUG=true
-BROWSER_TYPE=firefox
-HEADLESS=false
-DATABASE_TYPE=postgresql
+BROWSER_CHANNEL=firefox
+BROWSER_HEADLESS=true
+USE_MONGO=false
 LOG_LEVEL=ERROR
-PLUGIN_AUTO_LOAD=false
+PLUGIN_AUTO_DISCOVER=false
 """
         env_file.write_text(env_content)
         
         configs = ConfigFactory.load_from_file(str(env_file))
         
-        assert configs["app"].app_name == "file-test-app"
-        assert configs["app"].version == "2.0.0"
+        assert configs["app"].environment == "file-test-env"
+        assert configs["app"].master_key == "file-test-key"
         assert configs["app"].debug is True
-        assert configs["browser"].browser_type == "firefox"
-        assert configs["browser"].headless is False
-        assert configs["database"].database_type == "postgresql"
+        assert configs["browser"].channel == "firefox"
+        assert configs["browser"].headless is True
+        assert configs["database"].use_mongo is False
         assert configs["logging"].level == "ERROR"
-        assert configs["plugin"].auto_load is False
+        assert configs["plugin"].auto_discover is False
     
     def test_validate_config_valid(self):
         """测试验证有效配置"""
-        config = ConfigFactory.create_app_config()
+        # 创建一个有效的模拟配置对象
+        class MockValidAppConfig:
+            def __init__(self):
+                self.port = 8080  # 有效端口
+        
+        config = MockValidAppConfig()
         
         # 应该不抛出异常
         ConfigFactory.validate_config(config)
     
     def test_validate_config_invalid_port(self):
         """测试验证无效端口配置"""
-        config = AppConfig(
-            app_name="test",
-            version="1.0.0",
-            debug=False,
-            host="localhost",
-            port=-1  # 无效端口
-        )
+        from src.config.app_config import AppConfig
+        
+        # 创建一个模拟的配置对象来测试端口验证
+        class MockAppConfig(AppConfig):
+            def __init__(self):
+                super().__init__()
+                self.port = -1  # 无效端口
+        
+        config = MockAppConfig()
         
         with pytest.raises(ValueError, match="端口号必须在 1-65535 范围内"):
             ConfigFactory.validate_config(config)
     
     def test_validate_config_invalid_timeout(self):
         """测试验证无效超时配置"""
-        config = BrowserConfig(
-            browser_type="chromium",
-            headless=True,
-            timeout=-1000,  # 无效超时
-            viewport_width=1920,
-            viewport_height=1080
-        )
+        from src.config.browser_config import BrowserConfig
+        
+        # 创建一个模拟的配置对象来测试超时验证
+        class MockBrowserConfig(BrowserConfig):
+            def __init__(self):
+                super().__init__()
+                self.timeout = -1000  # 无效超时
+        
+        config = MockBrowserConfig()
         
         with pytest.raises(ValueError, match="超时时间必须大于 0"):
             ConfigFactory.validate_config(config)

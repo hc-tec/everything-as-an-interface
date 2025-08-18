@@ -3,6 +3,7 @@ from typing import Dict, Optional
 
 from src.core.task_config import TaskConfig
 from src.core.plugin_context import PluginContext
+from src.config.plugin_config import PluginConfig
 from src.plugins.base import BasePlugin
 from ..plugins.registry import get_factory, list_plugins, PluginFactory
 
@@ -14,11 +15,17 @@ class PluginManager:
     
     Attributes:
         plugins: 插件实例字典，键为插件ID，值为插件实例或None
+        plugin_config: 插件配置
     """
     
-    def __init__(self) -> None:
-        """初始化插件管理器。"""
+    def __init__(self, plugin_config: Optional[PluginConfig] = None) -> None:
+        """初始化插件管理器。
+        
+        Args:
+            plugin_config: 插件配置
+        """
         self.plugins: Dict[str, Optional[BasePlugin]] = {pid: None for pid in list_plugins()}
+        self.plugin_config = plugin_config
 
     def get_all_plugins(self) -> Dict[str, Optional[BasePlugin]]:
         """获取所有插件实例字典。
@@ -59,8 +66,17 @@ class PluginManager:
         Raises:
             ValueError: 当插件不存在时
         """
+        # 检查插件是否启用
+        if self.plugin_config and not self.plugin_config.is_plugin_enabled(plugin_id):
+            raise ValueError(f"插件 {plugin_id} 未启用")
+            
         factory = self.get_plugin_factory(plugin_id)
         plugin = factory(ctx, config)
+        
+        # 如果插件支持插件配置，则设置配置
+        if hasattr(plugin, 'plugin_config'):
+            plugin.plugin_config = self.plugin_config
+            
         self.plugins[plugin_id] = plugin
         return plugin
     
