@@ -80,7 +80,7 @@ async def main():
             cookie_ids=["12e12361-b5e3-41ec-ac9e-ef29b675bdb4"],
             extra={
                 "search_words": "摄影",
-                # NoteNetCollectionConfig
+                # ServiceConfig
                 "max_items": 10,
             }
         )

@@ -78,7 +78,7 @@ async def main():
             extra={
                 "video_output_dir": "videos_data",
                 "storage_file": "data/note-briefs1.json",
-                # NoteNetCollectionConfig
+                # ServiceConfig
                 "max_items": 10,
 
                 # PassiveSyncEngine Config

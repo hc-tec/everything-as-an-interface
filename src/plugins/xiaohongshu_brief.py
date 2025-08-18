@@ -252,7 +252,7 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
             }
 
     def _build_note_net_config(self) -> ServiceConfig:
-        """Build NoteNetCollectionConfig from task config."""
+        """Build ServiceConfig from task config."""
         if not self.config or not self.config.extra:
             return ServiceConfig()
         

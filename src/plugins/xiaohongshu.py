@@ -1,4 +1,5 @@
 """
+此插件已被废弃！！！！
 Xiaohongshu Plugin V2 - Service-based Architecture
 
 This is a thin plugin that orchestrates calls to various Xiaohongshu site services.
@@ -17,8 +18,8 @@ from src.core.task_config import TaskConfig
 from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
 from src.services.base import NoteCollectArgs, T, ServiceConfig
-from src.services.xiaohongshu.collections.note_net_collection import NoteNetCollectionConfig, NoteNetCollectionState
-from src.services.xiaohongshu.homepage_feed_net import XiaohongshuHomepageFeedNetService
+from src.services.xiaohongshu.collections.note_net_collection import NoteNetCollectionState
+from src.services.xiaohongshu.note_brief_net import XiaohongshuNoteBriefNetService
 
 logger = logging.getLogger("plugin.xiaohongshu")
 
@@ -50,7 +51,7 @@ class XiaohongshuPlugin(BasePlugin):
         self.description = f"Xiaohongshu automation plugin (service-based v{PLUGIN_VERSION})"
         
         # Initialize services (will be attached during setup)
-        self._homepage_feed_net_service: Optional[XiaohongshuHomepageFeedNetService] = None
+        self._note_brief_net_service: Optional[XiaohongshuNoteBriefNetService] = None
 
 
     # -----------------------------
@@ -59,19 +60,19 @@ class XiaohongshuPlugin(BasePlugin):
     async def start(self) -> bool:
         try:
             # Initialize services
-            self._homepage_feed_net_service = XiaohongshuHomepageFeedNetService()
+            self._note_brief_net_service = XiaohongshuNoteBriefNetService()
 
 
             # Attach all services to the page
-            await self._homepage_feed_net_service.attach(self.page)
+            await self._note_brief_net_service.attach(self.page)
 
             # Configure note_net service based on task config
             note_net_config = self._build_note_net_config()
-            self._homepage_feed_net_service.configure(note_net_config)
+            self._note_brief_net_service.configure(note_net_config)
 
             stop_decider = self._build_stop_decider()
             if stop_decider:
-                self._homepage_feed_net_service.set_stop_decider(stop_decider)
+                self._note_brief_net_service.set_stop_decider(stop_decider)
 
             logger.info("All Xiaohongshu services initialized and attached")
 
@@ -89,7 +90,7 @@ class XiaohongshuPlugin(BasePlugin):
     async def _cleanup(self) -> None:
         """Detach all services and cleanup resources."""
         services = [
-            self._homepage_feed_net_service,
+            self._note_brief_net_service,
         ]
         
         for service in services:
@@ -145,7 +146,7 @@ class XiaohongshuPlugin(BasePlugin):
 
     async def _collect_note_briefs(self) -> List[Dict[str, Any]]:
         """Collect note briefs from homepage feed."""
-        if not self._homepage_feed_net_service:
+        if not self._note_brief_net_service:
             raise RuntimeError("Services not initialized. Call setup() first.")
         
         logger.info("Starting note brief collection")
@@ -156,7 +157,7 @@ class XiaohongshuPlugin(BasePlugin):
             await asyncio.sleep(2)  # Allow page to settle
             
             # Get notes using the service
-            notes = await self._homepage_feed_net_service.collect(
+            notes = await self._note_brief_net_service.collect(
                 NoteCollectArgs(extra_config=self.config.extra)
             )
             
@@ -172,7 +173,7 @@ class XiaohongshuPlugin(BasePlugin):
             raise
 
     def _build_note_net_config(self) -> ServiceConfig:
-        """Build NoteNetCollectionConfig from task config."""
+        """Build ServiceConfig from task config."""
         if not self.config or not self.config.extra:
             return ServiceConfig()
         

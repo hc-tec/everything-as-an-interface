@@ -81,7 +81,7 @@ async def main():
                 "search_words": "摄影",
                 "diff_file": "data/note-search-摄影.json",
                 "failed_file": "data/failed_notes.json",
-                # NoteNetCollectionConfig
+                # ServiceConfig
                 "max_items": 50,
                 "max_idle_rounds": 999,
                 "max_seconds": 99999,

@@ -5,17 +5,18 @@ import pytest
 import pytest_asyncio
 from playwright.async_api import ElementHandle, async_playwright
 
-from src.plugins.xiaohongshu import XiaohongshuPlugin, AuthorInfo, NoteStatistics
+from src.plugins.xiaohongshu import XiaohongshuPlugin
+from src.services.xiaohongshu.models import AuthorInfo, NoteStatistics
 from tests.plugins.mock_browser import  page, mock_page, mock_context, mock_browser
 from src.utils.file_util import read_file_with_project_root
 from tests.test_utils.fake_mock_function import fake_sleep, mock_query_selector_click
 from tests.plugins.xiaohongshu.note_card_details import NOTE_CARD_DETAILS
 
-@pytest.fixture
-def xhs_plugin(mocker, mock_browser):
-    xhs = XiaohongshuPlugin()
-    xhs.browser = mock_browser
-    yield xhs
+# @pytest.fixture
+# def xhs_plugin(mocker, mock_browser):
+#     xhs = XiaohongshuPlugin()
+#     xhs.browser = mock_browser
+#     yield xhs
 
 # @pytest.mark.asyncio
 # async def test_xhs_parse_id(mocker, xhs_plugin):
@@ -25,22 +26,22 @@ def xhs_plugin(mocker, mock_browser):
 #     actual_item_id = await xhs_plugin._parse_id(element)
 #     assert actual_item_id == expect_item_id
 
-@pytest.mark.asyncio
-async def test_load_js(xhs_plugin, page):
-    js_content = read_file_with_project_root("./extracted_initial_state.txt")
-    page = (await anext(page)) if str(type(page)) == "<class 'async_generator'>" else page
-    data = await page.evaluate(js_content)
-    note = data["note"]["noteDetailMap"]['68946e5f0000000004004a29']["note"]
-    assert note["noteId"] == '68946e5f0000000004004a29'
+# @pytest.mark.asyncio
+# async def test_load_js(xhs_plugin, page):
+#     js_content = read_file_with_project_root("./extracted_initial_state.txt")
+#     page = (await anext(page)) if str(type(page)) == "<class 'async_generator'>" else page
+#     data = await page.evaluate(js_content)
+#     note = data["note"]["noteDetailMap"]['68946e5f0000000004004a29']["note"]
+#     assert note["noteId"] == '68946e5f0000000004004a29'
 
-@pytest.mark.asyncio
-async def test_xhs_get_span_text(xhs_plugin, page):
-    html = '''<div class="reds-tab-item sub-tab-list" style="padding:0px 16px;margin-right:0px;font-size:16px;" data-v-bb2dbd52=""><!----><!----><span>收藏</span></div>'''
-    page = (await anext(page)) if str(type(page)) == "<class 'async_generator'>" else page
-    await page.set_content(html)
-    element = await page.query_selector("span:text('收藏')")
-    text = await element.text_content()
-    assert text == "收藏"
+# @pytest.mark.asyncio
+# async def test_xhs_get_span_text(xhs_plugin, page):
+#     html = '''<div class="reds-tab-item sub-tab-list" style="padding:0px 16px;margin-right:0px;font-size:16px;" data-v-bb2dbd52=""><!----><!----><span>收藏</span></div>'''
+#     page = (await anext(page)) if str(type(page)) == "<class 'async_generator'>" else page
+#     await page.set_content(html)
+#     element = await page.query_selector("span:text('收藏')")
+#     text = await element.text_content()
+#     assert text == "收藏"
 
 
 
