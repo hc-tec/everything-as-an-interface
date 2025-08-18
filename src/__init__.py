@@ -7,14 +7,13 @@ Everything As An Interface - 万物皆接口
 import logging
 from typing import Dict, Any
 
-# 配置日志
-logging.basicConfig(
+# 导入统一的日志配置
+from .utils.error_handler import setup_logging, get_logger
+
+# 配置统一日志
+setup_logging(
     level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(funcName)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler("everything-as-an-interface.log")
-    ]
+    format_string='%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(funcName)s - %(message)s'
 )
 
 # 导入核心组件
@@ -45,7 +44,7 @@ class EverythingAsInterface:
             config: 系统配置
         """
         self.config = config or {}
-        self.logger = logging.getLogger("everything_as_interface")
+        self.logger = get_logger("everything_as_interface")
         
         # 初始化核心组件
         self.plugin_manager = PluginManager()
@@ -76,4 +75,4 @@ __all__ = [
     "AccountManager",
     "BrowserAutomation",
     "BasePlugin",
-] 
+]

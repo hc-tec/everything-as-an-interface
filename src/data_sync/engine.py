@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
 from src.common.plugin import StopDecision
 
 from .models import (
@@ -35,11 +35,25 @@ class PassiveSyncEngine:
     """
 
     def __init__(self, *, storage: AbstractStorage, config: Optional[SyncConfig] = None) -> None:
+        """初始化被动同步引擎。
+        
+        Args:
+            storage: 存储实例
+            config: 同步配置
+        """
         self.storage = storage
         self.config = config or SyncConfig()
         self._stop_state = StopState()
 
     async def diff_and_apply(self, current_records: Iterable[Mapping[str, Any]]) -> DiffResult:
+        """比较传入数据与快照，应用变更并返回差异结果。
+        
+        Args:
+            current_records: 传入的数据记录序列
+            
+        Returns:
+            差异结果
+        """
         id_key = self.config.identity_key
 
         incoming_by_id = self._index_incoming_records(current_records, id_key=id_key)
@@ -60,6 +74,15 @@ class PassiveSyncEngine:
     def _index_incoming_records(
         self, current_records: Iterable[Mapping[str, Any]], *, id_key: str
     ) -> Dict[str, Dict[str, Any]]:
+        """为传入记录建立索引。
+        
+        Args:
+            current_records: 传入的数据记录序列
+            id_key: 身份标识键
+            
+        Returns:
+            以身份标识为键的记录字典
+        """
         """Build id -> record index for incoming batch."""
         incoming_by_id: Dict[str, Dict[str, Any]] = {}
         for rec in current_records:
@@ -68,6 +91,14 @@ class PassiveSyncEngine:
         return incoming_by_id
 
     async def _get_snapshot_index(self, *, id_key: str) -> Dict[str, Any]:
+        """获取快照索引。
+        
+        Args:
+            id_key: 身份标识键
+            
+        Returns:
+            以身份标识为键的快照记录字典
+        """
         """Fetch snapshot mapping id -> placeholder value, using list_all_ids.
 
         We only need presence for additions/deletions; updates rely on fingerprints per-id.
@@ -85,6 +116,16 @@ class PassiveSyncEngine:
         snapshot_index: Mapping[str, Any],
         id_key: str,
     ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+        """检测新增和更新的记录。
+        
+        Args:
+            incoming_by_id: 传入记录索引
+            snapshot_index: 快照记录索引
+            id_key: 身份标识键
+            
+        Returns:
+            新增记录列表和更新记录列表的元组
+        """
         added: List[Dict[str, Any]] = []
         updated: List[Dict[str, Any]] = []
         for identity, rec in incoming_by_id.items():
@@ -98,6 +139,15 @@ class PassiveSyncEngine:
         return added, updated
 
     def _detect_missing_ids(self, *, incoming_ids: set[str], snapshot_ids: set[str]) -> List[str]:
+        """检测缺失的记录ID。
+        
+        Args:
+            incoming_ids: 传入记录ID集合
+            snapshot_ids: 快照记录ID集合
+            
+        Returns:
+            缺失记录ID列表
+        """
         return [rid for rid in snapshot_ids if rid not in incoming_ids]
 
     async def _apply_changes(
@@ -108,6 +158,17 @@ class PassiveSyncEngine:
         missing_ids: List[str],
         id_key: str,
     ) -> List[Dict[str, Any]]:
+        """应用变更到存储。
+        
+        Args:
+            added: 新增记录列表
+            updated: 更新记录列表
+            missing_ids: 缺失记录ID列表
+            id_key: 身份标识键
+            
+        Returns:
+            删除记录列表
+        """
         deleted: List[Dict[str, Any]] = []
         if added:
             await self.storage.upsert_many(added)
@@ -135,6 +196,16 @@ class PassiveSyncEngine:
         rec: Mapping[str, Any],
         id_key: str,
     ) -> bool:
+        """通过指纹比较判断记录是否已更新。
+        
+        Args:
+            identity: 记录身份标识
+            rec: 传入记录
+            id_key: 身份标识键
+            
+        Returns:
+            是否已更新的布尔值
+        """
 
         exclude_keys = [id_key, self.config.fingerprint_key]
 
@@ -232,9 +303,15 @@ class PassiveSyncEngine:
             st.consecutive_no_change_batches += 1
 
     def reset_session(self) -> None:  # pragma: no cover - trivial
+        """重置会话状态。"""
         self._stop_state = StopState()
 
-    async def suggest_since_timestamp(self) -> Optional[Any]:
+    async def suggest_since_timestamp(self) -> Optional[str]:
+        """建议下次同步的起始时间戳。
+        
+        Returns:
+            时间戳字符串或None
+        """
         # No-op in pure fingerprint mode; kept for backward compatibility
         return None
 

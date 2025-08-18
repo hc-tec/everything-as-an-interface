@@ -14,7 +14,7 @@ logger = logging.getLogger("account_manager")
 class AccountManager:
     """基于 Cookie 的账号管理器：负责管理各平台的登录 Cookie 集合"""
 
-    def __init__(self, master_key: Optional[str] = None, storage_path: str = "./accounts"):
+    def __init__(self, master_key: Optional[str] = None, storage_path: str = "./accounts") -> None:
         """
         初始化 Cookie 管理器
 

@@ -70,7 +70,7 @@ class SlideCaptchaHandler(CaptchaHandler):
 class CustomCaptchaHandler(CaptchaHandler):
     """自定义验证码处理器"""
     
-    def __init__(self, handler_func: Callable[[Dict[str, Any]], Awaitable[Dict[str, Any]]]):
+    def __init__(self, handler_func: Callable[[Dict[str, Any]], Awaitable[Dict[str, Any]]]) -> None:
         """
         初始化自定义验证码处理器
         
@@ -94,7 +94,7 @@ class CustomCaptchaHandler(CaptchaHandler):
 class HumanInterventionHandler(CaptchaHandler):
     """人工干预处理器"""
     
-    def __init__(self, intervention_callback: Optional[Callable[[Dict[str, Any]], Awaitable[Dict[str, Any]]]] = None):
+    def __init__(self, intervention_callback: Optional[Callable[[Dict[str, Any]], Awaitable[Dict[str, Any]]]] = None) -> None:
         """
         初始化人工干预处理器
         
@@ -187,7 +187,7 @@ class HumanInterventionHandler(CaptchaHandler):
 class CaptchaCenter:
     """验证码处理中心：负责处理各类验证码"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         """初始化验证码处理中心"""
         self.handlers: Dict[str, CaptchaHandler] = {}
         self.human_intervention = HumanInterventionHandler()
@@ -313,4 +313,4 @@ class CaptchaCenter:
         Returns:
             图片数据
         """
-        return base64.b64decode(base64_data) 
+        return base64.b64decode(base64_data)

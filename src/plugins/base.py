@@ -75,7 +75,7 @@ class BasePlugin(ABC):
     # 插件作者
     PLUGIN_AUTHOR: str = ""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.config: Optional[TaskConfig] = None
         self.running: bool = False
         self.accounts: List[Dict[str, Any]] = []

@@ -1,3 +1,6 @@
+"""
+浏览器由Orchestrator管理，此文件仅测试时用到
+"""
 import asyncio
 import logging
 from typing import Dict, Any, Optional, List, Callable, Union, Tuple
@@ -8,7 +11,7 @@ logger = logging.getLogger("browser")
 class BrowserAutomation:
     """浏览器自动化工具类"""
     
-    def __init__(self, headless: bool = True, proxy: Optional[Dict[str, str]] = None):
+    def __init__(self, headless: bool = True, proxy: Optional[Dict[str, str]] = None) -> None:
         """
         初始化浏览器自动化工具
         
@@ -248,4 +251,4 @@ class BrowserAutomation:
             }
         except Exception as e:
             logger.error(f"处理验证码失败: {str(e)}")
-            return {"success": False, "message": str(e)} 
+            return {"success": False, "message": str(e)}
