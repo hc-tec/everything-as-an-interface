@@ -39,14 +39,21 @@ async def download_response_to_file(resp_view: ResponseView) -> None:
         "response_headers": response.headers,
         "body": body
     }
-
-    url = re.sub(r'[\\/:*?"<>|]', "_", response.url)
+    dir_name = "unknown"
+    if response.url.find("explore") != -1:
+        # 提取小红书笔记ID
+        pattern = re.compile(r"/explore/([0-9a-f]{16,32})(?:\?|$)")
+        match = pattern.search(response.url)
+        if match:
+            dir_name = match.group(1)
+    else:
+        dir_name = re.sub(r'[\\/:*?"<>|]', "_", response.url)
 
     os.makedirs(os.path.join(PROJECT_ROOT, "private_data"), exist_ok=True)
-    os.makedirs(os.path.join(PROJECT_ROOT, "private_data", url), exist_ok=True)
+    os.makedirs(os.path.join(PROJECT_ROOT, "private_data", dir_name), exist_ok=True)
     # 保存文件（用时间戳区分）
     format_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"private_data/{url}/response_{format_time}_{time.time()}.json"
+    filename = f"private_data/{dir_name}/response_{format_time}_{time.time()}.json"
     write_json_with_project_root(data, filename)
 
 
