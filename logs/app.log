@@ -24,3 +24,1195 @@
 2025-08-19 01:59:08,626 - root - DEBUG - parsers.py:31 - quick_extract_initial_state - 找到 window.__INITIAL_STATE__:
 2025-08-19 01:59:10,495 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
 2025-08-19 01:59:10,625 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-19 09:37:23,351 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-19 09:37:23,351 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-19 09:37:23,351 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-19 09:37:23,351 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-19 09:37:23,371 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-19 09:37:23,371 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 3 个平台定义
+2025-08-19 09:37:23,372 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 1 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa'])
+2025-08-19 09:37:23,372 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-19 09:37:23,372 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: 237a6cd5-d43f-40ab-ac11-3ab444c89878 (小红书收藏夹更新)
+2025-08-19 09:37:23,372 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 237a6cd5-d43f-40ab-ac11-3ab444c89878 添加订阅者: 39f47710-2446-486c-b371-5424ec1ccede
+2025-08-19 09:37:23,372 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 9fe06803-75eb-49df-bd9d-d12dd205d30a (插件: xiaohongshu_details, 间隔: 1000000秒)
+2025-08-19 09:37:23,963 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-19 09:37:23,963 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 9fe06803-75eb-49df-bd9d-d12dd205d30a (插件: xiaohongshu_details)
+2025-08-19 09:37:24,144 - base_plugin - INFO - base.py:104 - configure - 插件 xiaohongshu_details 已配置
+2025-08-19 09:37:24,144 - base_plugin - INFO - base.py:113 - set_context - 插件 xiaohongshu_details 已注入 Context
+2025-08-19 09:37:24,147 - plugin.xiaohongshu_details - INFO - xiaohongshu_details.py:89 - start - XiaohongshuNoteDetailPlugin service initialized and attached
+2025-08-19 09:37:24,147 - plugin.xiaohongshu_details - INFO - xiaohongshu_details.py:94 - start - 启动小红书详情插件
+2025-08-19 09:37:24,147 - base_plugin - INFO - base.py:144 - start - 插件 xiaohongshu_details 已启动
+2025-08-19 09:37:26,153 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://www.xiaohongshu.com/login
+2025-08-19 09:37:29,749 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .reds-img-box
+2025-08-19 09:37:29,750 - plugin.xiaohongshu_details - ERROR - xiaohongshu_details.py:136 - fetch - Fetch operation failed: [Errno 2] No such file or directory: 'D:\\everything-as-an-interface2\\data/note-search-摄影.json'
+2025-08-19 09:37:29,750 - plugin.xiaohongshu_details - INFO - xiaohongshu_details.py:115 - _cleanup - All services detached and cleaned up
+2025-08-19 09:37:29,750 - plugin.xiaohongshu_details - INFO - xiaohongshu_details.py:99 - stop - 停止小红书详情插件
+2025-08-19 09:37:29,750 - base_plugin - INFO - base.py:156 - stop - 插件 xiaohongshu_details 已停止
+2025-08-19 09:37:29,750 - scheduler - INFO - scheduler.py:278 - _execute_task - 任务执行成功: 9fe06803-75eb-49df-bd9d-d12dd205d30a
+2025-08-19 09:59:43,032 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-19 09:59:43,287 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-20 11:37:51,967 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-20 11:37:51,968 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-20 11:37:51,968 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-20 11:37:51,968 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-20 11:37:51,993 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-20 11:37:51,993 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 3 个平台定义
+2025-08-20 11:37:51,994 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 1 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa'])
+2025-08-20 11:37:51,994 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-20 11:37:51,994 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: 3e7e3a8e-c41d-43dc-aecb-8cf2c1307cda (小红书收藏夹更新)
+2025-08-20 11:37:51,995 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 3e7e3a8e-c41d-43dc-aecb-8cf2c1307cda 添加订阅者: 236a7376-6d2a-403b-8071-ecec24fd8c3a
+2025-08-20 11:37:51,995 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 4eb4e314-f577-4da1-8a78-6a28e18093de (插件: xiaohongshu_details, 间隔: 1000000秒)
+2025-08-20 11:37:52,483 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-20 11:37:52,484 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 4eb4e314-f577-4da1-8a78-6a28e18093de (插件: xiaohongshu_details)
+2025-08-20 11:37:52,635 - base_plugin - INFO - base.py:104 - configure - 插件 xiaohongshu_details 已配置
+2025-08-20 11:37:52,635 - base_plugin - INFO - base.py:113 - set_context - 插件 xiaohongshu_details 已注入 Context
+2025-08-20 11:37:52,642 - plugin.xiaohongshu_details - INFO - xiaohongshu_details.py:89 - start - XiaohongshuNoteDetailPlugin service initialized and attached
+2025-08-20 11:37:52,642 - plugin.xiaohongshu_details - INFO - xiaohongshu_details.py:94 - start - 启动小红书详情插件
+2025-08-20 11:37:52,642 - base_plugin - INFO - base.py:144 - start - 插件 xiaohongshu_details 已启动
+2025-08-20 11:37:54,651 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://www.xiaohongshu.com/login
+2025-08-20 11:37:58,675 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .reds-img-box
+2025-08-20 11:38:09,219 - plugin.xiaohongshu_details - INFO - xiaohongshu_details.py:181 - _collect_details - Collecting details for 10 notes
+2025-08-20 11:43:17,030 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-20 11:43:17,030 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-20 11:43:17,030 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-20 11:43:17,030 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-20 11:43:17,048 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-20 11:43:17,049 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 3 个平台定义
+2025-08-20 11:43:17,049 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 1 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa'])
+2025-08-20 11:43:17,050 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-20 11:43:17,050 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: e3d67ecd-f112-4255-a6c2-309b00e85921 (小红书收藏夹更新)
+2025-08-20 11:43:17,050 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 e3d67ecd-f112-4255-a6c2-309b00e85921 添加订阅者: c184e7fe-681d-4281-95b0-aee6cfbfe38a
+2025-08-20 11:43:17,050 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 83319615-88d2-46bd-839c-44f21b1e793d (插件: xiaohongshu_details, 间隔: 1000000秒)
+2025-08-20 11:43:17,491 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-20 11:43:17,491 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 83319615-88d2-46bd-839c-44f21b1e793d (插件: xiaohongshu_details)
+2025-08-20 11:43:17,616 - base_plugin - INFO - base.py:111 - configure - 插件 xiaohongshu_details 已配置
+2025-08-20 11:43:17,617 - base_plugin - INFO - base.py:120 - set_context - 插件 xiaohongshu_details 已注入 Context
+2025-08-20 11:43:17,620 - plugin.xiaohongshu_details - INFO - xiaohongshu_details.py:89 - start - XiaohongshuNoteDetailPlugin service initialized and attached
+2025-08-20 11:43:17,620 - plugin.xiaohongshu_details - INFO - xiaohongshu_details.py:94 - start - 启动小红书详情插件
+2025-08-20 11:43:17,620 - base_plugin - INFO - base.py:151 - start - 插件 xiaohongshu_details 已启动
+2025-08-20 11:43:19,633 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://www.xiaohongshu.com/login
+2025-08-20 11:43:23,698 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .reds-img-box
+2025-08-20 11:43:23,699 - plugin.xiaohongshu_details - INFO - xiaohongshu_details.py:181 - _collect_details - Collecting details for 10 notes
+2025-08-20 11:43:24,646 - root - DEBUG - parsers.py:31 - quick_extract_initial_state - 找到 window.__INITIAL_STATE__:
+2025-08-20 11:43:37,679 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': False, 'stop_reason': None, 'elapsed': 13.969000000011874}
+2025-08-20 11:43:49,963 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': False, 'stop_reason': None, 'elapsed': 26.25}
+2025-08-20 11:44:01,985 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': False, 'stop_reason': None, 'elapsed': 38.28100000001723}
+2025-08-20 11:44:03,420 - root - DEBUG - parsers.py:31 - quick_extract_initial_state - 找到 window.__INITIAL_STATE__:
+2025-08-20 11:44:18,884 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': False, 'stop_reason': None, 'elapsed': 55.17200000002049}
+2025-08-20 11:44:30,994 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': False, 'stop_reason': None, 'elapsed': 67.28100000001723}
+2025-08-20 11:44:32,396 - root - DEBUG - parsers.py:31 - quick_extract_initial_state - 找到 window.__INITIAL_STATE__:
+2025-08-20 11:44:38,507 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-20 11:44:38,691 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': False, 'stop_reason': None, 'elapsed': 74.98400000002584}
+2025-08-20 11:44:38,754 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 11:38:10,844 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 11:38:10,844 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 11:38:10,844 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 11:38:10,844 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 11:38:10,862 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 11:38:10,862 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 3 个平台定义
+2025-08-21 11:38:10,864 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 1 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa'])
+2025-08-21 11:38:10,864 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 11:38:10,864 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: cb1ceeb0-d563-489a-a074-7b638998c8b5 (小红书收藏夹更新)
+2025-08-21 11:38:10,864 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 cb1ceeb0-d563-489a-a074-7b638998c8b5 添加订阅者: 09e7c541-bdee-4c40-92b0-361afa8328d7
+2025-08-21 11:38:10,864 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 712b97b2-a3fa-4a79-b13c-84518e347f70 (插件: xiaohongshu_details, 间隔: 1000000秒)
+2025-08-21 11:38:11,365 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 11:38:11,366 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 712b97b2-a3fa-4a79-b13c-84518e347f70 (插件: xiaohongshu_details)
+2025-08-21 11:38:11,520 - base_plugin - INFO - base.py:111 - configure - 插件 xiaohongshu_details 已配置
+2025-08-21 11:38:11,520 - base_plugin - INFO - base.py:120 - set_context - 插件 xiaohongshu_details 已注入 Context
+2025-08-21 11:38:11,523 - plugin.xiaohongshu_details - INFO - xiaohongshu_details.py:90 - start - XiaohongshuNoteDetailPlugin service initialized and attached
+2025-08-21 11:38:11,523 - plugin.xiaohongshu_details - INFO - xiaohongshu_details.py:95 - start - 启动小红书详情插件
+2025-08-21 11:38:11,523 - base_plugin - INFO - base.py:151 - start - 插件 xiaohongshu_details 已启动
+2025-08-21 11:38:13,529 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://www.xiaohongshu.com/login
+2025-08-21 11:38:17,741 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .reds-img-box
+2025-08-21 11:38:17,741 - plugin.xiaohongshu_details - INFO - xiaohongshu_details.py:182 - _collect_details - Collecting details for 10 notes
+2025-08-21 11:38:18,578 - root - DEBUG - parsers.py:31 - quick_extract_initial_state - 找到 window.__INITIAL_STATE__:
+2025-08-21 11:38:22,564 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 11:38:22,933 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 13:15:55,470 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 13:15:55,470 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 13:15:55,470 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 13:15:55,470 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 13:15:55,489 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 13:15:55,489 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 3 个平台定义
+2025-08-21 13:15:55,490 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 1 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa'])
+2025-08-21 13:15:55,490 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 13:15:55,490 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: 2db052f7-f43e-4637-bd19-36136b030fcb (小红书收藏夹更新)
+2025-08-21 13:15:55,490 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 2db052f7-f43e-4637-bd19-36136b030fcb 添加订阅者: 68feb242-fbab-43ae-a83f-f50208bf90fc
+2025-08-21 13:15:55,490 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 9fce6ff2-ea35-4787-8fcb-b45f85614d5c (插件: yuanbao_chat, 间隔: 300秒)
+2025-08-21 13:15:55,969 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 13:15:55,969 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 9fce6ff2-ea35-4787-8fcb-b45f85614d5c (插件: yuanbao_chat)
+2025-08-21 13:15:56,120 - scheduler - ERROR - scheduler.py:282 - _execute_task - 任务执行失败: 9fce6ff2-ea35-4787-8fcb-b45f85614d5c, 错误: 插件 yuanbao_chat 未启用
+2025-08-21 13:15:56,120 - notification - ERROR - notification.py:202 - send - 
+===== ERROR NOTIFICATION =====
+Title: 任务执行失败: 9fce6ff2-ea35-4787-8fcb-b45f85614d5c
+Time: 2025-08-21 13:15:56
+Message: 插件 yuanbao_chat 未启用
+Data: {
+  "task_id": "9fce6ff2-ea35-4787-8fcb-b45f85614d5c",
+  "plugin_id": "yuanbao_chat",
+  "error": "插件 yuanbao_chat 未启用"
+}
+================================
+
+2025-08-21 13:15:58,668 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 13:15:58,954 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 13:16:32,672 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 13:16:32,672 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 13:16:32,672 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 13:16:32,672 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 13:16:32,697 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 13:16:32,697 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 3 个平台定义
+2025-08-21 13:16:32,698 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 1 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa'])
+2025-08-21 13:16:32,698 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 13:16:32,698 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: f1bf6cb1-5bef-4b89-92b5-aa67a7974f01 (小红书收藏夹更新)
+2025-08-21 13:16:32,698 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 f1bf6cb1-5bef-4b89-92b5-aa67a7974f01 添加订阅者: 22fd2f58-2865-4319-972d-8d9d4f6df2a1
+2025-08-21 13:16:32,698 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 3f35a3bc-fd96-4243-a2bb-fbe04b5fdbc6 (插件: yuanbao_chat, 间隔: 300秒)
+2025-08-21 13:16:33,143 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 13:16:33,145 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 3f35a3bc-fd96-4243-a2bb-fbe04b5fdbc6 (插件: yuanbao_chat)
+2025-08-21 13:16:33,292 - base_plugin - INFO - base.py:111 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 13:16:33,292 - base_plugin - INFO - base.py:120 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 13:16:33,298 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - XiaohongshuNoteSearchPlugin service initialized and attached
+2025-08-21 13:16:33,298 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 13:16:33,298 - scheduler - ERROR - scheduler.py:282 - _execute_task - 任务执行失败: 3f35a3bc-fd96-4243-a2bb-fbe04b5fdbc6, 错误: 'error'
+2025-08-21 13:16:33,300 - notification - ERROR - notification.py:202 - send - 
+===== ERROR NOTIFICATION =====
+Title: 任务执行失败: 3f35a3bc-fd96-4243-a2bb-fbe04b5fdbc6
+Time: 2025-08-21 13:16:33
+Message: 'error'
+Data: {
+  "task_id": "3f35a3bc-fd96-4243-a2bb-fbe04b5fdbc6",
+  "plugin_id": "yuanbao_chat",
+  "error": "'error'"
+}
+================================
+
+2025-08-21 13:16:44,241 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 13:16:44,480 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 13:17:29,481 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 13:17:29,482 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 13:17:29,482 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 13:17:29,482 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 13:17:29,504 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 13:17:29,504 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 3 个平台定义
+2025-08-21 13:17:29,505 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 1 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa'])
+2025-08-21 13:17:29,505 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 13:17:29,505 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: 9aa7081a-976e-4738-af4a-e8556b9e7169 (小红书收藏夹更新)
+2025-08-21 13:17:29,505 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 9aa7081a-976e-4738-af4a-e8556b9e7169 添加订阅者: 2b59ba3c-ce25-4a40-ade9-f2648807ecf0
+2025-08-21 13:17:29,505 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 3205313a-66d9-4090-bd18-b928879910e2 (插件: yuanbao_chat, 间隔: 300秒)
+2025-08-21 13:17:29,951 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 13:17:29,953 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 3205313a-66d9-4090-bd18-b928879910e2 (插件: yuanbao_chat)
+2025-08-21 13:17:30,095 - base_plugin - INFO - base.py:111 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 13:17:30,095 - base_plugin - INFO - base.py:120 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 13:17:39,010 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 13:17:39,010 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 13:17:39,010 - scheduler - ERROR - scheduler.py:282 - _execute_task - 任务执行失败: 3205313a-66d9-4090-bd18-b928879910e2, 错误: 'error'
+2025-08-21 13:17:39,011 - notification - ERROR - notification.py:202 - send - 
+===== ERROR NOTIFICATION =====
+Title: 任务执行失败: 3205313a-66d9-4090-bd18-b928879910e2
+Time: 2025-08-21 13:17:39
+Message: 'error'
+Data: {
+  "task_id": "3205313a-66d9-4090-bd18-b928879910e2",
+  "plugin_id": "yuanbao_chat",
+  "error": "'error'"
+}
+================================
+
+2025-08-21 13:17:42,617 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 13:17:42,870 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 13:17:43,623 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 13:17:43,623 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 13:17:43,623 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 13:17:43,623 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 13:17:43,648 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 13:17:43,648 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 3 个平台定义
+2025-08-21 13:17:43,649 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 1 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa'])
+2025-08-21 13:17:43,649 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 13:17:43,649 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: e56563c2-da54-4573-a5d8-8c611b2c37f8 (小红书收藏夹更新)
+2025-08-21 13:17:43,649 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 e56563c2-da54-4573-a5d8-8c611b2c37f8 添加订阅者: c9431df5-d113-4660-bde1-49ab23bb9db9
+2025-08-21 13:17:43,649 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 54bf9588-98fc-4dac-a8bb-c574d5b1cd4b (插件: yuanbao_chat, 间隔: 300秒)
+2025-08-21 13:17:44,144 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 13:17:44,146 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 54bf9588-98fc-4dac-a8bb-c574d5b1cd4b (插件: yuanbao_chat)
+2025-08-21 13:17:44,297 - base_plugin - INFO - base.py:111 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 13:17:44,297 - base_plugin - INFO - base.py:120 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 13:17:48,557 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 13:17:49,529 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 13:18:16,860 - scheduler - ERROR - scheduler.py:282 - _execute_task - 任务执行失败: 54bf9588-98fc-4dac-a8bb-c574d5b1cd4b, 错误: 'error'
+2025-08-21 13:18:16,861 - notification - ERROR - notification.py:202 - send - 
+===== ERROR NOTIFICATION =====
+Title: 任务执行失败: 54bf9588-98fc-4dac-a8bb-c574d5b1cd4b
+Time: 2025-08-21 13:18:16
+Message: 'error'
+Data: {
+  "task_id": "54bf9588-98fc-4dac-a8bb-c574d5b1cd4b",
+  "plugin_id": "yuanbao_chat",
+  "error": "'error'"
+}
+================================
+
+2025-08-21 13:18:21,324 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 13:18:21,542 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 13:18:23,416 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 13:18:23,416 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 13:18:23,416 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 13:18:23,416 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 13:18:23,435 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 13:18:23,435 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 3 个平台定义
+2025-08-21 13:18:23,435 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 1 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa'])
+2025-08-21 13:18:23,436 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 13:18:23,436 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: 4c166892-f860-4625-bac8-4dbf02cdd73d (小红书收藏夹更新)
+2025-08-21 13:18:23,436 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 4c166892-f860-4625-bac8-4dbf02cdd73d 添加订阅者: 8ca16957-4cb2-4e1c-b752-3a1a267cfbfe
+2025-08-21 13:18:23,436 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 2f0a31f4-d71b-4a28-a1eb-6b70febf149d (插件: yuanbao_chat, 间隔: 300秒)
+2025-08-21 13:18:23,881 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 13:18:23,881 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 2f0a31f4-d71b-4a28-a1eb-6b70febf149d (插件: yuanbao_chat)
+2025-08-21 13:18:24,039 - base_plugin - INFO - base.py:111 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 13:18:24,039 - base_plugin - INFO - base.py:120 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 13:18:24,042 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 13:18:24,043 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 13:18:24,043 - base_plugin - ERROR - base.py:148 - start - validation failed, error=['You should provide search_words in TaskConfig']
+2025-08-21 13:18:24,043 - scheduler - ERROR - scheduler.py:282 - _execute_task - 任务执行失败: 2f0a31f4-d71b-4a28-a1eb-6b70febf149d, 错误: 插件启动失败: yuanbao_chat
+2025-08-21 13:18:24,043 - notification - ERROR - notification.py:202 - send - 
+===== ERROR NOTIFICATION =====
+Title: 任务执行失败: 2f0a31f4-d71b-4a28-a1eb-6b70febf149d
+Time: 2025-08-21 13:18:24
+Message: 插件启动失败: yuanbao_chat
+Data: {
+  "task_id": "2f0a31f4-d71b-4a28-a1eb-6b70febf149d",
+  "plugin_id": "yuanbao_chat",
+  "error": "插件启动失败: yuanbao_chat"
+}
+================================
+
+2025-08-21 13:18:31,048 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 13:18:31,336 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 13:18:33,047 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 13:18:33,047 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 13:18:33,047 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 13:18:33,047 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 13:18:33,070 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 13:18:33,070 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 3 个平台定义
+2025-08-21 13:18:33,071 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 1 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa'])
+2025-08-21 13:18:33,071 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 13:18:33,072 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: c1bc63ac-c768-424f-8b30-e56cd63a91c3 (小红书收藏夹更新)
+2025-08-21 13:18:33,072 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 c1bc63ac-c768-424f-8b30-e56cd63a91c3 添加订阅者: 1675a7d3-8184-4c66-a9ce-7dfca4e28142
+2025-08-21 13:18:33,072 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: a962682d-b856-47c8-9196-46f27f250f31 (插件: yuanbao_chat, 间隔: 300秒)
+2025-08-21 13:18:33,536 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 13:18:33,537 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: a962682d-b856-47c8-9196-46f27f250f31 (插件: yuanbao_chat)
+2025-08-21 13:18:33,682 - base_plugin - INFO - base.py:111 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 13:18:33,683 - base_plugin - INFO - base.py:120 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 13:18:36,100 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 13:18:36,100 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 13:18:38,126 - base_plugin - ERROR - base.py:148 - start - validation failed, error=['You should provide search_words in TaskConfig']
+2025-08-21 13:18:54,011 - scheduler - ERROR - scheduler.py:282 - _execute_task - 任务执行失败: a962682d-b856-47c8-9196-46f27f250f31, 错误: 插件启动失败: yuanbao_chat
+2025-08-21 13:18:57,812 - notification - ERROR - notification.py:202 - send - 
+===== ERROR NOTIFICATION =====
+Title: 任务执行失败: a962682d-b856-47c8-9196-46f27f250f31
+Time: 2025-08-21 13:18:57
+Message: 插件启动失败: yuanbao_chat
+Data: {
+  "task_id": "a962682d-b856-47c8-9196-46f27f250f31",
+  "plugin_id": "yuanbao_chat",
+  "error": "插件启动失败: yuanbao_chat"
+}
+================================
+
+2025-08-21 13:20:12,447 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 13:20:12,707 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 13:20:13,844 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 13:20:13,844 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 13:20:13,844 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 13:20:13,844 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 13:20:13,863 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 13:20:13,863 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 3 个平台定义
+2025-08-21 13:20:13,863 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 1 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa'])
+2025-08-21 13:20:13,864 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 13:20:13,864 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: 0c813a90-7325-411e-a7dc-555ed47e3667 (小红书收藏夹更新)
+2025-08-21 13:20:13,864 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 0c813a90-7325-411e-a7dc-555ed47e3667 添加订阅者: 371930c8-9ffb-4199-8893-563e080b9034
+2025-08-21 13:20:13,864 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: d2094db9-d685-46df-a2cd-5294d34951f2 (插件: yuanbao_chat, 间隔: 300秒)
+2025-08-21 13:20:14,296 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 13:20:14,296 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: d2094db9-d685-46df-a2cd-5294d34951f2 (插件: yuanbao_chat)
+2025-08-21 13:20:14,435 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 13:20:14,435 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 13:20:14,438 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 13:20:14,439 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 13:20:14,439 - base_plugin - ERROR - base.py:149 - start - validation failed, error=['You should provide search_words in TaskConfig']
+2025-08-21 13:20:14,439 - scheduler - ERROR - scheduler.py:282 - _execute_task - 任务执行失败: d2094db9-d685-46df-a2cd-5294d34951f2, 错误: ['You should provide search_words in TaskConfig']
+2025-08-21 13:20:14,439 - notification - ERROR - notification.py:202 - send - 
+===== ERROR NOTIFICATION =====
+Title: 任务执行失败: d2094db9-d685-46df-a2cd-5294d34951f2
+Time: 2025-08-21 13:20:14
+Message: ['You should provide search_words in TaskConfig']
+Data: {
+  "task_id": "d2094db9-d685-46df-a2cd-5294d34951f2",
+  "plugin_id": "yuanbao_chat",
+  "error": "['You should provide search_words in TaskConfig']"
+}
+================================
+
+2025-08-21 13:20:19,547 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 13:20:19,782 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 13:20:48,661 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 13:20:48,661 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 13:20:48,661 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 13:20:48,661 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 13:20:48,683 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 13:20:48,683 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 3 个平台定义
+2025-08-21 13:20:48,684 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 1 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa'])
+2025-08-21 13:20:48,684 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 13:20:48,685 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: dd8f46a6-9e90-47a9-9143-295a8d10d614 (小红书收藏夹更新)
+2025-08-21 13:20:48,685 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 dd8f46a6-9e90-47a9-9143-295a8d10d614 添加订阅者: 5d796caa-73e0-4a03-a2c0-e7d27706a964
+2025-08-21 13:20:48,685 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 232bcc30-e1d3-4ebe-9b69-ddd282613f28 (插件: yuanbao_chat, 间隔: 300秒)
+2025-08-21 13:20:49,129 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 13:20:49,131 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 232bcc30-e1d3-4ebe-9b69-ddd282613f28 (插件: yuanbao_chat)
+2025-08-21 13:20:49,281 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 13:20:49,281 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 13:20:52,576 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 13:20:52,576 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 13:20:52,577 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 13:20:54,593 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 13:20:59,750 - login_helper - INFO - login_helper.py:280 - ensure_logged_in - Cookie登录失败，需要手动登录...
+2025-08-21 13:21:00,046 - login_helper - INFO - login_helper.py:236 - manual_login - 已打开登录页面: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 13:21:00,046 - login_helper - INFO - login_helper.py:237 - manual_login - 请手动完成登录，登录成功后Cookie将自动保存...
+2025-08-21 13:21:22,749 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .yb-recent-conv-list__item
+2025-08-21 13:21:22,749 - login_helper - INFO - login_helper.py:242 - check_login - 检测到登录成功，正在保存Cookie...
+2025-08-21 13:21:22,755 - account_manager - INFO - account_manager.py:98 - _save_platforms - 平台定义已保存
+2025-08-21 13:21:22,755 - account_manager - INFO - account_manager.py:144 - add_platform - 添加平台: yuanbao (Yuanbao)
+2025-08-21 13:21:22,755 - account_manager - ERROR - account_manager.py:186 - add_cookies - 添加 Cookie 失败: 未找到平台相关 Cookie
+2025-08-21 13:21:22,755 - login_helper - WARNING - login_helper.py:328 - _save_cookies_after_login - Cookie保存失败
+2025-08-21 13:21:22,755 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:148 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 13:27:59,998 - root - DEBUG - ai_net_collection.py:100 - on_tick - network collection timed out
+2025-08-21 13:29:00,840 - root - DEBUG - ai_net_collection.py:100 - on_tick - network collection timed out
+2025-08-21 13:29:00,841 - metrics - DEBUG - metrics.py:25 - event - METRIC collect.exit {'reason': 'idle', 'idle_rounds': 2}
+2025-08-21 13:29:00,841 - root - WARNING - collection_loop.py:82 - run_generic_collection - 超过最大空转轮数
+2025-08-21 13:29:00,841 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:164 - _chat_with_ai - Successfully collected 0 favorite items
+2025-08-21 13:29:00,842 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:105 - _cleanup - All services detached and cleaned up
+2025-08-21 13:29:00,842 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:89 - stop - 停止小红书插件
+2025-08-21 13:29:00,842 - base_plugin - INFO - base.py:164 - stop - 插件 yuanbao_chat 已停止
+2025-08-21 13:29:00,843 - subscription - INFO - subscription.py:208 - publish - 主题 dd8f46a6-9e90-47a9-9143-295a8d10d614 发布数据: 成功 1, 失败 0
+2025-08-21 13:29:00,843 - scheduler - INFO - scheduler.py:278 - _execute_task - 任务执行成功: 232bcc30-e1d3-4ebe-9b69-ddd282613f28
+2025-08-21 13:29:01,090 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 232bcc30-e1d3-4ebe-9b69-ddd282613f28 (插件: yuanbao_chat)
+2025-08-21 13:29:01,183 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 13:29:01,183 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 13:29:01,189 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 13:29:01,189 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 13:29:01,189 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 13:29:03,198 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 13:29:04,436 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 13:29:04,673 - login_helper - DEBUG - login_helper.py:193 - try_cookie_login - 访问探测页面失败: Page.goto: Target page, context or browser has been closed
+Call log:
+  - navigating to "https://yuanbao.tencent.com/chat/naQivTmsDa/", waiting until "domcontentloaded"
+
+2025-08-21 13:29:04,676 - login_helper - INFO - login_helper.py:280 - ensure_logged_in - Cookie登录失败，需要手动登录...
+2025-08-21 13:29:04,678 - login_helper - ERROR - login_helper.py:254 - manual_login - 手动登录过程异常: Page.goto: Target page, context or browser has been closed
+2025-08-21 13:29:04,679 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:148 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 13:29:04,714 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 13:29:45,685 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 13:29:45,686 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 13:29:45,686 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 13:29:45,686 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 13:29:45,710 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 13:29:45,710 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 13:29:45,712 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 1 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa'])
+2025-08-21 13:29:45,712 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 13:29:45,712 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: d62d9120-f73d-4aac-b5ad-12654b6ebc8b (小红书收藏夹更新)
+2025-08-21 13:29:45,712 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 d62d9120-f73d-4aac-b5ad-12654b6ebc8b 添加订阅者: a3668857-24e5-4e12-bfae-dba93f606137
+2025-08-21 13:29:45,712 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: ee685007-c412-4d57-a327-7a79d452984d (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 13:29:46,201 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 13:29:46,202 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: ee685007-c412-4d57-a327-7a79d452984d (插件: yuanbao_chat)
+2025-08-21 13:29:46,350 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 13:29:46,350 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 13:29:46,356 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 13:29:46,357 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 13:29:46,357 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 13:29:48,365 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 13:29:53,493 - login_helper - INFO - login_helper.py:280 - ensure_logged_in - Cookie登录失败，需要手动登录...
+2025-08-21 13:29:53,757 - login_helper - INFO - login_helper.py:236 - manual_login - 已打开登录页面: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 13:29:53,757 - login_helper - INFO - login_helper.py:237 - manual_login - 请手动完成登录，登录成功后Cookie将自动保存...
+2025-08-21 13:30:13,910 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .yb-recent-conv-list__item
+2025-08-21 13:30:13,910 - login_helper - INFO - login_helper.py:242 - check_login - 检测到登录成功，正在保存Cookie...
+2025-08-21 13:30:13,916 - account_manager - ERROR - account_manager.py:186 - add_cookies - 添加 Cookie 失败: 未找到平台相关 Cookie
+2025-08-21 13:30:13,916 - login_helper - WARNING - login_helper.py:328 - _save_cookies_after_login - Cookie保存失败
+2025-08-21 13:30:13,916 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:148 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 13:31:03,763 - metrics - DEBUG - metrics.py:25 - event - METRIC collect.exit {'reason': 'idle', 'idle_rounds': 2}
+2025-08-21 13:31:03,764 - root - WARNING - collection_loop.py:82 - run_generic_collection - 超过最大空转轮数
+2025-08-21 13:32:18,329 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 13:32:18,329 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 13:32:18,329 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 13:32:18,330 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 13:32:18,354 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 13:32:18,355 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 13:32:18,356 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 1 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa'])
+2025-08-21 13:32:18,356 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 13:32:18,356 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: 2496507a-46fa-42ae-97c7-ab6b44da0fac (小红书收藏夹更新)
+2025-08-21 13:32:18,356 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 2496507a-46fa-42ae-97c7-ab6b44da0fac 添加订阅者: 924799ae-24cf-486b-b9ae-f120f8abf520
+2025-08-21 13:32:18,356 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: bd6f2eb4-3db7-4bc3-9e66-3d7829babe12 (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 13:32:18,834 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 13:32:18,835 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: bd6f2eb4-3db7-4bc3-9e66-3d7829babe12 (插件: yuanbao_chat)
+2025-08-21 13:32:18,984 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 13:32:18,985 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 13:32:18,990 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 13:32:18,991 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 13:32:18,991 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 13:32:20,999 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 13:32:26,088 - login_helper - INFO - login_helper.py:280 - ensure_logged_in - Cookie登录失败，需要手动登录...
+2025-08-21 13:32:26,375 - login_helper - INFO - login_helper.py:236 - manual_login - 已打开登录页面: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 13:32:26,375 - login_helper - INFO - login_helper.py:237 - manual_login - 请手动完成登录，登录成功后Cookie将自动保存...
+2025-08-21 13:32:43,396 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .yb-recent-conv-list__item
+2025-08-21 13:32:43,396 - login_helper - INFO - login_helper.py:242 - check_login - 检测到登录成功，正在保存Cookie...
+2025-08-21 13:35:06,248 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 13:35:06,249 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 13:35:06,249 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 13:35:06,249 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 13:35:06,273 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 13:35:06,274 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 13:35:06,274 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 1 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa'])
+2025-08-21 13:35:06,275 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 13:35:06,275 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: 7e430131-5340-4385-b52c-ea812b5f86e7 (小红书收藏夹更新)
+2025-08-21 13:35:06,275 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 7e430131-5340-4385-b52c-ea812b5f86e7 添加订阅者: 1e26d030-c58f-4f23-936d-65bbb421b646
+2025-08-21 13:35:06,275 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 08c77fdd-c5fd-45bf-9b08-27c14b62683e (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 13:35:06,754 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 13:35:06,755 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 08c77fdd-c5fd-45bf-9b08-27c14b62683e (插件: yuanbao_chat)
+2025-08-21 13:35:06,907 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 13:35:06,908 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 13:35:06,914 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 13:35:06,914 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 13:35:06,914 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 13:35:08,932 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 13:35:13,924 - login_helper - INFO - login_helper.py:280 - ensure_logged_in - Cookie登录失败，需要手动登录...
+2025-08-21 13:35:14,217 - login_helper - INFO - login_helper.py:236 - manual_login - 已打开登录页面: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 13:35:14,217 - login_helper - INFO - login_helper.py:237 - manual_login - 请手动完成登录，登录成功后Cookie将自动保存...
+2025-08-21 13:35:25,781 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .yb-recent-conv-list__item
+2025-08-21 13:35:25,781 - login_helper - INFO - login_helper.py:242 - check_login - 检测到登录成功，正在保存Cookie...
+2025-08-21 13:35:36,395 - account_manager - INFO - account_manager.py:127 - _save_cookies - Cookie 存储已保存
+2025-08-21 13:35:36,395 - account_manager - INFO - account_manager.py:203 - add_cookies - 新增 Cookie 组: 819969a2-9e59-46f5-b0ca-df2116d9c2a0 (平台: yuanbao)
+2025-08-21 13:35:39,156 - login_helper - INFO - login_helper.py:326 - _save_cookies_after_login - Cookie已保存: 819969a2-9e59-46f5-b0ca-df2116d9c2a0 (平台: yuanbao)
+2025-08-21 13:36:01,820 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:148 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 13:38:10,311 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 13:38:10,311 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 13:38:10,311 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 13:38:10,311 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 13:38:10,338 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 13:38:10,338 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 13:38:10,349 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 2 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa', '819969a2-9e59-46f5-b0ca-df2116d9c2a0'])
+2025-08-21 13:38:10,349 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 13:38:10,349 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: 7c6caa1f-0f41-4206-a460-2f443c5f25c7 (小红书收藏夹更新)
+2025-08-21 13:38:10,349 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 7c6caa1f-0f41-4206-a460-2f443c5f25c7 添加订阅者: 3e8bb5f9-e9c0-41db-b16e-d4b064e45a02
+2025-08-21 13:38:10,349 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 72c2314b-0cdc-4e44-bc81-b01fe6884f7c (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 13:38:10,863 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 13:38:10,864 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 72c2314b-0cdc-4e44-bc81-b01fe6884f7c (插件: yuanbao_chat)
+2025-08-21 13:38:11,023 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 13:38:11,023 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 13:38:11,030 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 13:38:11,031 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 13:38:11,031 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 13:38:27,099 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 13:40:35,446 - login_helper - INFO - login_helper.py:280 - ensure_logged_in - Cookie登录失败，需要手动登录...
+2025-08-21 13:42:13,491 - root - ERROR - net_consume_helpers.py:168 - _consume_loop - default_parse_items error
+Traceback (most recent call last):
+  File "D:\everything-as-an-interface2\src\services\net_consume_helpers.py", line 165, in _consume_loop
+    parsed = await default_parse_items(payload)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\everything-as-an-interface2\src\services\ai_web\yuanbao_chat.py", line 82, in _parse_items_wrapper
+    items_payload = payload.get("convs", [])
+                    ^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'get'
+2025-08-21 13:42:17,989 - login_helper - ERROR - login_helper.py:254 - manual_login - 手动登录过程异常: Page.goto: Timeout 30000ms exceeded.
+Call log:
+  - navigating to "https://yuanbao.tencent.com/chat/naQivTmsDa/", waiting until "domcontentloaded"
+
+2025-08-21 13:42:17,990 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:148 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 13:45:11,162 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 13:45:11,162 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 13:45:11,162 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 13:45:11,162 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 13:45:11,181 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 13:45:11,182 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 13:45:11,183 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 2 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa', '819969a2-9e59-46f5-b0ca-df2116d9c2a0'])
+2025-08-21 13:45:11,183 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 13:45:11,183 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: 52930370-3462-4250-a111-047741286d5a (小红书收藏夹更新)
+2025-08-21 13:45:11,183 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 52930370-3462-4250-a111-047741286d5a 添加订阅者: a020817f-dc73-4ce9-b160-8b7bba4f2000
+2025-08-21 13:45:11,183 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 5e10d716-cbd8-4d29-b570-ff427bacbf99 (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 13:45:11,621 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 13:45:11,621 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 5e10d716-cbd8-4d29-b570-ff427bacbf99 (插件: yuanbao_chat)
+2025-08-21 13:45:11,775 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 13:45:11,775 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 13:45:11,777 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 13:45:11,778 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 13:45:11,778 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 13:45:13,796 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 13:45:17,824 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .yb-recent-conv-list__item
+2025-08-21 13:45:17,824 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:148 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 13:45:26,554 - metrics - DEBUG - metrics.py:25 - event - METRIC collect.exit {'reason': 'idle', 'idle_rounds': 2}
+2025-08-21 13:45:26,555 - root - WARNING - collection_loop.py:82 - run_generic_collection - 超过最大空转轮数
+2025-08-21 13:45:26,555 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:165 - _chat_with_ai - Successfully collected 0 favorite items
+2025-08-21 13:45:26,555 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:105 - _cleanup - All services detached and cleaned up
+2025-08-21 13:45:26,555 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:89 - stop - 停止小红书插件
+2025-08-21 13:45:26,555 - base_plugin - INFO - base.py:164 - stop - 插件 yuanbao_chat 已停止
+2025-08-21 13:45:26,556 - subscription - INFO - subscription.py:208 - publish - 主题 52930370-3462-4250-a111-047741286d5a 发布数据: 成功 1, 失败 0
+2025-08-21 13:45:26,557 - scheduler - INFO - scheduler.py:278 - _execute_task - 任务执行成功: 5e10d716-cbd8-4d29-b570-ff427bacbf99
+2025-08-21 13:47:09,796 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 13:47:10,037 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 13:47:11,346 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 13:47:11,346 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 13:47:11,346 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 13:47:11,346 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 13:47:11,365 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 13:47:11,365 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 13:47:11,366 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 2 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa', '819969a2-9e59-46f5-b0ca-df2116d9c2a0'])
+2025-08-21 13:47:11,366 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 13:47:11,366 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: db03d50e-455e-4674-8814-d32b1169def3 (小红书收藏夹更新)
+2025-08-21 13:47:11,366 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 db03d50e-455e-4674-8814-d32b1169def3 添加订阅者: f0e144b3-dcdf-4dd3-9a40-78b081b3666e
+2025-08-21 13:47:11,366 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 21acbf49-7274-4428-875e-c8165d9e620f (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 13:47:11,810 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 13:47:11,810 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 21acbf49-7274-4428-875e-c8165d9e620f (插件: yuanbao_chat)
+2025-08-21 13:47:11,974 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 13:47:11,974 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 13:47:11,976 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 13:47:11,976 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 13:47:11,976 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 13:47:13,985 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 13:47:18,113 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .yb-recent-conv-list__item
+2025-08-21 13:47:18,113 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:148 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 13:48:31,981 - root - DEBUG - ai_net_collection.py:100 - on_tick - network collection timed out
+2025-08-21 13:49:02,911 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 13:49:03,224 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 14:03:07,857 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 14:03:07,857 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 14:03:07,857 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 14:03:07,857 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 14:03:07,875 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 14:03:07,875 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 14:03:07,877 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 2 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa', '819969a2-9e59-46f5-b0ca-df2116d9c2a0'])
+2025-08-21 14:03:07,877 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 14:03:07,877 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: dc934e42-97cd-40b6-9f61-f1a23e37986f (小红书收藏夹更新)
+2025-08-21 14:03:07,877 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 dc934e42-97cd-40b6-9f61-f1a23e37986f 添加订阅者: 07639195-30d7-45b6-8b60-ebaa1a008b6d
+2025-08-21 14:03:07,877 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 0aa8a559-6e30-49e6-90af-88740fc1cf17 (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 14:03:08,325 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 14:03:08,325 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 0aa8a559-6e30-49e6-90af-88740fc1cf17 (插件: yuanbao_chat)
+2025-08-21 14:03:08,489 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 14:03:08,489 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 14:03:08,489 - plugin.yuanbao_chat - ERROR - yuanbao_chat.py:82 - start - Service setup failed: NetCollectionState.__init__() got an unexpected keyword argument 'event'
+2025-08-21 14:03:08,489 - scheduler - ERROR - scheduler.py:282 - _execute_task - 任务执行失败: 0aa8a559-6e30-49e6-90af-88740fc1cf17, 错误: NetCollectionState.__init__() got an unexpected keyword argument 'event'
+2025-08-21 14:03:08,489 - notification - ERROR - notification.py:202 - send - 
+===== ERROR NOTIFICATION =====
+Title: 任务执行失败: 0aa8a559-6e30-49e6-90af-88740fc1cf17
+Time: 2025-08-21 14:03:08
+Message: NetCollectionState.__init__() got an unexpected keyword argument 'event'
+Data: {
+  "task_id": "0aa8a559-6e30-49e6-90af-88740fc1cf17",
+  "plugin_id": "yuanbao_chat",
+  "error": "NetCollectionState.__init__() got an unexpected keyword argument 'event'"
+}
+================================
+
+2025-08-21 14:03:10,862 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 14:05:00,444 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 14:05:00,444 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 14:05:00,444 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 14:05:00,444 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 14:05:00,462 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 14:05:00,462 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 14:05:00,463 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 2 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa', '819969a2-9e59-46f5-b0ca-df2116d9c2a0'])
+2025-08-21 14:05:00,463 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 14:05:00,463 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: 1c2a71aa-085b-4c16-a397-acb0e1047498 (小红书收藏夹更新)
+2025-08-21 14:05:00,463 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 1c2a71aa-085b-4c16-a397-acb0e1047498 添加订阅者: 6281692a-2280-4829-9776-f66331b69459
+2025-08-21 14:05:00,463 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 4c38428f-1c2a-4f80-a392-960180e63aaf (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 14:05:00,906 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 14:05:00,906 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 4c38428f-1c2a-4f80-a392-960180e63aaf (插件: yuanbao_chat)
+2025-08-21 14:05:01,063 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 14:05:01,063 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 14:05:01,066 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 14:05:01,066 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 14:05:01,066 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 14:05:03,079 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 14:05:07,843 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .yb-recent-conv-list__item
+2025-08-21 14:05:07,844 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:148 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 14:05:10,117 - plugin.yuanbao_chat - ERROR - yuanbao_chat.py:175 - _chat_with_ai - Briefs collection failed: object of type 'Field' has no len()
+2025-08-21 14:05:10,117 - plugin.yuanbao_chat - ERROR - yuanbao_chat.py:135 - fetch - Fetch operation failed: object of type 'Field' has no len()
+2025-08-21 14:05:10,117 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:105 - _cleanup - All services detached and cleaned up
+2025-08-21 14:05:10,117 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:89 - stop - 停止小红书插件
+2025-08-21 14:05:10,117 - base_plugin - INFO - base.py:164 - stop - 插件 yuanbao_chat 已停止
+2025-08-21 14:05:10,117 - scheduler - INFO - scheduler.py:278 - _execute_task - 任务执行成功: 4c38428f-1c2a-4f80-a392-960180e63aaf
+2025-08-21 14:05:32,258 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 14:05:32,545 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 14:12:07,777 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 14:12:07,777 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 14:12:07,777 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 14:12:07,777 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 14:12:07,797 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 14:12:07,797 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 14:12:07,798 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 2 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa', '819969a2-9e59-46f5-b0ca-df2116d9c2a0'])
+2025-08-21 14:12:07,798 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 14:12:07,798 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: 19b0bda1-da72-49f0-bf34-1ee1bbcafabe (小红书收藏夹更新)
+2025-08-21 14:12:07,798 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 19b0bda1-da72-49f0-bf34-1ee1bbcafabe 添加订阅者: 27fade01-2c23-4712-a4d0-6c39adccd0f6
+2025-08-21 14:12:07,798 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: bcf89501-6acd-410f-90bb-05f24a3332da (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 14:12:08,244 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 14:12:08,244 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: bcf89501-6acd-410f-90bb-05f24a3332da (插件: yuanbao_chat)
+2025-08-21 14:12:08,391 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 14:12:08,391 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 14:12:08,393 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 14:12:08,393 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 14:12:08,393 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 14:12:10,405 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 14:12:14,786 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .yb-recent-conv-list__item
+2025-08-21 14:12:14,786 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:148 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 14:12:15,999 - root - ERROR - net_consume_helpers.py:168 - _consume_loop - default_parse_items error
+Traceback (most recent call last):
+  File "D:\everything-as-an-interface2\src\services\net_consume_helpers.py", line 165, in _consume_loop
+    parsed = await default_parse_items(payload)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\everything-as-an-interface2\src\services\ai_web\yuanbao_chat.py", line 83, in _parse_items_wrapper
+    return [Conversation(
+            ^^^^^^^^^^^^^
+TypeError: Conversation.__init__() missing 2 required positional arguments: 'total_tokens_used' and 'context_window_size'
+2025-08-21 14:12:17,220 - plugin.yuanbao_chat - ERROR - yuanbao_chat.py:175 - _chat_with_ai - Briefs collection failed: object of type 'Field' has no len()
+2025-08-21 14:12:17,220 - plugin.yuanbao_chat - ERROR - yuanbao_chat.py:135 - fetch - Fetch operation failed: object of type 'Field' has no len()
+2025-08-21 14:12:17,221 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:105 - _cleanup - All services detached and cleaned up
+2025-08-21 14:12:17,221 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:89 - stop - 停止小红书插件
+2025-08-21 14:12:17,221 - base_plugin - INFO - base.py:164 - stop - 插件 yuanbao_chat 已停止
+2025-08-21 14:12:17,221 - scheduler - INFO - scheduler.py:278 - _execute_task - 任务执行成功: bcf89501-6acd-410f-90bb-05f24a3332da
+2025-08-21 14:12:52,503 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 14:12:52,726 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 14:12:54,802 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 14:12:54,802 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 14:12:54,802 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 14:12:54,802 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 14:12:54,821 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 14:12:54,821 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 14:12:54,822 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 2 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa', '819969a2-9e59-46f5-b0ca-df2116d9c2a0'])
+2025-08-21 14:12:54,822 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 14:12:54,822 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: be43a466-1640-48e5-b28a-b4913362b662 (小红书收藏夹更新)
+2025-08-21 14:12:54,822 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 be43a466-1640-48e5-b28a-b4913362b662 添加订阅者: ebbd7023-c373-4095-a9a0-837753e8dc65
+2025-08-21 14:12:54,822 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 2fd2fb1a-79db-4ad2-9516-e9e5ae1c3cac (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 14:12:55,256 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 14:12:55,256 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 2fd2fb1a-79db-4ad2-9516-e9e5ae1c3cac (插件: yuanbao_chat)
+2025-08-21 14:12:55,414 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 14:12:55,414 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 14:12:55,417 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 14:12:55,417 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 14:12:55,417 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 14:12:57,428 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 14:13:01,497 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .yb-recent-conv-list__item
+2025-08-21 14:13:01,497 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:148 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 14:13:03,761 - plugin.yuanbao_chat - ERROR - yuanbao_chat.py:175 - _chat_with_ai - Briefs collection failed: object of type 'Field' has no len()
+2025-08-21 14:13:03,762 - plugin.yuanbao_chat - ERROR - yuanbao_chat.py:135 - fetch - Fetch operation failed: object of type 'Field' has no len()
+2025-08-21 14:13:03,762 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:105 - _cleanup - All services detached and cleaned up
+2025-08-21 14:13:03,762 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:89 - stop - 停止小红书插件
+2025-08-21 14:13:03,762 - base_plugin - INFO - base.py:164 - stop - 插件 yuanbao_chat 已停止
+2025-08-21 14:13:03,762 - scheduler - INFO - scheduler.py:278 - _execute_task - 任务执行成功: 2fd2fb1a-79db-4ad2-9516-e9e5ae1c3cac
+2025-08-21 14:13:41,432 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 14:13:41,665 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 14:14:01,476 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 14:14:01,476 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 14:14:01,476 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 14:14:01,477 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 14:14:01,498 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 14:14:01,499 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 14:14:01,499 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 2 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa', '819969a2-9e59-46f5-b0ca-df2116d9c2a0'])
+2025-08-21 14:14:01,500 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 14:14:01,500 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: aa5a57e1-e12a-438f-9969-7684c046fa38 (小红书收藏夹更新)
+2025-08-21 14:14:01,500 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 aa5a57e1-e12a-438f-9969-7684c046fa38 添加订阅者: 5db910d8-22d3-4ef2-abfc-cd71141ef6ad
+2025-08-21 14:14:01,500 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: ce19114b-c135-4913-a4e9-cf46a89c38b1 (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 14:14:01,951 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 14:14:01,952 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: ce19114b-c135-4913-a4e9-cf46a89c38b1 (插件: yuanbao_chat)
+2025-08-21 14:14:02,100 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 14:14:02,100 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 14:14:02,107 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 14:14:02,107 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 14:14:02,107 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 14:14:04,126 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 14:14:09,052 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .yb-recent-conv-list__item
+2025-08-21 14:14:09,052 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:148 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 14:14:11,676 - plugin.yuanbao_chat - ERROR - yuanbao_chat.py:175 - _chat_with_ai - Briefs collection failed: object of type 'Field' has no len()
+2025-08-21 14:14:11,676 - plugin.yuanbao_chat - ERROR - yuanbao_chat.py:135 - fetch - Fetch operation failed: object of type 'Field' has no len()
+2025-08-21 14:14:11,676 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:105 - _cleanup - All services detached and cleaned up
+2025-08-21 14:14:11,676 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:89 - stop - 停止小红书插件
+2025-08-21 14:14:11,676 - base_plugin - INFO - base.py:164 - stop - 插件 yuanbao_chat 已停止
+2025-08-21 14:14:11,677 - scheduler - INFO - scheduler.py:278 - _execute_task - 任务执行成功: ce19114b-c135-4913-a4e9-cf46a89c38b1
+2025-08-21 14:18:54,952 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 14:18:55,263 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 14:18:56,623 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 14:18:56,623 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 14:18:56,623 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 14:18:56,623 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 14:18:56,646 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 14:18:56,646 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 14:18:56,647 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 2 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa', '819969a2-9e59-46f5-b0ca-df2116d9c2a0'])
+2025-08-21 14:18:56,647 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 14:18:56,647 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: 150fb24d-2ef7-4dfd-b710-176de75bf97c (小红书收藏夹更新)
+2025-08-21 14:18:56,647 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 150fb24d-2ef7-4dfd-b710-176de75bf97c 添加订阅者: 6e9f5e77-2c78-43ca-a352-c2222a76d898
+2025-08-21 14:18:56,648 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 884da50f-2fca-4baa-863f-581e13721655 (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 14:18:57,111 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 14:18:57,112 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 884da50f-2fca-4baa-863f-581e13721655 (插件: yuanbao_chat)
+2025-08-21 14:18:57,282 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 14:18:57,282 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 14:18:57,289 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 14:18:57,289 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 14:18:57,289 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 14:18:59,307 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 14:19:03,634 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .yb-recent-conv-list__item
+2025-08-21 14:19:03,635 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:148 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 14:19:07,630 - plugin.yuanbao_chat - ERROR - yuanbao_chat.py:175 - _chat_with_ai - Briefs collection failed: object of type 'Field' has no len()
+2025-08-21 14:19:07,630 - plugin.yuanbao_chat - ERROR - yuanbao_chat.py:135 - fetch - Fetch operation failed: object of type 'Field' has no len()
+2025-08-21 14:19:07,630 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:105 - _cleanup - All services detached and cleaned up
+2025-08-21 14:19:07,630 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:89 - stop - 停止小红书插件
+2025-08-21 14:19:07,630 - base_plugin - INFO - base.py:164 - stop - 插件 yuanbao_chat 已停止
+2025-08-21 14:19:07,630 - scheduler - INFO - scheduler.py:278 - _execute_task - 任务执行成功: 884da50f-2fca-4baa-863f-581e13721655
+2025-08-21 14:21:17,861 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 14:21:18,211 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 14:21:19,944 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 14:21:19,944 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 14:21:19,944 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 14:21:19,944 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 14:21:19,966 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 14:21:19,967 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 14:21:19,967 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 2 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa', '819969a2-9e59-46f5-b0ca-df2116d9c2a0'])
+2025-08-21 14:21:19,968 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 14:21:19,968 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: 9b89d518-ee04-4cd2-8315-452076f8690c (小红书收藏夹更新)
+2025-08-21 14:21:19,968 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 9b89d518-ee04-4cd2-8315-452076f8690c 添加订阅者: 49886238-b931-40c1-aae8-5c586a8d7d83
+2025-08-21 14:21:19,968 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: f0f8a4f5-c2ac-4b3d-aa97-011fdaaa388a (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 14:21:20,413 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 14:21:20,414 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: f0f8a4f5-c2ac-4b3d-aa97-011fdaaa388a (插件: yuanbao_chat)
+2025-08-21 14:21:20,566 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 14:21:20,566 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 14:21:20,573 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 14:21:20,573 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 14:21:20,573 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 14:21:22,593 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 14:21:27,565 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .yb-recent-conv-list__item
+2025-08-21 14:21:27,565 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:148 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 14:21:35,855 - plugin.yuanbao_chat - ERROR - yuanbao_chat.py:175 - _chat_with_ai - Briefs collection failed: object of type 'Field' has no len()
+2025-08-21 14:21:35,855 - plugin.yuanbao_chat - ERROR - yuanbao_chat.py:135 - fetch - Fetch operation failed: object of type 'Field' has no len()
+2025-08-21 14:21:35,856 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:105 - _cleanup - All services detached and cleaned up
+2025-08-21 14:21:35,856 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:89 - stop - 停止小红书插件
+2025-08-21 14:21:35,856 - base_plugin - INFO - base.py:164 - stop - 插件 yuanbao_chat 已停止
+2025-08-21 14:21:35,856 - scheduler - INFO - scheduler.py:278 - _execute_task - 任务执行成功: f0f8a4f5-c2ac-4b3d-aa97-011fdaaa388a
+2025-08-21 14:23:27,653 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 14:23:27,889 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 14:23:29,402 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 14:23:29,403 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 14:23:29,403 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 14:23:29,403 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 14:23:29,425 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 14:23:29,426 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 14:23:29,426 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 2 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa', '819969a2-9e59-46f5-b0ca-df2116d9c2a0'])
+2025-08-21 14:23:29,427 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 14:23:29,427 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: 8bba2bc5-9b54-49d3-b67d-8e39f2e89ba8 (小红书收藏夹更新)
+2025-08-21 14:23:29,427 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 8bba2bc5-9b54-49d3-b67d-8e39f2e89ba8 添加订阅者: 20e363e8-9fea-44f2-bccb-be8cfb72bc13
+2025-08-21 14:23:29,427 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 4472c0ec-8856-453d-83e2-a8304d347e1b (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 14:23:29,874 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 14:23:29,876 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 4472c0ec-8856-453d-83e2-a8304d347e1b (插件: yuanbao_chat)
+2025-08-21 14:23:30,026 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 14:23:30,026 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 14:23:30,032 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 14:23:30,032 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 14:23:30,033 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 14:23:32,049 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 14:23:36,524 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .yb-recent-conv-list__item
+2025-08-21 14:23:36,525 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:148 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 14:25:29,996 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 14:25:29,996 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 14:25:29,996 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 14:25:29,996 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 14:25:30,014 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 14:25:30,015 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 14:25:30,015 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 2 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa', '819969a2-9e59-46f5-b0ca-df2116d9c2a0'])
+2025-08-21 14:25:30,015 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 14:25:30,015 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: e672ca20-4e5f-4783-a9f8-63fa4d310de8 (小红书收藏夹更新)
+2025-08-21 14:25:30,015 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 e672ca20-4e5f-4783-a9f8-63fa4d310de8 添加订阅者: ae7e2756-02b4-470f-b015-7d9a3f71358d
+2025-08-21 14:25:30,015 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 616e6818-298e-4c1d-a9c6-cfc85983438e (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 14:25:30,471 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 14:25:30,472 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 616e6818-298e-4c1d-a9c6-cfc85983438e (插件: yuanbao_chat)
+2025-08-21 14:25:30,617 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 14:25:30,617 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 14:25:30,621 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 14:25:30,621 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 14:25:30,621 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 14:25:32,624 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 14:25:37,010 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .yb-recent-conv-list__item
+2025-08-21 14:25:37,010 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:148 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 14:26:08,591 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 14:26:08,835 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 14:27:13,129 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 14:27:13,129 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 14:27:13,129 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 14:27:13,129 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 14:27:13,148 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 14:27:13,148 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 14:27:13,149 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 2 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa', '819969a2-9e59-46f5-b0ca-df2116d9c2a0'])
+2025-08-21 14:27:13,149 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 14:27:13,149 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: 5ca4806c-19db-47eb-af8e-93badc15fe7b (小红书收藏夹更新)
+2025-08-21 14:27:13,149 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 5ca4806c-19db-47eb-af8e-93badc15fe7b 添加订阅者: 2879acef-4f0a-4978-986e-e00e7fadd2b4
+2025-08-21 14:27:13,149 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 68b295f4-f7f8-475f-b374-a61d677728ae (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 14:27:13,607 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 14:27:13,607 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 68b295f4-f7f8-475f-b374-a61d677728ae (插件: yuanbao_chat)
+2025-08-21 14:27:13,778 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 14:27:13,778 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 14:27:13,781 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:80 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 14:27:13,781 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:85 - start - 启动小红书插件
+2025-08-21 14:27:13,781 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 14:27:15,797 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 14:27:19,933 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .yb-recent-conv-list__item
+2025-08-21 14:27:19,933 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:149 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 14:27:22,285 - root - ERROR - collection_loop.py:109 - run_generic_collection - stop_decider execute failed: YuanbaoChatPlugin._build_stop_decider.<locals>.custom_stop_decider() takes 8 positional arguments but 9 were given
+2025-08-21 14:27:36,245 - root - ERROR - collection_loop.py:109 - run_generic_collection - stop_decider execute failed: YuanbaoChatPlugin._build_stop_decider.<locals>.custom_stop_decider() takes 8 positional arguments but 9 were given
+2025-08-21 14:27:37,048 - root - ERROR - collection_loop.py:109 - run_generic_collection - stop_decider execute failed: YuanbaoChatPlugin._build_stop_decider.<locals>.custom_stop_decider() takes 8 positional arguments but 9 were given
+2025-08-21 14:32:37,642 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 14:32:37,978 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 14:33:36,218 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 14:33:36,218 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 14:33:36,218 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 14:33:36,218 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 14:33:36,236 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 14:33:36,237 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 14:33:36,237 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 2 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa', '819969a2-9e59-46f5-b0ca-df2116d9c2a0'])
+2025-08-21 14:33:36,237 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 14:33:36,238 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: 5f4e5257-4190-45b2-9318-5a6c17636462 (小红书收藏夹更新)
+2025-08-21 14:33:36,238 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 5f4e5257-4190-45b2-9318-5a6c17636462 添加订阅者: 3cbdfbd0-7e02-4078-94d0-96a658c7d763
+2025-08-21 14:33:36,238 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 6649ba4e-30cd-4302-b030-4f8b8fb794dc (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 14:33:36,709 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 14:33:36,709 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 6649ba4e-30cd-4302-b030-4f8b8fb794dc (插件: yuanbao_chat)
+2025-08-21 14:33:36,866 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 14:33:36,866 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 14:33:36,869 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:80 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 14:33:36,870 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:85 - start - 启动小红书插件
+2025-08-21 14:33:36,870 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 14:33:38,875 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 14:33:42,897 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .yb-recent-conv-list__item
+2025-08-21 14:33:42,898 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:149 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 14:33:45,658 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': True, 'stop_reason': 'only execute once', 'elapsed': 0.0}
+2025-08-21 14:33:45,658 - root - INFO - collection_loop.py:101 - run_generic_collection - collector.stop_decider, should_stop=True, stop_reason=only execute once, elapsed=0.0
+2025-08-21 14:33:45,658 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:166 - _chat_with_ai - Successfully collected 0 favorite items
+2025-08-21 14:33:45,658 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:106 - _cleanup - All services detached and cleaned up
+2025-08-21 14:33:45,658 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:90 - stop - 停止小红书插件
+2025-08-21 14:33:45,658 - base_plugin - INFO - base.py:164 - stop - 插件 yuanbao_chat 已停止
+2025-08-21 14:33:45,659 - subscription - INFO - subscription.py:208 - publish - 主题 5f4e5257-4190-45b2-9318-5a6c17636462 发布数据: 成功 1, 失败 0
+2025-08-21 14:33:45,659 - scheduler - INFO - scheduler.py:278 - _execute_task - 任务执行成功: 6649ba4e-30cd-4302-b030-4f8b8fb794dc
+2025-08-21 16:54:39,503 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 16:54:39,754 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 16:54:41,748 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 16:54:41,749 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 16:54:41,749 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 16:54:41,749 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 16:54:41,771 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 16:54:41,772 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 16:54:41,772 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 2 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa', '819969a2-9e59-46f5-b0ca-df2116d9c2a0'])
+2025-08-21 16:54:41,772 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 16:54:41,773 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: 902577ba-0f7a-417f-9132-2ead8c45f189 (小红书收藏夹更新)
+2025-08-21 16:54:41,773 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 902577ba-0f7a-417f-9132-2ead8c45f189 添加订阅者: 1bd60b2c-8196-4f88-a6fb-a1785e67d173
+2025-08-21 16:54:41,773 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 60138bf6-62fd-4748-8194-3aa6ededd542 (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 16:54:42,264 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 16:54:42,265 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 60138bf6-62fd-4748-8194-3aa6ededd542 (插件: yuanbao_chat)
+2025-08-21 16:54:42,428 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 16:54:42,428 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 16:54:42,434 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:80 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 16:54:42,434 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:85 - start - 启动小红书插件
+2025-08-21 16:54:42,434 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 16:54:44,452 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 16:54:48,421 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .yb-recent-conv-list__item
+2025-08-21 16:54:48,421 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:149 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 16:55:00,563 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': False, 'stop_reason': None, 'elapsed': 3.827999999979511}
+2025-08-21 16:55:00,563 - root - INFO - collection_loop.py:101 - run_generic_collection - collector.stop_decider, should_stop=False, stop_reason=None, elapsed=3.827999999979511
+2025-08-21 16:55:06,869 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': True, 'stop_reason': 'only execute once', 'elapsed': 10.09399999998277}
+2025-08-21 16:55:06,869 - root - INFO - collection_loop.py:101 - run_generic_collection - collector.stop_decider, should_stop=True, stop_reason=only execute once, elapsed=10.09399999998277
+2025-08-21 16:55:10,809 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': False, 'stop_reason': None, 'elapsed': 2.844000000040978}
+2025-08-21 16:55:10,809 - root - INFO - collection_loop.py:101 - run_generic_collection - collector.stop_decider, should_stop=False, stop_reason=None, elapsed=2.844000000040978
+2025-08-21 16:55:33,122 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 16:55:33,406 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 16:57:05,234 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 16:57:05,234 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 16:57:05,235 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 16:57:05,235 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 16:57:05,256 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 16:57:05,257 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 16:57:05,258 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 2 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa', '819969a2-9e59-46f5-b0ca-df2116d9c2a0'])
+2025-08-21 16:57:05,258 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 16:57:05,258 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: fe08782e-21fb-4e73-a02e-7d8799dc0ea5 (小红书收藏夹更新)
+2025-08-21 16:57:05,258 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 fe08782e-21fb-4e73-a02e-7d8799dc0ea5 添加订阅者: 8c88ba33-6b6a-489d-be9a-ff194bd706fd
+2025-08-21 16:57:05,258 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 4f112abd-b17e-484c-811a-23256b0034d6 (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 16:57:05,707 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 16:57:05,708 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 4f112abd-b17e-484c-811a-23256b0034d6 (插件: yuanbao_chat)
+2025-08-21 16:57:05,862 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 16:57:05,863 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 16:57:05,869 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 16:57:05,869 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 16:57:05,869 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 16:57:06,916 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 16:57:12,130 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 16:57:12,130 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 16:57:12,130 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 16:57:12,130 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 16:57:12,152 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 16:57:12,152 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 16:57:12,153 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 2 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa', '819969a2-9e59-46f5-b0ca-df2116d9c2a0'])
+2025-08-21 16:57:12,153 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 16:57:12,153 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: c3fee7ac-83f2-49ec-bc9c-5577a1849527 (小红书收藏夹更新)
+2025-08-21 16:57:12,153 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 c3fee7ac-83f2-49ec-bc9c-5577a1849527 添加订阅者: bed8b2e4-bde0-4449-9b8a-5311b7c15345
+2025-08-21 16:57:12,153 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 95fed157-55c3-452f-98a7-30dabf6a45b0 (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 16:57:12,607 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 16:57:12,609 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 95fed157-55c3-452f-98a7-30dabf6a45b0 (插件: yuanbao_chat)
+2025-08-21 16:57:12,740 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 16:57:12,740 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 16:57:12,746 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 16:57:12,746 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 16:57:12,746 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 16:57:14,770 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 16:57:18,663 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .yb-recent-conv-list__item
+2025-08-21 16:57:18,664 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:148 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 16:57:21,390 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': False, 'stop_reason': None, 'elapsed': 0.0}
+2025-08-21 16:57:21,390 - root - INFO - collection_loop.py:101 - run_generic_collection - collector.stop_decider, should_stop=False, stop_reason=None, elapsed=0.0
+2025-08-21 16:57:30,853 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': True, 'stop_reason': 'only execute once', 'elapsed': 0.8130000000237487}
+2025-08-21 16:57:30,853 - root - INFO - collection_loop.py:101 - run_generic_collection - collector.stop_decider, should_stop=True, stop_reason=only execute once, elapsed=0.8130000000237487
+2025-08-21 16:57:32,268 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': True, 'stop_reason': 'only execute once', 'elapsed': 0.0}
+2025-08-21 16:57:32,268 - root - INFO - collection_loop.py:101 - run_generic_collection - collector.stop_decider, should_stop=True, stop_reason=only execute once, elapsed=0.0
+2025-08-21 17:05:26,497 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 17:05:26,497 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 17:05:26,497 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 17:05:26,497 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 17:05:26,520 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 17:05:26,520 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 17:05:26,521 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 2 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa', '819969a2-9e59-46f5-b0ca-df2116d9c2a0'])
+2025-08-21 17:05:26,521 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 17:05:26,521 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: 2e3cae8b-966e-43cf-b5fa-e39ded59b8c5 (小红书收藏夹更新)
+2025-08-21 17:05:26,522 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 2e3cae8b-966e-43cf-b5fa-e39ded59b8c5 添加订阅者: 7eda84b4-c93a-4747-b16c-d95afc8184fa
+2025-08-21 17:05:26,522 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: ebc4821a-6a2f-488f-a604-50743a643533 (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 17:05:26,975 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 17:05:26,976 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: ebc4821a-6a2f-488f-a604-50743a643533 (插件: yuanbao_chat)
+2025-08-21 17:05:27,125 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 17:05:27,126 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 17:05:27,132 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 17:05:27,132 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 17:05:27,132 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 17:05:29,152 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 17:05:33,024 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .yb-recent-conv-list__item
+2025-08-21 17:05:33,025 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:162 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 17:05:47,861 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': False, 'stop_reason': None, 'elapsed': 0.0}
+2025-08-21 17:05:47,861 - root - INFO - collection_loop.py:101 - run_generic_collection - collector.stop_decider, should_stop=False, stop_reason=None, elapsed=0.0
+2025-08-21 17:07:11,658 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': True, 'stop_reason': 'send over when executing twice', 'elapsed': 0.8279999999795109}
+2025-08-21 17:07:11,658 - root - INFO - collection_loop.py:101 - run_generic_collection - collector.stop_decider, should_stop=True, stop_reason=send over when executing twice, elapsed=0.8279999999795109
+2025-08-21 17:08:28,801 - plugin.yuanbao_chat - ERROR - yuanbao_chat.py:200 - _chat_with_ai - Briefs collection failed: Page.reload: Timeout 30000ms exceeded.
+Call log:
+  - waiting for navigation until "load"
+    - navigated to "https://yuanbao.tencent.com/chat/naQivTmsDa/0fbe1430-3ec5-4127-a8ea-a6816a7c18a3"
+
+2025-08-21 17:08:28,801 - plugin.yuanbao_chat - ERROR - yuanbao_chat.py:135 - fetch - Fetch operation failed: Page.reload: Timeout 30000ms exceeded.
+Call log:
+  - waiting for navigation until "load"
+    - navigated to "https://yuanbao.tencent.com/chat/naQivTmsDa/0fbe1430-3ec5-4127-a8ea-a6816a7c18a3"
+
+2025-08-21 17:08:28,802 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:105 - _cleanup - All services detached and cleaned up
+2025-08-21 17:08:28,802 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:89 - stop - 停止小红书插件
+2025-08-21 17:08:28,802 - base_plugin - INFO - base.py:164 - stop - 插件 yuanbao_chat 已停止
+2025-08-21 17:08:28,802 - scheduler - INFO - scheduler.py:278 - _execute_task - 任务执行成功: ebc4821a-6a2f-488f-a604-50743a643533
+2025-08-21 17:10:14,943 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 17:11:45,577 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 17:11:45,578 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 17:11:45,578 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 17:11:45,578 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 17:11:45,601 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 17:11:45,601 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 17:11:45,602 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 2 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa', '819969a2-9e59-46f5-b0ca-df2116d9c2a0'])
+2025-08-21 17:11:45,602 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 17:11:45,602 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: 0ba73b8c-4343-4c8c-9b05-d7c33e06bd54 (小红书收藏夹更新)
+2025-08-21 17:11:45,602 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 0ba73b8c-4343-4c8c-9b05-d7c33e06bd54 添加订阅者: e15f6a9f-6b32-4342-aa99-725aff6b91de
+2025-08-21 17:11:45,602 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 2b0f174b-5cb4-42a7-83ef-da2da95e2d6f (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 17:11:46,084 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 17:11:46,085 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 2b0f174b-5cb4-42a7-83ef-da2da95e2d6f (插件: yuanbao_chat)
+2025-08-21 17:11:46,240 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 17:11:46,240 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 17:11:46,246 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 17:11:46,246 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 17:11:46,246 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 17:11:48,262 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 17:11:52,345 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .yb-recent-conv-list__item
+2025-08-21 17:11:52,345 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:162 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 17:11:57,315 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': False, 'stop_reason': None, 'elapsed': 0.0}
+2025-08-21 17:11:57,315 - root - INFO - collection_loop.py:101 - run_generic_collection - collector.stop_decider, should_stop=False, stop_reason=None, elapsed=0.0
+2025-08-21 17:12:08,528 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': True, 'stop_reason': 'send over when executing twice', 'elapsed': 0.8130000000237487}
+2025-08-21 17:12:08,529 - root - INFO - collection_loop.py:101 - run_generic_collection - collector.stop_decider, should_stop=True, stop_reason=send over when executing twice, elapsed=0.8130000000237487
+2025-08-21 17:12:10,074 - root - ERROR - net_consume_helpers.py:168 - _consume_loop - default_parse_items error
+Traceback (most recent call last):
+  File "D:\everything-as-an-interface2\src\services\net_consume_helpers.py", line 165, in _consume_loop
+    parsed = await default_parse_items(payload)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\everything-as-an-interface2\src\services\ai_web\yuanbao_chat.py", line 82, in _parse_items_wrapper
+    items_payload = payload.get("convs", [])
+                    ^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'get'
+2025-08-21 17:12:13,364 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': False, 'stop_reason': None, 'elapsed': 0.0}
+2025-08-21 17:12:13,365 - root - INFO - collection_loop.py:101 - run_generic_collection - collector.stop_decider, should_stop=False, stop_reason=None, elapsed=0.0
+2025-08-21 17:12:19,190 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': True, 'stop_reason': 'send over when executing twice', 'elapsed': 5.827999999979511}
+2025-08-21 17:12:19,191 - root - INFO - collection_loop.py:101 - run_generic_collection - collector.stop_decider, should_stop=True, stop_reason=send over when executing twice, elapsed=5.827999999979511
+2025-08-21 17:12:19,191 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:190 - _chat_with_ai - Successfully collected 0 favorite items
+2025-08-21 17:12:19,191 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:105 - _cleanup - All services detached and cleaned up
+2025-08-21 17:12:19,192 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:89 - stop - 停止小红书插件
+2025-08-21 17:12:19,192 - base_plugin - INFO - base.py:164 - stop - 插件 yuanbao_chat 已停止
+2025-08-21 17:12:19,193 - subscription - INFO - subscription.py:208 - publish - 主题 0ba73b8c-4343-4c8c-9b05-d7c33e06bd54 发布数据: 成功 1, 失败 0
+2025-08-21 17:12:19,193 - scheduler - INFO - scheduler.py:278 - _execute_task - 任务执行成功: 2b0f174b-5cb4-42a7-83ef-da2da95e2d6f
+2025-08-21 17:15:19,141 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 17:15:19,370 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 17:15:20,163 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 17:15:20,163 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 17:15:20,163 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 17:15:20,164 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 17:15:20,186 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 17:15:20,188 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 17:15:20,188 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 2 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa', '819969a2-9e59-46f5-b0ca-df2116d9c2a0'])
+2025-08-21 17:15:20,189 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 17:15:20,189 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: a32b8c64-67aa-4dfe-a59f-0961d7657ea7 (小红书收藏夹更新)
+2025-08-21 17:15:20,189 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 a32b8c64-67aa-4dfe-a59f-0961d7657ea7 添加订阅者: b8125511-ed3a-4320-b765-6c0ba8775f33
+2025-08-21 17:15:20,189 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 73edd773-e9e3-4b4f-ad6f-478b81372409 (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 17:15:20,667 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 17:15:20,668 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 73edd773-e9e3-4b4f-ad6f-478b81372409 (插件: yuanbao_chat)
+2025-08-21 17:15:20,816 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 17:15:20,816 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 17:15:20,822 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 17:15:20,823 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 17:15:20,823 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 17:15:22,832 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 17:15:27,004 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .yb-recent-conv-list__item
+2025-08-21 17:15:27,004 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:162 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 17:15:32,164 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': False, 'stop_reason': None, 'elapsed': 0.0}
+2025-08-21 17:15:32,164 - root - INFO - collection_loop.py:101 - run_generic_collection - collector.stop_decider, should_stop=False, stop_reason=None, elapsed=0.0
+2025-08-21 17:15:41,028 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': True, 'stop_reason': 'send over when executing twice', 'elapsed': 0.8290000000270084}
+2025-08-21 17:15:41,028 - root - INFO - collection_loop.py:101 - run_generic_collection - collector.stop_decider, should_stop=True, stop_reason=send over when executing twice, elapsed=0.8290000000270084
+2025-08-21 17:18:01,102 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 17:18:01,103 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 17:18:01,103 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 17:18:01,103 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 17:18:01,125 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 17:18:01,125 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 17:18:01,126 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 2 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa', '819969a2-9e59-46f5-b0ca-df2116d9c2a0'])
+2025-08-21 17:18:01,126 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 17:18:01,126 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: 7852075d-1f81-4875-a13b-f86fe8853a40 (小红书收藏夹更新)
+2025-08-21 17:18:01,126 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 7852075d-1f81-4875-a13b-f86fe8853a40 添加订阅者: e2e6507a-74c7-42ba-a8f4-4f075edcb0ea
+2025-08-21 17:18:01,126 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 70f1b0d9-7636-4760-a389-22b42bcd3844 (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 17:18:01,578 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 17:18:01,578 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 70f1b0d9-7636-4760-a389-22b42bcd3844 (插件: yuanbao_chat)
+2025-08-21 17:18:01,748 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 17:18:01,748 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 17:18:01,754 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 17:18:01,754 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 17:18:01,754 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 17:18:03,766 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 17:18:07,762 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .yb-recent-conv-list__item
+2025-08-21 17:18:07,763 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:162 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 17:18:11,907 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': False, 'stop_reason': None, 'elapsed': 0.0}
+2025-08-21 17:18:11,907 - root - INFO - collection_loop.py:101 - run_generic_collection - collector.stop_decider, should_stop=False, stop_reason=None, elapsed=0.0
+2025-08-21 17:18:20,778 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': True, 'stop_reason': 'send over when executing twice', 'elapsed': 0.8130000000237487}
+2025-08-21 17:18:20,778 - root - INFO - collection_loop.py:101 - run_generic_collection - collector.stop_decider, should_stop=True, stop_reason=send over when executing twice, elapsed=0.8130000000237487
+2025-08-21 17:18:22,137 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': False, 'stop_reason': None, 'elapsed': 0.0}
+2025-08-21 17:18:22,137 - root - INFO - collection_loop.py:101 - run_generic_collection - collector.stop_decider, should_stop=False, stop_reason=None, elapsed=0.0
+2025-08-21 17:18:58,966 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': True, 'stop_reason': 'send over when executing twice', 'elapsed': 1.7179999999934807}
+2025-08-21 17:18:58,966 - root - INFO - collection_loop.py:101 - run_generic_collection - collector.stop_decider, should_stop=True, stop_reason=send over when executing twice, elapsed=1.7179999999934807
+2025-08-21 17:37:41,442 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 17:37:41,442 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 17:37:41,442 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 17:37:41,442 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 17:37:41,465 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 17:37:41,465 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 17:37:41,466 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 2 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa', '819969a2-9e59-46f5-b0ca-df2116d9c2a0'])
+2025-08-21 17:37:41,466 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 17:37:41,466 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: eb552761-b9d0-4686-8a66-eba9fe4a5745 (小红书收藏夹更新)
+2025-08-21 17:37:41,466 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 eb552761-b9d0-4686-8a66-eba9fe4a5745 添加订阅者: 868669e9-668d-4157-9643-0474d872a06d
+2025-08-21 17:37:41,466 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: de7e357f-5960-430b-999e-662496a1d649 (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 17:37:41,978 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 17:37:41,979 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: de7e357f-5960-430b-999e-662496a1d649 (插件: yuanbao_chat)
+2025-08-21 17:37:42,143 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 17:37:42,143 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 17:37:42,150 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 17:37:42,150 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 17:37:42,150 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 17:37:44,165 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 17:37:48,145 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .yb-recent-conv-list__item
+2025-08-21 17:37:48,145 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:162 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 17:37:51,013 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': False, 'stop_reason': None, 'elapsed': 0.0}
+2025-08-21 17:37:51,013 - root - INFO - collection_loop.py:101 - run_generic_collection - collector.stop_decider, should_stop=False, stop_reason=None, elapsed=0.0
+2025-08-21 17:38:00,897 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': True, 'stop_reason': 'send over when executing twice', 'elapsed': 0.8119999999762513}
+2025-08-21 17:38:00,897 - root - INFO - collection_loop.py:101 - run_generic_collection - collector.stop_decider, should_stop=True, stop_reason=send over when executing twice, elapsed=0.8119999999762513
+2025-08-21 17:38:02,240 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': True, 'stop_reason': 'only execute once', 'elapsed': 0.0}
+2025-08-21 17:38:02,240 - root - INFO - collection_loop.py:101 - run_generic_collection - collector.stop_decider, should_stop=True, stop_reason=only execute once, elapsed=0.0
+2025-08-21 17:40:13,459 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:190 - _chat_with_ai - Successfully collected 1 favorite items
+2025-08-21 17:40:13,459 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:105 - _cleanup - All services detached and cleaned up
+2025-08-21 17:40:13,459 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:89 - stop - 停止小红书插件
+2025-08-21 17:40:13,460 - base_plugin - INFO - base.py:164 - stop - 插件 yuanbao_chat 已停止
+2025-08-21 17:40:13,460 - subscription - INFO - subscription.py:208 - publish - 主题 eb552761-b9d0-4686-8a66-eba9fe4a5745 发布数据: 成功 1, 失败 0
+2025-08-21 17:40:13,460 - scheduler - INFO - scheduler.py:278 - _execute_task - 任务执行成功: de7e357f-5960-430b-999e-662496a1d649
+2025-08-21 17:42:14,577 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 17:42:14,825 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 17:43:34,721 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 17:43:34,721 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 17:43:34,721 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 17:43:34,721 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 17:43:34,740 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 17:43:34,740 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 17:43:34,741 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 2 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa', '819969a2-9e59-46f5-b0ca-df2116d9c2a0'])
+2025-08-21 17:43:34,741 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 17:43:34,741 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: 3efd1114-97dc-4d69-a457-df158512ec5b (小红书收藏夹更新)
+2025-08-21 17:43:34,741 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 3efd1114-97dc-4d69-a457-df158512ec5b 添加订阅者: 0c10b3c4-e194-48ee-9c5f-75f7307560de
+2025-08-21 17:44:29,568 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 17:44:29,568 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 17:44:29,568 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 17:44:29,568 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 17:44:29,586 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 17:44:29,587 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 17:44:29,587 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 2 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa', '819969a2-9e59-46f5-b0ca-df2116d9c2a0'])
+2025-08-21 17:44:29,587 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 17:44:29,588 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: e11a579b-6d92-416b-b06d-58495d6ea70d (小红书收藏夹更新)
+2025-08-21 17:44:29,588 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 e11a579b-6d92-416b-b06d-58495d6ea70d 添加订阅者: 24b394c5-2d4a-40d6-9c0c-78d163934d7e
+2025-08-21 17:44:39,573 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: e17a2c27-25e9-4f47-a92b-22cebd42f6a3 (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 17:44:40,042 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 17:44:40,042 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: e17a2c27-25e9-4f47-a92b-22cebd42f6a3 (插件: yuanbao_chat)
+2025-08-21 17:44:40,184 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 17:44:40,184 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 17:44:40,188 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 17:44:40,188 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 17:44:40,188 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 17:44:42,192 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 17:44:46,446 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .yb-recent-conv-list__item
+2025-08-21 17:44:46,446 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:162 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 17:44:49,224 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': False, 'stop_reason': None, 'elapsed': 0.0}
+2025-08-21 17:44:49,224 - root - INFO - collection_loop.py:101 - run_generic_collection - collector.stop_decider, should_stop=False, stop_reason=None, elapsed=0.0
+2025-08-21 17:45:26,151 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': True, 'stop_reason': 'send over when executing twice', 'elapsed': 0.8280000000377186}
+2025-08-21 17:45:26,152 - root - INFO - collection_loop.py:101 - run_generic_collection - collector.stop_decider, should_stop=True, stop_reason=send over when executing twice, elapsed=0.8280000000377186
+2025-08-21 17:45:27,523 - metrics - DEBUG - metrics.py:25 - event - METRIC collector.stop_decider {'should_stop': True, 'stop_reason': 'only execute once', 'elapsed': 0.0}
+2025-08-21 17:45:27,523 - root - INFO - collection_loop.py:101 - run_generic_collection - collector.stop_decider, should_stop=True, stop_reason=only execute once, elapsed=0.0
+2025-08-21 17:45:27,523 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:190 - _chat_with_ai - Successfully collected 1 favorite items
+2025-08-21 17:45:27,523 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:105 - _cleanup - All services detached and cleaned up
+2025-08-21 17:45:27,523 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:89 - stop - 停止小红书插件
+2025-08-21 17:45:27,523 - base_plugin - INFO - base.py:164 - stop - 插件 yuanbao_chat 已停止
+2025-08-21 17:45:27,524 - subscription - INFO - subscription.py:208 - publish - 主题 e11a579b-6d92-416b-b06d-58495d6ea70d 发布数据: 成功 1, 失败 0
+2025-08-21 17:45:27,524 - scheduler - INFO - scheduler.py:278 - _execute_task - 任务执行成功: e17a2c27-25e9-4f47-a92b-22cebd42f6a3
+2025-08-21 19:05:44,805 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 19:05:45,192 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 19:37:50,044 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: image
+2025-08-21 19:37:50,044 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: slide
+2025-08-21 19:37:50,044 - captcha_center - INFO - captcha_center.py:209 - register_handler - 注册验证码处理器: human
+2025-08-21 19:37:50,044 - notification - INFO - notification.py:332 - register_channel - 注册通知渠道: console (控制台通知)
+2025-08-21 19:37:50,063 - account_manager - INFO - account_manager.py:55 - _init_encryption - 加密系统已初始化
+2025-08-21 19:37:50,063 - account_manager - INFO - account_manager.py:63 - _load_platforms - 已加载 4 个平台定义
+2025-08-21 19:37:50,064 - account_manager - INFO - account_manager.py:115 - _load_cookies - 已加载 2 组 Cookie, dict_keys(['28ba44f1-bb67-41ab-86f0-a3d049d902aa', '819969a2-9e59-46f5-b0ca-df2116d9c2a0'])
+2025-08-21 19:37:50,064 - everything_as_interface - INFO - __init__.py:90 - __init__ - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 19:37:50,064 - subscription - INFO - subscription.py:276 - create_topic - 创建主题: 930574e6-7985-4c9a-8cc1-5d79c967fa56 (小红书收藏夹更新)
+2025-08-21 19:37:50,064 - subscription - INFO - subscription.py:127 - add_subscriber - 主题 930574e6-7985-4c9a-8cc1-5d79c967fa56 添加订阅者: 56ceda85-c593-4343-bb02-f57ac9334d29
+2025-08-21 19:37:50,064 - scheduler - INFO - scheduler.py:140 - add_task - 添加任务: 8210cb38-c0f0-489c-8b43-f0fc4e178659 (插件: yuanbao_chat, 间隔: 30000秒)
+2025-08-21 19:37:50,563 - scheduler - INFO - scheduler.py:192 - start - 调度器已启动
+2025-08-21 19:37:50,563 - scheduler - INFO - scheduler.py:238 - _execute_task - 执行任务: 8210cb38-c0f0-489c-8b43-f0fc4e178659 (插件: yuanbao_chat)
+2025-08-21 19:37:50,727 - base_plugin - INFO - base.py:112 - configure - 插件 yuanbao_chat 已配置
+2025-08-21 19:37:50,727 - base_plugin - INFO - base.py:121 - set_context - 插件 yuanbao_chat 已注入 Context
+2025-08-21 19:37:50,730 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:79 - start - YuanbaoChatPlugin service initialized and attached
+2025-08-21 19:37:50,730 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:84 - start - 启动小红书插件
+2025-08-21 19:37:50,730 - base_plugin - INFO - base.py:152 - start - 插件 yuanbao_chat 已启动
+2025-08-21 19:37:52,746 - login_helper - DEBUG - login_helper.py:187 - try_cookie_login - 访问探测页面触发Cookie识别: https://yuanbao.tencent.com/chat/naQivTmsDa/
+2025-08-21 19:37:57,116 - login_helper - DEBUG - login_helper.py:146 - is_logged_in - 检测到登录状态指示器: .yb-recent-conv-list__item
+2025-08-21 19:37:57,116 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:162 - _chat_with_ai - Collecting favorites using note_brief_net service
+2025-08-21 19:37:58,021 - plugin.yuanbao_chat - ERROR - yuanbao_chat.py:135 - fetch - Fetch operation failed: Page.goto: Target page, context or browser has been closed
+Call log:
+  - navigating to "https://yuanbao.tencent.com/chat/naQivTmsDa/0fbe1430-3ec5-4127-a8ea-a6816a7c18a3", waiting until "load"
+
+2025-08-21 19:37:58,021 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:105 - _cleanup - All services detached and cleaned up
+2025-08-21 19:37:58,021 - plugin.yuanbao_chat - INFO - yuanbao_chat.py:89 - stop - 停止小红书插件
+2025-08-21 19:37:58,021 - base_plugin - INFO - base.py:164 - stop - 插件 yuanbao_chat 已停止
+2025-08-21 19:37:58,021 - scheduler - INFO - scheduler.py:278 - _execute_task - 任务执行成功: 8210cb38-c0f0-489c-8b43-f0fc4e178659
+2025-08-21 19:38:00,219 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
+2025-08-21 19:38:00,522 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
