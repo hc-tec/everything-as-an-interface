@@ -24,3 +24,25 @@
 2025-08-19 01:59:08,626 - root - DEBUG - parsers.py:31 - quick_extract_initial_state - 找到 window.__INITIAL_STATE__:
 2025-08-19 01:59:10,495 - scheduler - INFO - scheduler.py:208 - stop - 调度器已停止
 2025-08-19 01:59:10,625 - root - WARNING - orchestrator.py:77 - stop - 浏览器关闭失败: Browser.close: Connection closed while reading from the driver
+2025-08-21 03:32:45,811 - captcha_center - INFO - 注册验证码处理器: image
+2025-08-21 03:32:45,811 - captcha_center - INFO - 注册验证码处理器: slide
+2025-08-21 03:32:45,811 - captcha_center - INFO - 注册验证码处理器: human
+2025-08-21 03:32:45,811 - notification - INFO - 注册通知渠道: console (控制台通知)
+2025-08-21 03:32:45,827 - account_manager - INFO - 加密系统已初始化
+2025-08-21 03:32:45,827 - account_manager - INFO - 已加载 3 个平台定义
+2025-08-21 03:32:45,828 - account_manager - ERROR - 加载 Cookie 存储失败: 
+2025-08-21 03:32:45,828 - everything_as_interface - INFO - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 03:32:45,828 - webhook_dispatcher - INFO - WebhookDispatcher started with concurrency=4
+2025-08-21 03:32:45,828 - api.server - INFO - API server started (lazy orchestrator/scheduler)
+2025-08-21 03:34:06,622 - webhook_dispatcher - INFO - WebhookDispatcher stopped
+2025-08-21 03:34:06,624 - scheduler - WARNING - 调度器未在运行
+2025-08-21 03:34:33,136 - captcha_center - INFO - 注册验证码处理器: image
+2025-08-21 03:34:33,136 - captcha_center - INFO - 注册验证码处理器: slide
+2025-08-21 03:34:33,136 - captcha_center - INFO - 注册验证码处理器: human
+2025-08-21 03:34:33,137 - notification - INFO - 注册通知渠道: console (控制台通知)
+2025-08-21 03:34:33,152 - account_manager - INFO - 加密系统已初始化
+2025-08-21 03:34:33,153 - account_manager - INFO - 已加载 3 个平台定义
+2025-08-21 03:34:33,153 - account_manager - ERROR - 加载 Cookie 存储失败: 
+2025-08-21 03:34:33,153 - everything_as_interface - INFO - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 03:34:33,153 - webhook_dispatcher - INFO - WebhookDispatcher started with concurrency=4
+2025-08-21 03:34:33,153 - api.server - INFO - API server started (lazy orchestrator/scheduler)

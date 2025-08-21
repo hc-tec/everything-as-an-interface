@@ -49,6 +49,39 @@ pip install -e .
 playwright install
 ```
 
+### 启动服务端（API + Webhook）
+
+```bash
+pip install -r requirements-dev.txt
+export EAI_API_KEY=dev-key   # 可选：生产环境请更换
+python -m uvicorn src.api.server:app --host 0.0.0.0 --port 8000 --reload
+```
+
+可用接口（需在 Header 传 `X-API-Key: $EAI_API_KEY`，未设置时默认开放）
+
+- GET `/api/v1/health` | `/api/v1/ready`
+- GET `/api/v1/plugins`
+- GET `/api/v1/tasks`
+- POST `/api/v1/tasks` 创建任务：
+  ```json
+  {
+    "plugin_id": "xiaohongshu_brief",
+    "run_mode": "recurring",
+    "interval": 300,
+    "config": {"cookie_ids": ["..."], "headless": false},
+    "topic_id": "可选：绑定的topic"
+  }
+  ```
+- POST `/api/v1/plugins/{plugin_id}/run` 立即执行一次，可带 `topic_id`
+- 主题与订阅：
+  - GET/POST `/api/v1/topics`
+  - POST `/api/v1/topics/{topic_id}/subscriptions` 注册 webhook（`url`, `secret`, `headers`）
+  - GET `/api/v1/subscriptions` 列表；DELETE/PATCH `/api/v1/subscriptions/{id}`
+  - POST `/api/v1/subscriptions/test-delivery?topic_id=...` 测试投递
+  - POST `/api/v1/topics/{topic_id}/publish` 手动触发
+
+Webhook 事件包含 `X-EAI-Event-Id`, `X-EAI-Topic-Id`, `X-EAI-Plugin-Id`, `X-EAI-Signature`（如配置 `secret`）。
+
 ### 使用示例
 
 下面是一个监听小红书收藏夹更新的简单示例：

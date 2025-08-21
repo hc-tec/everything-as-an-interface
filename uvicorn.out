@@ -1,0 +1,15 @@
+INFO:     Started server process [6936]
+INFO:     Waiting for application startup.
+2025-08-21 03:34:33,136 - captcha_center - INFO - 注册验证码处理器: image
+2025-08-21 03:34:33,136 - captcha_center - INFO - 注册验证码处理器: slide
+2025-08-21 03:34:33,136 - captcha_center - INFO - 注册验证码处理器: human
+2025-08-21 03:34:33,137 - notification - INFO - 注册通知渠道: console (控制台通知)
+2025-08-21 03:34:33,152 - account_manager - INFO - 加密系统已初始化
+2025-08-21 03:34:33,153 - account_manager - INFO - 已加载 3 个平台定义
+2025-08-21 03:34:33,153 - account_manager - ERROR - 加载 Cookie 存储失败: 
+2025-08-21 03:34:33,153 - everything_as_interface - INFO - Everything As Interface 初始化完成 - 环境: development
+2025-08-21 03:34:33,153 - webhook_dispatcher - INFO - WebhookDispatcher started with concurrency=4
+2025-08-21 03:34:33,153 - api.server - INFO - API server started (lazy orchestrator/scheduler)
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8001 (Press CTRL+C to quit)
+INFO:     127.0.0.1:54396 - "GET /api/v1/plugins HTTP/1.1" 200 OK

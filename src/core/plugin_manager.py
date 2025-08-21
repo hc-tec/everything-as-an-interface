@@ -1,4 +1,7 @@
 import logging
+import importlib
+import sys
+from pathlib import Path
 from typing import Dict, Optional
 
 from src.core.task_config import TaskConfig
@@ -24,8 +27,31 @@ class PluginManager:
         Args:
             plugin_config: 插件配置
         """
-        self.plugins: Dict[str, Optional[BasePlugin]] = {pid: None for pid in list_plugins()}
         self.plugin_config = plugin_config
+        # Optional auto-discovery: import plugin modules to populate registry
+        if self.plugin_config and self.plugin_config.auto_discover:
+            self._auto_discover_plugins(self.plugin_config.plugins_dir)
+        # Initialize cache of known ids after discovery
+        self.plugins: Dict[str, Optional[BasePlugin]] = {pid: None for pid in list_plugins()}
+
+    def _auto_discover_plugins(self, plugins_dir: Path) -> None:
+        """Import all plugin modules to register them via decorators.
+
+        Skips internal modules like base/registry/dunder.
+        """
+        if not plugins_dir.exists():
+            return
+        sys.path.insert(0, str(plugins_dir.parent.parent))  # ensure src on path
+        for py in plugins_dir.glob("*.py"):
+            name = py.stem
+            if name in {"__init__", "base", "registry"}:
+                continue
+            module_name = f"src.plugins.{name}"
+            try:
+                importlib.import_module(module_name)
+                logger.debug("Auto-discovered plugin module imported: %s", module_name)
+            except Exception as e:
+                logger.warning("Failed to import plugin module %s: %s", module_name, str(e))
 
     def get_all_plugins(self) -> Dict[str, Optional[BasePlugin]]:
         """获取所有插件实例字典。
