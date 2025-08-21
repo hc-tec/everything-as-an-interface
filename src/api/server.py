@@ -1,4 +1,10 @@
 import asyncio
+import sys
+# 1. (必需) 解决 Windows 上的 NotImplementedError
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+    print("--- [DEBUG] Event loop policy successfully set to ProactorEventLoopPolicy. ---")
+
 import logging
 import os
 import uuid
@@ -9,6 +15,7 @@ from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+from settings import PROJECT_ROOT
 from src import EverythingAsInterface
 from src.core.orchestrator import Orchestrator
 from src.core.task_config import TaskConfig
@@ -21,6 +28,52 @@ logger = logging.getLogger("api.server")
 
 API_PREFIX = "/api/v1"
 
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from playwright.async_api import async_playwright, Playwright
+
+
+# 2. (推荐) 使用 lifespan 管理 Playwright 实例
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Initialize core system
+    system = EverythingAsInterface(config_file=os.path.join(PROJECT_ROOT, "config.example.json"))
+    await async_playwright().start()
+    # Lazy init orchestrator and scheduler when first task runs
+    orchestrator = Orchestrator(browser_config=system.browser_config)
+    await orchestrator.start(headless=system.browser_config.headless)
+    system.scheduler.set_orchestrator(orchestrator)
+
+    # Initialize webhook components
+    dispatcher = WebhookDispatcher()
+    await dispatcher.start()
+    registry = SubscriptionRegistry()
+
+    app.state.system = system
+    app.state.orchestrator = orchestrator
+    app.state.dispatcher = dispatcher
+    app.state.registry = registry
+
+    logger.info("API server started")
+
+    yield  # 应用在此处运行
+
+    system = app.state.system
+    dispatcher: WebhookDispatcher = app.state.dispatcher
+    orchestrator: Orchestrator = app.state.orchestrator
+
+    if dispatcher:
+        await dispatcher.stop()
+    if system and getattr(system, "scheduler", None):
+        try:
+            await system.scheduler.stop()
+        except Exception:
+            pass
+    if orchestrator:
+        try:
+            await orchestrator.stop()
+        except Exception:
+            pass
 
 class CreateTaskBody(BaseModel):
     plugin_id: str
@@ -49,7 +102,7 @@ class CreateSubscriptionBody(BaseModel):
 
 
 def require_api_key(x_api_key: Optional[str] = Header(default=None)) -> None:
-    expected = os.getenv("EAI_API_KEY")
+    expected = os.getenv("EAI_API_KEY", "testkey")
     if expected:
         if not x_api_key or x_api_key != expected:
             raise HTTPException(status_code=401, detail="Unauthorized")
@@ -71,7 +124,7 @@ def build_event_envelope(*, topic_id: str, plugin_id: Optional[str], task_id: Op
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="Everything As An Interface - Server", version="1.0.0")
+    app = FastAPI(title="Everything As An Interface - Server", version="1.0.0", lifespan=lifespan)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
@@ -85,45 +138,6 @@ def create_app() -> FastAPI:
     app.state.dispatcher = None
     app.state.registry = None
     app.state._bridged_topics = set()
-
-    @app.on_event("startup")
-    async def _startup() -> None:
-        # Initialize core system
-        system = EverythingAsInterface()
-
-        # Lazy init orchestrator and scheduler when first task runs
-        orchestrator: Optional[Orchestrator] = None
-
-        # Initialize webhook components
-        dispatcher = WebhookDispatcher()
-        await dispatcher.start()
-        registry = SubscriptionRegistry()
-
-        app.state.system = system
-        app.state.orchestrator = orchestrator
-        app.state.dispatcher = dispatcher
-        app.state.registry = registry
-
-        logger.info("API server started (lazy orchestrator/scheduler)")
-
-    @app.on_event("shutdown")
-    async def _shutdown() -> None:
-        system = app.state.system
-        dispatcher: WebhookDispatcher = app.state.dispatcher
-        orchestrator: Orchestrator = app.state.orchestrator
-
-        if dispatcher:
-            await dispatcher.stop()
-        if system and getattr(system, "scheduler", None):
-            try:
-                await system.scheduler.stop()
-            except Exception:
-                pass
-        if orchestrator:
-            try:
-                await orchestrator.stop()
-            except Exception:
-                pass
 
     # Health
     @app.get(f"{API_PREFIX}/health")
@@ -168,12 +182,7 @@ def create_app() -> FastAPI:
         config = TaskConfig.from_dict(body.config or {})
 
         topic_id = body.topic_id
-
-        # Ensure orchestrator and scheduler started lazily
-        if app.state.orchestrator is None:
-            app.state.orchestrator = Orchestrator(browser_config=system.browser_config)
-            await app.state.orchestrator.start(headless=system.browser_config.headless)
-            system.scheduler.set_orchestrator(app.state.orchestrator)
+        system.scheduler.set_orchestrator(app.state.orchestrator)
         if not system.scheduler.running:
             await system.scheduler.start()
 
@@ -212,9 +221,6 @@ def create_app() -> FastAPI:
     @app.post(f"{API_PREFIX}/plugins/{{plugin_id}}/run", dependencies=[Depends(require_api_key)])
     async def run_plugin(plugin_id: str, body: RunPluginBody) -> Dict[str, Any]:
         system: EverythingAsInterface = app.state.system
-        if app.state.orchestrator is None:
-            app.state.orchestrator = Orchestrator(browser_config=system.browser_config)
-            await app.state.orchestrator.start(headless=system.browser_config.headless)
         orchestrator: Orchestrator = app.state.orchestrator
         config = TaskConfig.from_dict(body.config or {})
 

@@ -23,7 +23,7 @@ from typing import Any, Dict
 import httpx
 
 
-BASE_URL = os.getenv("EAI_BASE_URL", "http://127.0.0.1:8001")
+BASE_URL = os.getenv("EAI_BASE_URL", "http://127.0.0.1:8000")
 API_KEY = os.getenv("EAI_API_KEY", "testkey")
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "http://127.0.0.1:9000/webhook")
 WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET", "secret-demo")
