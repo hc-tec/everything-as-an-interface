@@ -6,13 +6,13 @@ from typing import Any, Dict, List, Optional
 
 from playwright.async_api import Page
 
-from src.services.base import NoteService, NoteCollectArgs
 from src.services.xiaohongshu.collections.note_net_collection import (
     NoteNetCollectionState,
     run_network_collection,
 )
 from src.services.net_consume_helpers import NetConsumeHelper
 from src.services.scroll_helper import ScrollHelper
+from src.services.xiaohongshu.common import NoteService, NoteCollectArgs
 from src.services.xiaohongshu.models import NoteBriefItem
 from src.services.xiaohongshu.parsers import parse_brief_from_network
 

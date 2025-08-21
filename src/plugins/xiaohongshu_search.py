@@ -17,7 +17,8 @@ from src.core.task_config import TaskConfig
 from src.data_sync import SyncConfig, InMemoryStorage, PassiveSyncEngine, DiffResult
 from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
-from src.services.base import NoteCollectArgs, NetServiceDelegate, ServiceConfig
+from src.services.base import NetServiceDelegate, ServiceConfig
+from src.services.xiaohongshu.common import NoteService, NoteCollectArgs
 from src.services.xiaohongshu.collections.note_net_collection import NoteNetCollectionState
 from src.services.xiaohongshu.models import NoteBriefItem
 from src.services.xiaohongshu.note_search_net import XiaohongshuNoteSearchNetService

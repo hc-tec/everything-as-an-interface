@@ -122,15 +122,6 @@ class BaseSiteService:
         self.delegate.on_detach = on_detach
 
 
-@dataclass
-class NoteCollectArgs:
-    """Arguments for a standard note collection task."""
-
-    goto_first: Optional[Callable[[], Awaitable[None]]] = None
-    on_tick_start: Optional[Callable[[int, Dict[str, Any]], Awaitable[None]]] = None,
-    extra_config: Optional[Dict[str, Any]] = None
-
-
 # Unified delegate interface
 class NetServiceDelegate(ServiceDelegate, Generic[T]):
     """Unified delegate for all services.
@@ -148,6 +139,7 @@ class NetService(BaseSiteService, Generic[T]):
     def __init__(self):
         super().__init__()
         self.delegate = NetServiceDelegate()
+        self.page: Optional[Page] = None
 
     def set_delegate_on_before_response(self, on_before_response: ServiceDelegateOnBeforeResponse[T]) -> None:
         self.delegate.on_before_response = on_before_response
@@ -163,69 +155,3 @@ class NetService(BaseSiteService, Generic[T]):
 
     def set_delegate_on_items_collected(self, on_items_collected: ServiceDelegateOnItemsCollected[T]) -> None:
         self.delegate.on_items_collected = on_items_collected
-
-
-class NoteService(NetService, Generic[T]):
-    """Interface for site note service implementations."""
-
-    def __init__(self) -> None:
-        super().__init__()
-        self.page: Optional[Page] = None
-        self.state: Optional[NoteNetCollectionState[T]] = None
-
-    @abstractmethod
-    def set_stop_decider(self, decider: Optional[NetStopDecider[T]]) -> None:  # pragma: no cover - interface
-        ...
-
-    @abstractmethod
-    async def collect(self, args: NoteCollectArgs) -> List[T]:  # pragma: no cover - interface
-        ...
-
-
-
-
-@dataclass
-class PublishContent:
-    """Content to be published."""
-
-    title: str
-    content: str
-    images: Optional[List[str]] = None  # Local file paths or URLs
-    video: Optional[str] = None  # Local file path or URL
-    tags: Optional[List[str]] = None
-    visibility: str = "public"  # public, private, friends_only
-    extra_config: Optional[Dict[str, Any]] = None
-
-
-@dataclass
-class PublishResult:
-    """Result of a publish operation."""
-
-    success: bool
-    item_id: Optional[str] = None
-    url: Optional[str] = None
-    error_message: Optional[str] = None
-    extra_data: Optional[Dict[str, Any]] = None
-
-
-class PublishService(BaseSiteService):
-    """Interface for publishing content to a site."""
-
-    def __init__(self) -> None:
-        super().__init__()
-        self.page: Optional[Page] = None
-
-    @abstractmethod
-    async def publish(self, content: PublishContent) -> PublishResult:
-        """Publish content to the site."""
-        ...
-
-    @abstractmethod
-    async def save_draft(self, content: PublishContent) -> PublishResult:
-        """Save content as a draft."""
-        ...
-
-    @abstractmethod
-    async def get_publish_status(self, item_id: str) -> Optional[Dict[str, Any]]:
-        """Check the status of a published item."""
-        ...

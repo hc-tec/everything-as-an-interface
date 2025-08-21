@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional
 
 from playwright.async_api import Page
 
-from src.services.base import NoteService, NoteCollectArgs
+from src.services.xiaohongshu.common import NoteService, NoteCollectArgs
 from src.services.collection_common import NetStopDecider
 from src.services.net_consume_helpers import NetConsumeHelper
 from src.services.scroll_helper import ScrollHelper

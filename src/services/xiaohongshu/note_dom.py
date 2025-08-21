@@ -6,8 +6,8 @@ from typing import Any, Dict, List, Optional
 
 from playwright.async_api import Locator, Page
 
-from src.services.base import NoteService, NoteCollectArgs
 from src.services.scroll_helper import ScrollHelper
+from src.services.xiaohongshu.common import NoteService, NoteCollectArgs
 from src.services.xiaohongshu.collections.note_dom_collection import (
     NoteDomCollectionConfig,
     NoteDomCollectionState,

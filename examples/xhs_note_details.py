@@ -76,7 +76,7 @@ async def main():
             cookie_ids=["28ba44f1-bb67-41ab-86f0-a3d049d902aa"],
             extra={
                 "search_words": "摄影",
-                "diff_file": "data/note-search-摄影.json",
+                "diff_file": "note-diff.json",
                 "failed_file": "data/failed_notes.json",
                 # ServiceConfig
                 "max_items": 50,

@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional
 
 from playwright.async_api import Page
 
-from src.services.base import NoteService, NoteCollectArgs
+from src.services.xiaohongshu.common import NoteService, NoteCollectArgs
 from src.services.xiaohongshu.collections.note_net_collection import (
     NoteNetCollectionState,
     run_network_collection,
