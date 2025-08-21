@@ -13,6 +13,7 @@ from settings import PROJECT_ROOT
 from src.core.plugin_context import PluginContext
 from src.core.task_config import TaskConfig
 from src.config.plugin_config import PluginConfig
+from src.utils import ValidationError
 from src.utils.file_util import write_json_with_project_root
 from src.utils.global_response_listener import add_global_response_listener
 from src.utils.login_helper import create_login_helper
@@ -145,8 +146,8 @@ class BasePlugin(ABC):
         """
         valid = self.validate_config()
         if not valid["valid"]:
-            logger.error("validation failed, error=%s", valid["error"])
-            return valid["valid"]
+            logger.error("validation failed, error=%s", valid["errors"])
+            raise ValidationError(valid["errors"])
         self.running = True
         logger.info(f"插件 {self.PLUGIN_ID} 已启动")
         return True

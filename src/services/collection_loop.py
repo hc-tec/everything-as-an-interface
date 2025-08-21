@@ -89,18 +89,17 @@ async def run_generic_collection(
                     loop_count,
                     extra_config,
                     page,
-                    state.raw_responses,
-                    state.last_raw_response,
-                    state.items,
+                    state,
                     new_batch,
                     elapsed,
-                    state.last_response_view,
                 )
                 stop_decision: StopDecision = await result if asyncio.iscoroutine(result) else result
                 metrics.event("collector.stop_decider",
                               should_stop=stop_decision.should_stop,
                               stop_reason=stop_decision.reason,
                               elapsed=elapsed)
+                logging.info("collector.stop_decider, should_stop=%s, stop_reason=%s, elapsed=%s",
+                             stop_decision.should_stop, stop_decision.reason, elapsed)
                 if stop_decision.should_stop:
                     break
             except Exception as e:
@@ -116,7 +115,7 @@ async def run_generic_collection(
                 await _scroll_page_once(page, pause_ms=scroll_pause_ms)
             metrics.inc("collect.scrolls")
 
-
-    if key_fn is None:
-        key_fn = lambda it: getattr(it, "id", None)  # type: ignore[return-value]
-    return _deduplicate_by(state.items, key_fn)
+    return state.items.copy()
+    # if key_fn is None:
+    #     key_fn = lambda it: getattr(it, "id", None)  # type: ignore[return-value]
+    # return _deduplicate_by(state.items, key_fn)

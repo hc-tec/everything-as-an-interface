@@ -4,7 +4,7 @@ from typing import Generic, Optional, Callable, Awaitable, Dict, Any, List
 
 from src.services.base import NetService, T
 from src.services.collection_common import NetStopDecider
-from src.services.xiaohongshu.collections.note_net_collection import NoteNetCollectionState
+from src.services.net_collection import NetCollectionState
 
 @dataclass
 class NoteCollectArgs:
@@ -19,7 +19,7 @@ class NoteService(NetService, Generic[T]):
 
     def __init__(self) -> None:
         super().__init__()
-        self.state: Optional[NoteNetCollectionState[T]] = None
+        self.state: Optional[NetCollectionState[T]] = None
 
     @abstractmethod
     def set_stop_decider(self, decider: Optional[NetStopDecider[T]]) -> None:  # pragma: no cover - interface

@@ -39,7 +39,8 @@
     "enabled_plugins": [
       "xiaohongshu_search",
       "xiaohongshu_brief",
-      "xiaohongshu_details"
+      "xiaohongshu_details",
+      "yuanbao_chat"
     ],
     "disabled_plugins": [],
     "plugin_settings": {

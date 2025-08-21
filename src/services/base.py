@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Any, Awaitable, Callable, Dict, Generic, List, Optional, TypeVar
 
 from playwright.async_api import Page
 
-from src.services.collection_common import NetStopDecider
-from src.services.xiaohongshu.collections.note_net_collection import NoteNetCollectionState
+from src.services.net_collection import NetCollectionState
 from src.utils.net_rules import ResponseView
 
 T = TypeVar("T")
@@ -16,11 +14,11 @@ T = TypeVar("T")
 
 ServiceDelegateOnAttach = Callable[[Page], Awaitable[None]]
 ServiceDelegateOnDetach = Callable[[], Awaitable[None]]
-ServiceDelegateOnBeforeResponse = Callable[[int, Dict[str, Any], Optional[NoteNetCollectionState[T]]], Awaitable[None]]
-ServiceDelegateOnResponse = Callable[[ResponseView, Optional[NoteNetCollectionState[T]]], Awaitable[None]]
+ServiceDelegateOnBeforeResponse = Callable[[int, Dict[str, Any], Optional[NetCollectionState[T]]], Awaitable[None]]
+ServiceDelegateOnResponse = Callable[[ResponseView, Optional[NetCollectionState[T]]], Awaitable[None]]
 ServiceDelegateShouldRecordResponse = Callable[[Any, ResponseView], bool]
 ServiceDelegateParseItems = Callable[[Dict[str, Any]], Awaitable[Optional[List[T]]]]
-ServiceDelegateOnItemsCollected = Callable[[List[T], Optional[NoteNetCollectionState[T]]], Awaitable[List[T]]]
+ServiceDelegateOnItemsCollected = Callable[[List[T], Optional[NetCollectionState[T]]], Awaitable[List[T]]]
 
 # 上面回调函数的参数格式见下方
 # async def on_attach(self, page: Page) -> None:  # pragma: no cover - default no-op
@@ -29,10 +27,10 @@ ServiceDelegateOnItemsCollected = Callable[[List[T], Optional[NoteNetCollectionS
 # async def on_detach(self) -> None:  # pragma: no cover - default no-op
 #     return None
 #
-# async def on_before_response(self, consume_count: int, extra: Dict[str, Any], state: Optional[NoteNetCollectionState[T]]) -> None:  # pragma: no cover - default no-op
+# async def on_before_response(self, consume_count: int, extra: Dict[str, Any], state: Optional[NetCollectionState[T]]) -> None:  # pragma: no cover - default no-op
 #     return None
 #
-# async def on_response(self, response: ResponseView, state: Optional[NoteNetCollectionState[T]]) -> None:  # pragma: no cover - default no-op
+# async def on_response(self, response: ResponseView, state: Optional[NetCollectionState[T]]) -> None:  # pragma: no cover - default no-op
 #     return None
 #
 # def should_record_response(self, payload: Any, response_view: ResponseView) -> bool:  # pragma: no cover - default yes
@@ -41,7 +39,7 @@ ServiceDelegateOnItemsCollected = Callable[[List[T], Optional[NoteNetCollectionS
 # async def parse_items(self, payload: Dict[str, Any]) -> Optional[List[T]]:  # pragma: no cover - default None
 #     return None
 #
-# async def on_items_collected(self, items: List[T], state: Optional[NoteNetCollectionState[T]]) -> List[T]:  # pragma: no cover - default passthrough
+# async def on_items_collected(self, items: List[T], state: Optional[NetCollectionState[T]]) -> List[T]:  # pragma: no cover - default passthrough
 #     return items
 
 
