@@ -82,6 +82,97 @@ python -m uvicorn src.api.server:app --host 0.0.0.0 --port 8000 --reload
 
 Webhook 事件包含 `X-EAI-Event-Id`, `X-EAI-Topic-Id`, `X-EAI-Plugin-Id`, `X-EAI-Signature`（如配置 `secret`）。
 
+## RPC客户端（推荐）
+
+为了简化插件调用，我们提供了RPC风格的客户端SDK，无需手动设置webhook服务器和HTTP调用。
+
+### 安装RPC客户端依赖
+
+```bash
+pip install -r requirements-rpc.txt
+```
+
+### RPC客户端快速开始
+
+```python
+import asyncio
+from src.client.rpc_client import EAIRPCClient
+
+async def main():
+    # 创建RPC客户端
+    client = EAIRPCClient(
+        base_url="http://localhost:8000",
+        api_key="your-api-key",  # 可选
+        webhook_port=9000  # 自动分配可用端口
+    )
+    
+    try:
+        # 启动客户端（自动启动webhook服务器）
+        await client.start()
+        
+        # 直接调用AI聊天
+        result = await client.chat_with_yuanbao(
+            message="你好，请介绍一下自己",
+            cookie_ids=["your-cookie-id"]
+        )
+        print(f"AI回复: {result['data']['response']}")
+        
+        # 获取小红书笔记摘要
+        notes = await client.get_notes_brief_from_xhs(
+            cookie_ids=["your-xhs-cookie-id"]
+        )
+        print(f"获取到 {len(notes['data'])} 条笔记")
+        
+        # 搜索小红书笔记
+        search_results = await client.search_notes_from_xhs(
+            keyword="美食",
+            cookie_ids=["your-xhs-cookie-id"]
+        )
+        print(f"搜索到 {len(search_results['data'])} 条相关笔记")
+        
+    finally:
+        # 停止客户端
+        await client.stop()
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+### 同步版本
+
+```python
+from src.client.rpc_client import EAIRPCClientSync
+
+# 同步客户端，自动管理事件循环
+client = EAIRPCClientSync(
+    base_url="http://localhost:8000",
+    api_key="your-api-key"
+)
+
+try:
+    client.start()
+    
+    # 同步调用
+    result = client.chat_with_yuanbao(
+        message="你好",
+        cookie_ids=["your-cookie-id"]
+    )
+    print(result)
+    
+finally:
+    client.stop()
+```
+
+### RPC客户端特性
+
+- **自动化webhook管理**：无需手动设置webhook服务器
+- **类型安全的方法**：为常用插件提供专门的方法
+- **异步和同步支持**：适应不同的使用场景
+- **自动重试和错误处理**：提高调用的可靠性
+- **批量处理支持**：高效处理多个请求
+
+详细文档请参考：[RPC客户端指南](docs/RPC_CLIENT_GUIDE.md)
+
 ### 使用示例
 
 下面是一个监听小红书收藏夹更新的简单示例：
@@ -155,10 +246,23 @@ everything-as-an-interface/
 │   ├── plugins/            # 插件模块
 │   │   ├── base.py                # 插件基类
 │   │   └── xiaohongshu.py         # 小红书插件示例
+│   ├── client/             # RPC客户端
+│   │   └── rpc_client.py          # RPC客户端SDK
+│   ├── api/                # API服务器
+│   │   └── server.py              # FastAPI服务器
 │   ├── utils/              # 工具类
 │   │   └── browser.py             # 浏览器自动化工具
 │   └── __init__.py         # 包入口
-├── example.py              # 示例程序
+├── examples/               # 示例程序
+│   ├── rpc_client_example.py      # RPC客户端示例
+│   ├── quick_start_rpc.py         # RPC快速开始
+│   └── webhook_receiver.py        # Webhook接收器示例
+├── docs/                   # 文档
+│   └── RPC_CLIENT_GUIDE.md        # RPC客户端指南
+├── tests/                  # 测试
+│   └── test_rpc_client.py         # RPC客户端测试
+├── requirements-rpc.txt    # RPC客户端依赖
+├── example.py              # 原始示例程序
 └── README.md               # 项目说明
 ```
 
@@ -192,4 +296,4 @@ class MyNewPlugin(BasePlugin):
 
 ## 许可证
 
-本项目采用 MIT 许可证 - 详情见 LICENSE 文件 
+本项目采用 MIT 许可证 - 详情见 LICENSE 文件

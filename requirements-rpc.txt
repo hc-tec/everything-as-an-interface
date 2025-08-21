@@ -1,0 +1,14 @@
+# RPC客户端依赖项
+# 这些是使用RPC客户端功能所需的额外依赖项
+
+# 核心依赖（如果主项目中没有）
+httpx>=0.24.0
+fastapi>=0.100.0
+uvicorn>=0.22.0
+
+# 测试依赖
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+
+# 可选：用于更好的性能
+uvloop>=0.17.0; sys_platform != "win32"
