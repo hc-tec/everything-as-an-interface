@@ -128,6 +128,7 @@ class NetConsumeHelper(Generic[T]):
                 data = None
 
             if not validator(data):
+                logging.info("Received invalid data: %s", data)
                 continue
 
             # Delegate can observe raw response first

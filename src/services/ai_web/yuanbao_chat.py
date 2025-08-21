@@ -107,7 +107,8 @@ class YuanbaoChatNetService(AIWebService[Conversation]):
             if last_model_message and last_user_message:
                 break
 
-        return [Conversation(
+        return [
+            Conversation(
             model_name=payload.get("chatModelId"),
             messages=messages,
             conversation_id=payload.get("id"),

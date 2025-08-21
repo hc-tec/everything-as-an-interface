@@ -18,7 +18,7 @@ ServiceDelegateOnBeforeResponse = Callable[[int, Dict[str, Any], Optional[NetCol
 ServiceDelegateOnResponse = Callable[[ResponseView, Optional[NetCollectionState[T]]], Awaitable[None]]
 ServiceDelegateShouldRecordResponse = Callable[[Any, ResponseView], bool]
 ServiceDelegateParseItems = Callable[[Dict[str, Any]], Awaitable[Optional[List[T]]]]
-ServiceDelegateOnItemsCollected = Callable[[List[T], Optional[NetCollectionState[T]]], Awaitable[List[T]]]
+ServiceDelegateOnItemsCollected = Callable[[List[T], int, Dict[str, Any], Optional[NetCollectionState[T]]], Awaitable[List[T]]]
 
 # 上面回调函数的参数格式见下方
 # async def on_attach(self, page: Page) -> None:  # pragma: no cover - default no-op
@@ -39,7 +39,7 @@ ServiceDelegateOnItemsCollected = Callable[[List[T], Optional[NetCollectionState
 # async def parse_items(self, payload: Dict[str, Any]) -> Optional[List[T]]:  # pragma: no cover - default None
 #     return None
 #
-# async def on_items_collected(self, items: List[T], state: Optional[NetCollectionState[T]]) -> List[T]:  # pragma: no cover - default passthrough
+# async def on_items_collected(self, items: List[T], consume_count: int, extra: Dict[str, Any], state: Optional[NetCollectionState[T]]) -> List[T]:  # pragma: no cover - default passthrough
 #     return items
 
 
