@@ -31,5 +31,15 @@
     "login_url": "https://passport.bilibili.com/login",
     "session_validity_days": 30,
     "requires_login": true
+  },
+  "yuanbao": {
+    "name": "Yuanbao",
+    "icon": "yuanbao.png",
+    "cookie_domains": [
+      "tencent.com",
+      ".tencent.com"
+    ],
+    "login_url": "https://yuanbao.tencent.com/chat/naQivTmsDa/",
+    "requires_login": true
   }
 }

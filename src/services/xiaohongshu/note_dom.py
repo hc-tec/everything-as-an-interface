@@ -27,7 +27,7 @@ class XiaohongshuNoteDomService(NoteService[NoteDetailsItem]):
 
     async def attach(self, page: Page) -> None:
         self.page = page
-        self.state = NoteDomCollectionState[NoteDetailsItem](page=page, event=asyncio.Event())
+        self.state = NoteDomCollectionState[NoteDetailsItem](page=page, queue=asyncio.Queue())
 
         # Delegate hook
         if self.delegate.on_attach:

@@ -17,8 +17,7 @@ from src.core.plugin_context import PluginContext
 from src.core.task_config import TaskConfig
 from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
-from src.services.base import NoteCollectArgs, T, ServiceConfig
-from src.services.xiaohongshu.collections.note_net_collection import NoteNetCollectionState
+from src.services.base import NoteCollectArgs, ServiceConfig
 from src.services.xiaohongshu.note_brief_net import XiaohongshuNoteBriefNetService
 
 logger = logging.getLogger("plugin.xiaohongshu")
@@ -190,8 +189,7 @@ class XiaohongshuPlugin(BasePlugin):
         """Build custom stop decider function if specified in config."""
         # In the future, we could parse config to build different stop conditions
         # For now, return a basic implementation
-        def custom_stop_decider(page, all_raw, last_raw, all_items, last_batch, elapsed, extra_config, last_view) \
-                -> StopDecision:
+        def custom_stop_decider(loop_count, extra_config, page, state, new_batch, elapsed) -> StopDecision:
             return StopDecision(should_stop=False, reason=None, details=None)
         
         return custom_stop_decider

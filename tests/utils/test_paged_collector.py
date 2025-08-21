@@ -2,7 +2,7 @@
 # import pytest
 
 # from src.services.paged_collector import PagedCollector
-# from src.services.xiaohongshu.collections.note_net_collection import NoteNetCollectionState
+# from src.services.xiaohongshu.collections.note_net_collection import NetCollectionState
 # from src.utils.net_rules import ResponseView
 
 
@@ -20,7 +20,7 @@
 #     q: asyncio.Queue = asyncio.Queue()
 
 #     # Prepare state
-#     state = NoteNetCollectionState(page=None, event=asyncio.Event())  # page unused in test
+#     state = NetCollectionState(page=None, queue=asyncio.Queue())  # page unused in test
 
 #     # Parser returns items from payload
 #     async def parser(payload):
@@ -55,7 +55,7 @@
 # @pytest.mark.asyncio
 # async def test_paged_collector_stop_decider():
 #     q: asyncio.Queue = asyncio.Queue()
-#     state = NoteNetCollectionState(page=None, event=asyncio.Event())
+#     state = NetCollectionState(page=None, queue=asyncio.Queue())
 
 #     async def parser(payload):
 #         return payload.get("items", [])

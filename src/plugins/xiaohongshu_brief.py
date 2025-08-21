@@ -17,9 +17,8 @@ from src.core.task_config import TaskConfig
 from src.data_sync import SyncConfig, InMemoryStorage, PassiveSyncEngine, DiffResult
 from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
-from src.services.xiaohongshu.common import NoteService, NoteCollectArgs
+from src.services.xiaohongshu.common import NoteCollectArgs
 from src.services.base import NetServiceDelegate, ServiceConfig
-from src.services.xiaohongshu.collections.note_net_collection import NoteNetCollectionState
 from src.services.xiaohongshu.models import NoteBriefItem
 from src.services.xiaohongshu.note_brief_net import XiaohongshuNoteBriefNetService
 from src.utils.file_util import read_json_with_project_root, write_json_with_project_root
@@ -88,9 +87,7 @@ class NoteBriefDelegate(NetServiceDelegate[NoteBriefItem]):
         self._diff.deleted.extend(diff.deleted)
         return items
 
-    def make_stop_decision(self, loop_count: int, extra: Dict[str, Any], page, all_raw_responses,
-                           last_raw_response, all_parsed_items, last_batch_parsed_items,
-                           elapsed_seconds, last_response_view) -> StopDecision:
+    def make_stop_decision(self, loop_count, extra_config, page, state, new_batch, elapsed) -> StopDecision:
         return self._stop_decision
 
 class XiaohongshuNoteBriefPlugin(BasePlugin):
@@ -274,8 +271,7 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
 
     def _build_stop_decider(self) -> Optional[Any]:
 
-        def custom_stop_decider(page, all_raw, last_raw, all_items, last_batch, elapsed, extra_config, last_view) \
-                -> StopDecision:
+        def custom_stop_decider(loop_count, extra_config, page, state, new_batch, elapsed) -> StopDecision:
             return StopDecision(should_stop=False, reason=None, details=None)
         
         return custom_stop_decider

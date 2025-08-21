@@ -7,14 +7,13 @@ from typing import Any, Dict, List, Optional
 from playwright.async_api import Page
 
 from src.services.xiaohongshu.common import NoteService, NoteCollectArgs
-from src.services.xiaohongshu.collections.note_net_collection import (
-    NoteNetCollectionState,
+from src.services.net_collection import (
+    NetCollectionState,
     run_network_collection,
 )
 from src.services.net_consume_helpers import NetConsumeHelper
 from src.services.scroll_helper import ScrollHelper
 from src.services.xiaohongshu.models import NoteBriefItem, AuthorInfo, NoteStatistics
-from src.services.xiaohongshu.parsers import parse_brief_from_network
 
 
 class XiaohongshuNoteSearchNetService(NoteService[NoteBriefItem]):
@@ -27,7 +26,7 @@ class XiaohongshuNoteSearchNetService(NoteService[NoteBriefItem]):
 
     async def attach(self, page: Page) -> None:
         self.page = page
-        self.state = NoteNetCollectionState[NoteBriefItem](page=page, event=asyncio.Event())
+        self.state = NetCollectionState[NoteBriefItem](page=page, queue=asyncio.Queue())
 
         # Bind NetRuleBus and start consumer via helper
         self._net_helper = NetConsumeHelper(state=self.state, delegate=self.delegate)
@@ -79,7 +78,7 @@ class XiaohongshuNoteSearchNetService(NoteService[NoteBriefItem]):
         return items
 
     async def _parse_items_wrapper(self, payload: Dict[str, Any]) -> List[NoteBriefItem]:
-        items_payload = payload.get("items", [])
+        items_payload = payload.get("data").get("items", [])
         results: List[NoteBriefItem] = []
         for note_item in items_payload or []:
             try:

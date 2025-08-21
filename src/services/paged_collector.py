@@ -6,7 +6,7 @@ from typing import Any, Awaitable, Callable, Dict, Generic, List, Optional, Type
 
 from playwright.async_api import Page
 
-from src.services.xiaohongshu.collections.note_net_collection import NoteNetCollectionState, record_response
+from src.services.net_collection import NetCollectionState, record_response
 from src.utils.net_rules import ResponseView
 from src.utils.metrics import metrics
 
@@ -23,7 +23,7 @@ class PagedCollector(Generic[T]):
 
     It integrates:
       - Response queue consumption (produced by NetRuleBus)
-      - Recording raw responses into NoteNetCollectionState
+      - Recording raw responses into NetCollectionState
       - Optional stop_decider on the state
       - Delegate-like hooks via callbacks
     """
@@ -33,13 +33,13 @@ class PagedCollector(Generic[T]):
         *,
         page: Page,
         queue: asyncio.Queue,
-        state: NoteNetCollectionState[T],
+        state: NetCollectionState[T],
         parser: ParserFn[T],
         response_timeout_sec: float = 5.0,
         delay_ms: int = 500,
         max_pages: Optional[int] = None,
-        on_response: Optional[Callable[[ResponseView, NoteNetCollectionState[T]], Awaitable[None] | None]] = None,
-        on_items_collected: Optional[Callable[[List[T], NoteNetCollectionState[T]], Awaitable[List[T]] | List[T]]] = None,
+        on_response: Optional[Callable[[ResponseView, NetCollectionState[T]], Awaitable[None] | None]] = None,
+        on_items_collected: Optional[Callable[[List[T], NetCollectionState[T]], Awaitable[List[T]] | List[T]]] = None,
     ) -> None:
         self.page = page
         self.queue = queue
@@ -112,9 +112,9 @@ class PagedCollector(Generic[T]):
                     self.state.items.extend(batch)
                 except Exception:
                     pass
-                if self.state.event:
+                if self.state.queue:
                     try:
-                        self.state.event.set()
+                       await self.state.queue.put(batch)
                     except Exception:
                         pass
 

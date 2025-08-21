@@ -7,8 +7,8 @@ from typing import Any, Awaitable, Callable, Dict, Generic, List, Optional, Tupl
 from playwright.async_api import Page
 
 from src.services.base import NetServiceDelegate
-from src.services.xiaohongshu.collections.note_net_collection import (
-    NoteNetCollectionState,
+from src.services.net_collection import (
+    NetCollectionState,
     record_response,
 )
 from src.utils.net_rule_bus import NetRuleBus, MergedEvent
@@ -34,7 +34,7 @@ class NetConsumeHelper(Generic[T]):
     def __init__(
         self,
         *,
-        state: NoteNetCollectionState[T],
+        state: NetCollectionState[T],
         delegate: NetServiceDelegate[T] = None,
     ) -> None:
         self.state = state
@@ -161,7 +161,7 @@ class NetConsumeHelper(Generic[T]):
 
             if parsed is None:
                 try:
-                    payload = data.get("data", {}) if isinstance(data, dict) else data
+                    payload = data
                     parsed = await default_parse_items(payload)
                 except Exception:
                     parsed = []
@@ -178,9 +178,9 @@ class NetConsumeHelper(Generic[T]):
                     self.state.items.extend(parsed)
                 except Exception:
                     pass
-                if self.state.event:
+                if self.state.queue:
                     try:
-                        self.state.event.set()
+                        await self.state.queue.put(parsed)
                     except Exception:
                         pass
 

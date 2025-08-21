@@ -12,12 +12,10 @@ from typing import Any, Dict, List, Optional
 from src.common.plugin import StopDecision
 from src.core.plugin_context import PluginContext
 from src.core.task_config import TaskConfig
-from src.data_sync import SyncConfig, InMemoryStorage, PassiveSyncEngine, DiffResult
 from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
-from src.services.base import NetServiceDelegate, ServiceConfig
-from src.services.xiaohongshu.common import NoteService, NoteCollectArgs
-from src.services.xiaohongshu.collections.note_net_collection import NoteNetCollectionState
+from src.services.base import ServiceConfig
+from src.services.xiaohongshu.common import NoteCollectArgs
 from src.services.xiaohongshu.models import NoteAccessInfo, NoteDetailsItem
 from src.services.xiaohongshu.note_explore_page_net import XiaohongshuNoteExplorePageNetService
 from src.utils.file_util import read_json_with_project_root, write_json_with_project_root
@@ -245,8 +243,7 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
 
     def _build_stop_decider(self) -> Optional[Any]:
 
-        def custom_stop_decider(page, all_raw, last_raw, all_items, last_batch, elapsed, extra_config, last_view) \
-                -> StopDecision:
+        def custom_stop_decider(loop_count, extra_config, page, state, new_batch, elapsed) -> StopDecision:
             return StopDecision(should_stop=False, reason=None, details=None)
         
         return custom_stop_decider

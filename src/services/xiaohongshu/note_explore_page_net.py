@@ -1,10 +1,6 @@
 
 from __future__ import annotations
-from glom import glom
 import asyncio
-import json
-import logging
-import re
 from typing import Any, Dict, List, Optional
 
 from playwright.async_api import Page
@@ -13,13 +9,12 @@ from src.services.xiaohongshu.common import NoteService, NoteCollectArgs
 from src.services.collection_common import NetStopDecider
 from src.services.net_consume_helpers import NetConsumeHelper
 from src.services.scroll_helper import ScrollHelper
-from src.services.xiaohongshu.collections.note_net_collection import (
-    NoteNetCollectionState,
+from src.services.net_collection import (
+    NetCollectionState,
     run_network_collection,
 )
-from src.services.xiaohongshu.models import AuthorInfo, NoteStatistics, NoteDetailsItem, VideoInfo
+from src.services.xiaohongshu.models import NoteDetailsItem
 from src.services.xiaohongshu.parsers import quick_extract_initial_state, parse_details_from_network
-from src.utils.file_util import write_file_with_project_root
 
 
 class XiaohongshuNoteExplorePageNetService(NoteService[NoteDetailsItem]):
@@ -32,7 +27,7 @@ class XiaohongshuNoteExplorePageNetService(NoteService[NoteDetailsItem]):
 
     async def attach(self, page: Page) -> None:
         self.page = page
-        self.state = NoteNetCollectionState[NoteDetailsItem](page=page, event=asyncio.Event())
+        self.state = NetCollectionState[NoteDetailsItem](page=page, queue=asyncio.Queue())
 
         # Bind NetRuleBus and start consumer via helper
         self._net_helper = NetConsumeHelper(state=self.state, delegate=self.delegate)
@@ -88,6 +83,7 @@ class XiaohongshuNoteExplorePageNetService(NoteService[NoteDetailsItem]):
         return items
 
     async def _parse_items_wrapper(self, payload: Dict[str, Any]) -> List[NoteDetailsItem]:
+        payload = payload.get("data")
         if payload is None:
             return []
         js_content = quick_extract_initial_state(payload)
