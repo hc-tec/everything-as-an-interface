@@ -5,7 +5,7 @@ from typing import Any, Awaitable, Callable, Dict, Optional
 
 from playwright.async_api import Page
 
-from src.services.base import ServiceConfig
+from src.services.base_service import ServiceConfig
 from src.utils.scrolling import (
     DefaultScrollStrategy,
     PagerClickStrategy,

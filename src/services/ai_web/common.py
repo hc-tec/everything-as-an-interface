@@ -2,7 +2,7 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Generic, Optional, Callable, Awaitable, Dict, Any, List
 
-from src.services.base import NetService, T
+from src.services.net_service import NetService, T
 from src.services.collection_common import NetStopDecider
 from src.services.net_collection import NetCollectionState
 
@@ -21,9 +21,9 @@ class AIWebService(NetService, Generic[T]):
         super().__init__()
         self.state: Optional[NetCollectionState[T]] = None
 
-    @abstractmethod
     def set_stop_decider(self, decider: Optional[NetStopDecider[T]]) -> None:  # pragma: no cover - interface
-        ...
+        if self.state:
+            self.state.stop_decider = decider
 
     @abstractmethod
     async def ask(self, args: AIAskArgs) -> List[T]:  # pragma: no cover - interface

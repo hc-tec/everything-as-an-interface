@@ -14,7 +14,7 @@ from src.core.plugin_context import PluginContext
 from src.core.task_config import TaskConfig
 from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
-from src.services.base import ServiceConfig
+from src.services.base_service import ServiceConfig
 from src.services.xiaohongshu.common import NoteCollectArgs
 from src.services.xiaohongshu.models import NoteAccessInfo, NoteDetailsItem
 from src.services.xiaohongshu.note_explore_page_net import XiaohongshuNoteExplorePageNetService

@@ -6,7 +6,7 @@ from typing import Any, Awaitable, Callable, Dict, Generic, List, Optional, Tupl
 
 from playwright.async_api import Page
 
-from src.services.base import NetServiceDelegate
+from src.services.net_service import NetServiceDelegate
 from src.services.net_collection import (
     NetCollectionState,
     record_response,
@@ -107,7 +107,7 @@ class NetConsumeHelper(Generic[T]):
     ) -> None:
         if not self._merged_q:
             return
-        validator = payload_ok or (lambda d: isinstance(d, dict) and d.get("code") == 0)
+        validator = payload_ok or (lambda x: True)
         while True:
             self._consume_count += 1
             if self.delegate.on_before_response:

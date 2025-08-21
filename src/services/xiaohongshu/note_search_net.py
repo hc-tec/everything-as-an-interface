@@ -22,7 +22,6 @@ class XiaohongshuNoteSearchNetService(NoteService[NoteBriefItem]):
     """
     def __init__(self) -> None:
         super().__init__()
-        self._net_helper: Optional[NetConsumeHelper[NoteBriefItem]] = None
 
     async def attach(self, page: Page) -> None:
         self.page = page
@@ -35,31 +34,7 @@ class XiaohongshuNoteSearchNetService(NoteService[NoteBriefItem]):
         ])
         await self._net_helper.start(default_parse_items=self._parse_items_wrapper)
 
-        # Delegate hook
-        if self.delegate.on_attach:
-            try:
-                await self.delegate.on_attach(page)
-            except Exception:
-                pass
-
-    async def detach(self) -> None:
-        # Delegate hook (before unbind)
-        if self.delegate.on_detach:
-            try:
-                await self.delegate.on_detach()
-            except Exception:
-                pass
-        # Stop consumer
-        if self._net_helper:
-            try:
-                await self._net_helper.stop()
-            except Exception:
-                pass
-        await super().detach()
-
-    def set_stop_decider(self, decider) -> None:
-        if self.state:
-            self.state.stop_decider = decider
+        await super().attach(page)
 
     async def collect(self, args: NoteCollectArgs) -> List[NoteBriefItem]:
         if not self.page or not self.state:

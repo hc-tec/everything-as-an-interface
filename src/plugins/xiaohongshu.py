@@ -17,7 +17,7 @@ from src.core.plugin_context import PluginContext
 from src.core.task_config import TaskConfig
 from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
-from src.services.base import NoteCollectArgs, ServiceConfig
+from src.services.base_service import NoteCollectArgs, ServiceConfig
 from src.services.xiaohongshu.note_brief_net import XiaohongshuNoteBriefNetService
 
 logger = logging.getLogger("plugin.xiaohongshu")

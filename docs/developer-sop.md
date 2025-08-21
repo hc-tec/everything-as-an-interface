@@ -431,36 +431,37 @@ class MyPlugin(BasePlugin):
 **基础服务类**:
 
 ```python
-from src.services.base import BaseService
+from src.services.base_service import BaseService
 from playwright.async_api import Page
 from typing import Dict, Any, Optional
 
+
 class MyPlatformService(BaseService):
     """我的平台服务"""
-    
+
     def __init__(self):
         super().__init__()
         self.page: Optional[Page] = None
-    
+
     async def attach(self, page: Page) -> None:
         """附加到页面"""
         self.page = page
         # 设置网络监听等
-    
+
     async def detach(self) -> None:
         """从页面分离"""
         # 清理资源
         self.page = None
-    
+
     def configure(self, config: Dict[str, Any]) -> None:
         """配置服务"""
         self.config = config
-    
+
     async def collect_data(self) -> Dict[str, Any]:
         """采集数据"""
         if not self.page:
             raise RuntimeError("服务未附加到页面")
-        
+
         # 实现数据采集逻辑
         return {}
 ```

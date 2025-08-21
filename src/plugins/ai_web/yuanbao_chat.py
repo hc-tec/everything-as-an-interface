@@ -17,7 +17,7 @@ from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
 from src.services.ai_web.common import AIAskArgs
 from src.services.ai_web.yuanbao_chat import YuanbaoChatNetService
-from src.services.base import ServiceConfig
+from src.services.base_service import ServiceConfig
 
 logger = logging.getLogger("plugin.yuanbao_chat")
 
