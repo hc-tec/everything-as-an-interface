@@ -25,9 +25,10 @@ async def main():
         
         # 🤖 与AI聊天
         print("\n🤖 与AI元宝聊天...")
-        chat_result = await client.chat_with_yuanbao(
-            message="你好，今天天气怎么样？",
-            cookie_ids=["819969a2-9e59-46f5-b0ca-df2116d9c2a0"]
+        chat_result = await client.get_notes_brief_from_xhs(
+            storage_file="data/note-brief-rpc.json",
+            max_items=10,
+            cookie_ids=["28ba44f1-bb67-41ab-86f0-a3d049d902aa"]
         )
         print(f"AI回复: {chat_result.get('data', 'N/A')}")
         

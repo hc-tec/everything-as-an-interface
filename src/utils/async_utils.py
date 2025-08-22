@@ -4,6 +4,9 @@ import time
 import asyncio
 from typing import Callable, Any, Awaitable
 
+import requests
+
+
 async def wait_until_result(func: Callable[[], Any], timeout: float, poll_interval_ms: float = 500) -> Any:
     """
     周期性调用 func，直到返回非 None 结果或超时。
@@ -34,3 +37,7 @@ async def wait_until_result(func: Callable[[], Any], timeout: float, poll_interv
             raise TimeoutError("超时")
 
         await asyncio.sleep(poll_interval)
+
+
+async def async_request(req_session: requests.Session, method: str, url: str, **kwargs):
+    return await asyncio.to_thread(lambda: req_session.request(method, url, **kwargs))

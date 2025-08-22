@@ -25,7 +25,7 @@ import httpx
 import requests
 import uvicorn
 from fastapi import FastAPI, Header, HTTPException, Request
-
+from src.utils.async_utils import async_request
 
 logger = logging.getLogger("eai_rpc_client")
 
@@ -265,83 +265,83 @@ class EAIRPCClient:
 
     async def _test_health(self):
         """测试是否正常连接"""
-        def _call():
-            return self.http_client.get(f"{self.base_url}/api/v1/health", timeout=30)
-        response = await asyncio.to_thread(_call)
-        print(response.json())
+        response = await async_request(self.http_client, "GET", f"{self.base_url}/api/v1/health", timeout=30)
+        try:
+            ret = response.json()
+            if ret.get("status") == "ok":
+                print("与服务连接正常")
+            else:
+                raise RuntimeError()
+        except Exception:
+            print("服务似乎未正常启动")
         response.raise_for_status()
     
     async def _create_topic(self, topic_id: str, description: str):
         """创建topic"""
-        def _call():
-            return self.http_client.post(
-                f"{self.base_url}/api/v1/topics",
-                json={
-                    "topic_id": topic_id,
-                    "name": topic_id,
-                    "description": description
-                },
-                timeout=30
-            )
-        response = await asyncio.to_thread(_call)
+        response = await async_request(
+            self.http_client,
+            "post",
+            f"{self.base_url}/api/v1/topics",
+            json={
+                "topic_id": topic_id,
+                "name": topic_id,
+                "description": description
+            },
+            timeout=30)
         response.raise_for_status()
     
     async def _create_subscription(self, topic_id: str, webhook_url: str):
         """创建subscription"""
-        def _call():
-            return self.http_client.post(
-                f"{self.base_url}/api/v1/topics/{topic_id}/subscriptions",
-                json={
-                    "url": webhook_url,
-                    "secret": self.webhook_secret,
-                    "headers": {},
-                    "enabled": True
-                },
-                timeout=30
-            )
-        response = await asyncio.to_thread(_call)
+        response = await async_request(
+            self.http_client,
+            "post",
+            f"{self.base_url}/api/v1/topics/{topic_id}/subscriptions",
+            json={
+                "url": webhook_url,
+                "secret": self.webhook_secret,
+                "headers": {},
+                "enabled": True
+            },
+            timeout=30)
         response.raise_for_status()
     
     async def _run_plugin(self, plugin_id: str, config: Dict[str, Any], topic_id: str):
         """运行插件"""
-        def _call():
-            return self.http_client.post(
-                f"{self.base_url}/api/v1/plugins/{plugin_id}/run",
-                json={
-                    "config": config,
-                    "topic_id": topic_id
-                },
-                timeout=30
-            )
-        response = await asyncio.to_thread(_call)
+        response = await async_request(
+            self.http_client,
+            "post",
+            f"{self.base_url}/api/v1/plugins/{plugin_id}/run",
+            json={
+                "config": config,
+                "topic_id": topic_id
+            },
+            timeout=30)
         response.raise_for_status()
     
     # 具体的RPC方法
-    
     async def chat_with_yuanbao(self, message: str, **kwargs) -> Dict[str, Any]:
         """与AI元宝聊天"""
         config = {
             "ask_question": message,
-            "headless": kwargs.get("headless", True),
+            "headless": kwargs.get("headless", False),
             **kwargs
         }
         async with self._rpc_call("yuanbao_chat", config) as result:
             return result
     
     async def get_notes_brief_from_xhs(
-        self, 
-        keywords: List[str], 
+        self,
+        storage_file: str,
         max_items: int = 20,
         max_seconds: int = 300,
         **kwargs
     ) -> Dict[str, Any]:
         """从小红书获取笔记摘要"""
         config = {
-            "task_type": "briefs",
-            "search_keywords": keywords,
+            "storage_file": storage_file,
             "max_items": max_items,
             "max_seconds": max_seconds,
-            "headless": kwargs.get("headless", True),
+            "headless": kwargs.get("headless", False),
             "cookie_ids": kwargs.get("cookie_ids", []),
             **kwargs
         }
@@ -362,7 +362,7 @@ class EAIRPCClient:
             "search_keywords": keywords,
             "max_items": max_items,
             "max_seconds": max_seconds,
-            "headless": kwargs.get("headless", True),
+            "headless": kwargs.get("headless", False),
             "cookie_ids": kwargs.get("cookie_ids", []),
             **kwargs
         }
@@ -382,7 +382,7 @@ class EAIRPCClient:
             "search_keywords": keywords,
             "max_items": max_items,
             "max_seconds": max_seconds,
-            "headless": kwargs.get("headless", True),
+            "headless": kwargs.get("headless", False),
             "cookie_ids": kwargs.get("cookie_ids", []),
             **kwargs
         }
@@ -401,7 +401,7 @@ class EAIRPCClient:
             "task_type": "favorites",
             "max_items": max_items,
             "max_seconds": max_seconds,
-            "headless": kwargs.get("headless", True),
+            "headless": kwargs.get("headless", False),
             "cookie_ids": kwargs.get("cookie_ids", []),
             **kwargs
         }

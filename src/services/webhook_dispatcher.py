@@ -7,6 +7,9 @@ from dataclasses import dataclass
 from typing import Any, Dict, Optional, List
 
 import httpx
+import requests
+
+from src.utils.async_utils import async_request
 
 
 logger = logging.getLogger("webhook_dispatcher")
@@ -44,6 +47,9 @@ class WebhookDispatcher:
         self._timeout = request_timeout_sec
         self._dead_letters: List[WebhookJob] = []
 
+        # 用 requests.Session 代替 httpx.AsyncClient
+        self._session = requests.Session()
+
     async def start(self) -> None:
         if self._running:
             return
@@ -65,6 +71,9 @@ class WebhookDispatcher:
         self._workers.clear()
         logger.info("WebhookDispatcher stopped")
 
+        # 关闭 session
+        await asyncio.to_thread(self._session.close)
+
     async def enqueue(self, job: WebhookJob) -> None:
         await self._queue.put(job)
 
@@ -72,20 +81,19 @@ class WebhookDispatcher:
         return [self._job_to_dict(j) for j in list(self._dead_letters)]
 
     async def _worker(self, worker_id: int) -> None:
-        async with httpx.AsyncClient(timeout=self._timeout) as client:
-            while self._running:
-                job = await self._queue.get()
-                if job is None:
-                    break
-                try:
-                    await self._deliver_job(client, job)
-                except Exception as e:
-                    logger.error("worker %d deliver error: %s", worker_id, str(e))
-                    await self._handle_retry(job)
-                finally:
-                    self._queue.task_done()
+        while self._running:
+            job = await self._queue.get()
+            if job is None:
+                break
+            try:
+                await self._deliver_job(job)
+            except Exception as e:
+                logger.error("worker %d deliver error: %s", worker_id, str(e))
+                await self._handle_retry(job)
+            finally:
+                self._queue.task_done()
 
-    async def _deliver_job(self, client: httpx.AsyncClient, job: WebhookJob) -> None:
+    async def _deliver_job(self, job: "WebhookJob") -> None:
         body = json.dumps(job.payload, ensure_ascii=False).encode("utf-8")
         headers: Dict[str, str] = {
             "Content-Type": "application/json",
@@ -101,13 +109,22 @@ class WebhookDispatcher:
             sig = hmac.new(job.secret.encode("utf-8"), body, hashlib.sha256).hexdigest()
             headers["X-EAI-Signature"] = f"sha256={sig}"
 
-        resp = await client.post(job.url, content=body, headers=headers)
+        resp = await async_request(
+            self._session,
+            "POST",
+            job.url,
+            data=body,
+            headers=headers,
+            timeout=self._timeout,
+        )
+
         if 200 <= resp.status_code < 300:
             logger.info("Webhook delivered: url=%s status=%s", job.url, resp.status_code)
             return
         else:
             logger.warning("Webhook non-2xx: url=%s code=%s body=%s", job.url, resp.status_code, resp.text)
             await self._handle_retry(job)
+
 
     async def _handle_retry(self, job: WebhookJob) -> None:
         job.attempts += 1
