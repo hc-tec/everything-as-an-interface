@@ -37,7 +37,7 @@ from playwright.async_api import async_playwright, Playwright
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Initialize core system
-    system = EverythingAsInterface(config_file=os.path.join(PROJECT_ROOT, "config.example.json"))
+    system = EverythingAsInterface(config_file=os.path.join(PROJECT_ROOT, "config.example.json5"))
     await async_playwright().start()
     # Lazy init orchestrator and scheduler when first task runs
     orchestrator = Orchestrator(browser_config=system.browser_config)

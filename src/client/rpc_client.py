@@ -269,11 +269,11 @@ class EAIRPCClient:
         try:
             ret = response.json()
             if ret.get("status") == "ok":
-                print("与服务连接正常")
+                print("✅ 与服务连接正常")
             else:
                 raise RuntimeError()
         except Exception:
-            print("服务似乎未正常启动")
+            print("❌ 服务似乎未正常启动")
         response.raise_for_status()
     
     async def _create_topic(self, topic_id: str, description: str):

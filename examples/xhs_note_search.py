@@ -7,14 +7,12 @@ import sys
 import signal
 import asyncio
 import json
-import logging
 import os
 from typing import Dict, Any
 
 from src import EverythingAsInterface
 from src.core.orchestrator import Orchestrator
 from src.core.task_config import TaskConfig
-from src.plugins.xiaohongshu_search import XiaohongshuNoteSearchPlugin
 from settings import PROJECT_ROOT
 
 
@@ -42,7 +40,7 @@ async def main():
     os.makedirs("../accounts", exist_ok=True)
     os.makedirs("../data", exist_ok=True)
     # 初始化系统
-    system = EverythingAsInterface(config_file=os.path.join(PROJECT_ROOT, "config.example.json"))
+    system = EverythingAsInterface(config_file=os.path.join(PROJECT_ROOT, "config.example.json5"))
 
     # 核心信息打印
     print("系统已初始化")

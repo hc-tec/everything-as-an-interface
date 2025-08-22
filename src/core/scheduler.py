@@ -217,7 +217,6 @@ class Scheduler:
         for task_id, task in list(self.tasks.items()):
             if task.running:
                 continue  # 跳过正在执行的任务
-                
             if task.should_run():
                 # 创建异步任务执行
                 asyncio.create_task(self._execute_task(task))
@@ -263,7 +262,8 @@ class Scheduler:
             data = await plugin.fetch()
             await plugin.stop()
             # 释放上下文
-            # await self._orchestrator.release_context_page(ctx)
+            if task.config.close_page_when_task_finished:
+                await self._orchestrator.release_context_page(ctx)
             # 回调与统计
             task.last_data = data
             task.success_count += 1

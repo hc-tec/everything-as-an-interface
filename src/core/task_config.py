@@ -25,6 +25,7 @@ _COMMON_KEYS: Tuple[str, ...] = (
     "user_agent",
     "extra_http_headers",
     "interval",
+    "close_page_when_task_finished",
 )
 
 
@@ -43,6 +44,7 @@ class TaskConfig(Mapping[str, Any]):
     viewport: Optional[Dict[str, int]] = None
     user_agent: Optional[str] = None
     extra_http_headers: Optional[Dict[str, str]] = None
+    close_page_when_task_finished: bool = False
     # Some plugins reuse an "interval" key in their own validation;
     # keep it here for convenience although scheduler has its own interval.
     interval: Optional[int] = None
@@ -105,6 +107,8 @@ class TaskConfig(Mapping[str, Any]):
             merged["extra_http_headers"] = self.extra_http_headers
         if self.interval is not None:
             merged["interval"] = self.interval
+        if self.close_page_when_task_finished is not None:
+            merged["close_page_when_task_finished"] = self.close_page_when_task_finished
         return merged
 
     # ----- Construction helpers -----
@@ -132,6 +136,7 @@ class TaskConfig(Mapping[str, Any]):
             user_agent=cls._as_str(common.get("user_agent")),
             extra_http_headers=cls._as_dict_str(common.get("extra_http_headers")),
             interval=cls._as_int(common.get("interval")),
+            close_page_when_task_finished=cls._as_bool(common.get("close_page_when_task_finished")),
             extra=extra,
         )
 
