@@ -96,12 +96,13 @@ class ConfigFactory:
         if Path(file_path).exists():
 
             with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
                 try:
-                    config_data = json.load(f)
+                    config_data = json.loads(content)
                 except (json.JSONDecodeError, IOError) as e:
                     logging.warning(f"Warning: Failed to load config file {file_path} with json: {e}")
                 try:
-                    config_data = json5.load(f)
+                    config_data = json5.loads(content)
                 except Exception as e:
                     logging.warning(f"Warning: Failed to load config file {file_path} with json5: {e}")
             # 将JSON配置转换为环境变量

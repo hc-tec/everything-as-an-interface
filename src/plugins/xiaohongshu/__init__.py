@@ -1,3 +1,3 @@
-from xiaohongshu_brief import XiaohongshuNoteBriefPlugin
-from xiaohongshu_details import XiaohongshuNoteDetailPlugin
-from xiaohongshu_search import XiaohongshuNoteSearchPlugin
+from .xiaohongshu_brief import XiaohongshuNoteBriefPlugin
+from .xiaohongshu_details import XiaohongshuNoteDetailPlugin
+from .xiaohongshu_search import XiaohongshuNoteSearchPlugin

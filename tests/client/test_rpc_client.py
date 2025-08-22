@@ -69,16 +69,16 @@ class TestEAIRPCClient:
     def client(self):
         """创建测试客户端"""
         return EAIRPCClient(
-            base_url="http://localhost:8000",
-            api_key="test-key",
+            base_url="http://localhost:8008",
+            api_key="testkey",
             webhook_host="127.0.0.1",
             webhook_port=9999
         )
-    
+
     def test_client_initialization(self, client):
         """测试客户端初始化"""
-        assert client.base_url == "http://localhost:8000"
-        assert client.api_key == "test-key"
+        assert client.base_url == "http://localhost:8008"
+        assert client.api_key == "testkey"
         assert client.webhook_host == "127.0.0.1"
         assert client.webhook_port == 9999
         assert client.webhook_secret is not None
@@ -101,26 +101,27 @@ class TestEAIRPCClient:
     @pytest.mark.asyncio
     async def test_create_topic(self, client):
         """测试创建topic"""
-        with patch.object(client.http_client, 'post') as mock_post:
+        with patch.object(client.http_client, 'request') as mock_post:
             mock_response = AsyncMock()
             mock_response.raise_for_status = MagicMock()
             mock_post.return_value = mock_response
             
             await client._create_topic("test-topic", "Test description")
-            
             mock_post.assert_called_once_with(
-                "http://localhost:8000/api/v1/topics",
+                "post",
+                "http://localhost:8008/api/v1/topics",
                 json={
                     "topic_id": "test-topic",
                     "name": "test-topic",
                     "description": "Test description"
-                }
+                },
+                timeout=30,
             )
     
     @pytest.mark.asyncio
     async def test_create_subscription(self, client):
         """测试创建subscription"""
-        with patch.object(client.http_client, 'post') as mock_post:
+        with patch.object(client.http_client, 'request') as mock_post:
             mock_response = AsyncMock()
             mock_response.raise_for_status = MagicMock()
             mock_post.return_value = mock_response
@@ -128,19 +129,21 @@ class TestEAIRPCClient:
             await client._create_subscription("test-topic", "http://example.com/webhook")
             
             mock_post.assert_called_once_with(
-                "http://localhost:8000/api/v1/topics/test-topic/subscriptions",
+                "post",
+                "http://localhost:8008/api/v1/topics/test-topic/subscriptions",
                 json={
                     "url": "http://example.com/webhook",
                     "secret": client.webhook_secret,
                     "headers": {},
                     "enabled": True
-                }
+                },
+                timeout=30,
             )
     
     @pytest.mark.asyncio
     async def test_run_plugin(self, client):
         """测试运行插件"""
-        with patch.object(client.http_client, 'post') as mock_post:
+        with patch.object(client.http_client, 'request') as mock_post:
             mock_response = AsyncMock()
             mock_response.raise_for_status = MagicMock()
             mock_post.return_value = mock_response
@@ -149,11 +152,13 @@ class TestEAIRPCClient:
             await client._run_plugin("test-plugin", config, "test-topic")
             
             mock_post.assert_called_once_with(
-                "http://localhost:8000/api/v1/plugins/test-plugin/run",
+                "post",
+                "http://localhost:8008/api/v1/plugins/test-plugin/run",
                 json={
                     "config": config,
                     "topic_id": "test-topic"
-                }
+                },
+                timeout=30,
             )
     
     @pytest.mark.asyncio
@@ -186,17 +191,17 @@ class TestEAIRPCClientSync:
     def test_sync_client_initialization(self):
         """测试同步客户端初始化"""
         client = EAIRPCClientSync(
-            base_url="http://localhost:8000",
-            api_key="test-key"
+            base_url="http://localhost:8008",
+            api_key="testkey"
         )
         
-        assert client._client.base_url == "http://localhost:8000"
-        assert client._client.api_key == "test-key"
+        assert client._client.base_url == "http://localhost:8008"
+        assert client._client.api_key == "testkey"
         assert client._loop is None
     
     def test_ensure_loop(self):
         """测试事件循环确保"""
-        client = EAIRPCClientSync("http://localhost:8000", "test-key")
+        client = EAIRPCClientSync("http://localhost:8008", "testkey")
         
         assert client._loop is None
         client._ensure_loop()
@@ -215,8 +220,8 @@ class TestRPCClientIntegration:
         # 在CI/CD中可以跳过或使用mock服务器
         
         client = EAIRPCClient(
-            base_url="http://localhost:8000",
-            api_key="test-key",
+            base_url="http://localhost:8008",
+            api_key="testkey",
             webhook_port=9998  # 使用不同端口避免冲突
         )
         
@@ -237,7 +242,7 @@ class TestErrorHandling:
     @pytest.mark.asyncio
     async def test_timeout_handling(self):
         """测试超时处理"""
-        client = EAIRPCClient("http://localhost:8000", "test-key")
+        client = EAIRPCClient("http://localhost:8008", "testkey")
         
         # 模拟超时情况
         with patch.object(client, '_create_topic'), \
@@ -251,9 +256,9 @@ class TestErrorHandling:
     @pytest.mark.asyncio
     async def test_http_error_handling(self):
         """测试HTTP错误处理"""
-        client = EAIRPCClient("http://localhost:8000", "test-key")
+        client = EAIRPCClient("http://localhost:8008", "testkey")
         
-        with patch.object(client.http_client, 'post') as mock_post:
+        with patch.object(client.http_client, 'request') as mock_post:
             # 模拟HTTP错误
             import httpx
             mock_post.side_effect = httpx.HTTPStatusError(

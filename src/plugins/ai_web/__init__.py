@@ -1,1 +1,1 @@
-from yuanbao_chat import YuanbaoChatPlugin
+from .yuanbao_chat import YuanbaoChatPlugin

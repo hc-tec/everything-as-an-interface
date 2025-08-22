@@ -5,7 +5,7 @@ import pytest
 import pytest_asyncio
 from playwright.async_api import ElementHandle, async_playwright
 
-from src.plugins.xiaohongshu import XiaohongshuPlugin
+# from src.plugins.xiaohongshu import XiaohongshuPlugin
 from src.services.xiaohongshu.models import AuthorInfo, NoteStatistics
 from tests.plugins.mock_browser import  page, mock_page, mock_context, mock_browser
 from src.utils.file_util import read_file_with_project_root
