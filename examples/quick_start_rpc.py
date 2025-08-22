@@ -6,15 +6,16 @@
 """
 
 import asyncio
-from src.client.rpc_client import EAIRPCClient, EAIRPCClientSync, logger
+
+from src.client.rpc_client import EAIRPCClient
 
 
 async def main():
     # 创建客户端
     client = EAIRPCClient(
-        base_url="http://127.0.0.1:8008",
-        api_key="testkey",  # 替换为你的API密钥
-        webhook_host="127.0.0.1",
+        base_url="http://127.0.0.1:8008", # 服务程序ip+port
+        api_key="testkey",  # 与服务程序约定好的API密钥
+        webhook_host="127.0.0.1", # webhook订阅服务，当服务程序成功获取到client所需要的订阅数据时，就会通过webhook调用向此请求发送订阅数据
         webhook_port=9002,
     )
     
