@@ -141,7 +141,15 @@ class YuanbaoChatPlugin(BasePlugin):
                 "version": self.PLUGIN_VERSION,
             }
     @staticmethod
-    async def custom_stop_decider_twice(loop_count, extra_config, page, state, new_batch, elapsed) -> StopDecision:
+    async def custom_stop_decider_three_times(loop_count, extra_config, page, state, new_batch, elapsed) -> StopDecision:
+        if loop_count == 3:
+            return StopDecision(should_stop=True, reason="send over when executing three times", details=None)
+        else:
+            return StopDecision(should_stop=False, reason=None, details=None)
+
+    @staticmethod
+    async def custom_stop_decider_twice(loop_count, extra_config, page, state, new_batch,
+                                              elapsed) -> StopDecision:
         if loop_count == 2:
             return StopDecision(should_stop=True, reason="send over when executing twice", details=None)
         else:
@@ -162,7 +170,7 @@ class YuanbaoChatPlugin(BasePlugin):
         logger.info("Collecting favorites using note_brief_net service")
 
 
-        self._chat_service.set_stop_decider(self.custom_stop_decider_twice)
+        self._chat_service.set_stop_decider(self.custom_stop_decider_three_times)
 
         await self.page.goto("https://yuanbao.tencent.com/chat/naQivTmsDa/0fbe1430-3ec5-4127-a8ea-a6816a7c18a3", wait_until="load")
         await asyncio.sleep(1)

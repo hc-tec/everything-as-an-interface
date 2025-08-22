@@ -322,10 +322,10 @@ class EAIRPCClient:
         response.raise_for_status()
     
     # 具体的RPC方法
-    async def chat_with_yuanbao(self, message: str, **kwargs) -> Dict[str, Any]:
+    async def chat_with_yuanbao(self, ask_question: str, **kwargs) -> Dict[str, Any]:
         """与AI元宝聊天"""
         config = {
-            "ask_question": message,
+            "ask_question": ask_question,
             "headless": kwargs.get("headless", False),
             **kwargs
         }

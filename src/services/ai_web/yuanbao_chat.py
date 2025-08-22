@@ -60,7 +60,10 @@ class YuanbaoChatNetService(AIWebService[Conversation]):
         messages = []
         for conv in convs:
             if conv.get("chatInputType", "text") == "text":
-                text = glom(conv, "speechesV2.0.content.0.msg")
+                try:
+                    text = glom(conv, "speechesV2.0.content.0.msg")
+                except Exception:
+                    text = None
                 tokens_used = glom(conv, "speechesV2.0.extra.usage.completion_tokens")
                 msg = Message(
                     msg_id=conv.get("subConversationId"),
