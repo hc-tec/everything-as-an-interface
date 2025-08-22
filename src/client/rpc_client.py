@@ -22,6 +22,7 @@ from contextlib import asynccontextmanager
 from typing import Any, Dict, List, Optional, Callable, Awaitable
 
 import httpx
+import requests
 import uvicorn
 from fastapi import FastAPI, Header, HTTPException, Request
 
@@ -76,13 +77,12 @@ class EAIRPCClient:
         self.webhook_secret = webhook_secret or str(uuid.uuid4())
         
         # HTTP客户端
-        self.http_client = httpx.AsyncClient(
-            headers={
-                "X-API-Key": self.api_key,
-                "Content-Type": "application/json"
-            },
-            timeout=30.0
-        )
+        # requests 会话
+        self.http_client = requests.Session()
+        self.http_client.headers.update({
+            "X-API-Key": self.api_key,
+            "Content-Type": "application/json"
+        })
         
         # Webhook服务器
         self.webhook_app = FastAPI(title="EAI RPC Webhook Receiver")
@@ -224,13 +224,15 @@ class EAIRPCClient:
             self._webhook_server.should_exit = True
             await self._webhook_server.shutdown()
         
-        await self.http_client.aclose()
+        await asyncio.to_thread(self.http_client.close)
     
     @asynccontextmanager
     async def _rpc_call(self, plugin_id: str, config: Dict[str, Any], timeout: float = 30.0):
         """执行RPC调用的上下文管理器"""
         # 生成唯一的事件ID
         event_id = str(uuid.uuid4())
+
+        await self._test_health()
         
         # 创建topic
         topic_id = f"rpc-{event_id}"
@@ -260,41 +262,58 @@ class EAIRPCClient:
         finally:
             # 清理
             self._pending_calls.pop(topic_id, None)
+
+    async def _test_health(self):
+        """测试是否正常连接"""
+        def _call():
+            return self.http_client.get(f"{self.base_url}/api/v1/health", timeout=30)
+        response = await asyncio.to_thread(_call)
+        print(response.json())
+        response.raise_for_status()
     
     async def _create_topic(self, topic_id: str, description: str):
         """创建topic"""
-        response = await self.http_client.post(
-            f"{self.base_url}/api/v1/topics",
-            json={
-                "topic_id": topic_id,
-                "name": topic_id,
-                "description": description
-            }
-        )
+        def _call():
+            return self.http_client.post(
+                f"{self.base_url}/api/v1/topics",
+                json={
+                    "topic_id": topic_id,
+                    "name": topic_id,
+                    "description": description
+                },
+                timeout=30
+            )
+        response = await asyncio.to_thread(_call)
         response.raise_for_status()
     
     async def _create_subscription(self, topic_id: str, webhook_url: str):
         """创建subscription"""
-        response = await self.http_client.post(
-            f"{self.base_url}/api/v1/topics/{topic_id}/subscriptions",
-            json={
-                "url": webhook_url,
-                "secret": self.webhook_secret,
-                "headers": {},
-                "enabled": True
-            }
-        )
+        def _call():
+            return self.http_client.post(
+                f"{self.base_url}/api/v1/topics/{topic_id}/subscriptions",
+                json={
+                    "url": webhook_url,
+                    "secret": self.webhook_secret,
+                    "headers": {},
+                    "enabled": True
+                },
+                timeout=30
+            )
+        response = await asyncio.to_thread(_call)
         response.raise_for_status()
     
     async def _run_plugin(self, plugin_id: str, config: Dict[str, Any], topic_id: str):
         """运行插件"""
-        response = await self.http_client.post(
-            f"{self.base_url}/api/v1/plugins/{plugin_id}/run",
-            json={
-                "config": config,
-                "topic_id": topic_id
-            }
-        )
+        def _call():
+            return self.http_client.post(
+                f"{self.base_url}/api/v1/plugins/{plugin_id}/run",
+                json={
+                    "config": config,
+                    "topic_id": topic_id
+                },
+                timeout=30
+            )
+        response = await asyncio.to_thread(_call)
         response.raise_for_status()
     
     # 具体的RPC方法
