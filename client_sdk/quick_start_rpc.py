@@ -7,7 +7,7 @@
 
 import asyncio
 
-from src.client.rpc_client import EAIRPCClient
+from client_sdk.rpc_client import EAIRPCClient
 
 
 async def main():
@@ -35,7 +35,7 @@ async def main():
         
         # # 📱 获取小红书笔记
         # print("\n📱 获取小红书美食笔记...")
-        # notes = await client.get_notes_brief_from_xhs(
+        # notes = await client_sdk.get_notes_brief_from_xhs(
         #     keywords=["美食", "推荐"],
         #     max_items=5
         # )
@@ -47,7 +47,7 @@ async def main():
         #
         # # 🔍 搜索小红书内容
         # print("\n🔍 搜索小红书咖啡内容...")
-        # search_result = await client.search_notes_from_xhs(
+        # search_result = await client_sdk.search_notes_from_xhs(
         #     keywords=["咖啡", "拿铁"],
         #     max_items=3
         # )

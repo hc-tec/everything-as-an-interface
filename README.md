@@ -104,46 +104,48 @@ INFO - Available plugins: ['xiaohongshu_brief', 'xiaohongshu_details', 'xiaohong
 
 ### 使用RPC客户端调用插件
 
-查看 `examples/quick_start_rpc.py` 文件，它展示了如何使用RPC客户端以便捷方式调用服务程序中的插件：
+查看 `client_sdk/quick_start_rpc.py` 文件，它展示了如何使用RPC客户端以便捷方式调用服务程序中的插件：
 
 ```python
 import asyncio
-from src.client.rpc_client import EAIRPCClient
+from client_sdk.rpc_client import EAIRPCClient
+
 
 async def main():
-    # 创建RPC客户端
-    client = EAIRPCClient(
-        base_url="http://127.0.0.1:8008",  # 服务程序IP+端口
-        api_key="testkey",  # 与服务程序约定的API密钥
-        webhook_host="127.0.0.1",  # webhook订阅服务监听地址
-        webhook_port=9002,  # webhook订阅服务端口
+  # 创建RPC客户端
+  client = EAIRPCClient(
+    base_url="http://127.0.0.1:8008",  # 服务程序IP+端口
+    api_key="testkey",  # 与服务程序约定的API密钥
+    webhook_host="127.0.0.1",  # webhook订阅服务监听地址
+    webhook_port=9002,  # webhook订阅服务端口
+  )
+
+  try:
+    # 启动客户端
+    await client.start()
+    print("✅ RPC客户端已启动")
+
+    # 🤖 获取小红书笔记摘要数据
+    print("\n🤖 获取小红书笔记更新数据...")
+    notes = await client.get_notes_brief_from_xhs(
+      storage_file="data/note-brief-rpc.json",
+      max_items=10,
+      cookie_ids=["28ba44f1-bb67-41ab-86f0-a3d049d902aa"],
+      # 不需要主动声明类似于TaskConfig()的东西，它有哪些配置就直接填哪些配置
     )
-    
-    try:
-        # 启动客户端
-        await client.start()
-        print("✅ RPC客户端已启动")
-        
-        # 🤖 获取小红书笔记摘要数据
-        print("\n🤖 获取小红书笔记更新数据...")
-        notes = await client.get_notes_brief_from_xhs(
-            storage_file="data/note-brief-rpc.json",
-            max_items=10,
-            cookie_ids=["28ba44f1-bb67-41ab-86f0-a3d049d902aa"],
-            # 不需要主动声明类似于TaskConfig()的东西，它有哪些配置就直接填哪些配置
-        )
-        print(f"获取到 {len(notes.get('data', []))} 条笔记更新")
-        
-    except Exception as e:
-        print(f"❌ 错误: {e}")
-    
-    finally:
-        # 停止客户端
-        await client.stop()
-        print("\n✅ RPC客户端已停止")
+    print(f"获取到 {len(notes.get('data', []))} 条笔记更新")
+
+  except Exception as e:
+    print(f"❌ 错误: {e}")
+
+  finally:
+    # 停止客户端
+    await client.stop()
+    print("\n✅ RPC客户端已停止")
+
 
 if __name__ == "__main__":
-    asyncio.run(main())
+  asyncio.run(main())
 ```
 
 ### 配置说明

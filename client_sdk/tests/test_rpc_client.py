@@ -10,7 +10,7 @@ import pytest
 import time
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from src.client.rpc_client import EAIRPCClient, EAIRPCClientSync, _PendingCall, _LRUIdCache
+from client_sdk.rpc_client import EAIRPCClient, EAIRPCClientSync, _PendingCall, _LRUIdCache
 
 
 class TestLRUIdCache:

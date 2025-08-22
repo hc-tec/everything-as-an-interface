@@ -32,35 +32,37 @@ python -m uvicorn src.api.server:app --host 0.0.0.0 --port 8000
 
 ```python
 import asyncio
-from src.client.rpc_client import EAIRPCClient
+from client_sdk.rpc_client import EAIRPCClient
+
 
 async def main():
-    # 创建客户端
-    client = EAIRPCClient(
-        base_url="http://localhost:8000",
-        api_key="your-api-key"
-    )
-    
-    try:
-        # 启动客户端
-        await client.start()
-        
-        # 🤖 与AI聊天
-        chat_result = await client.chat_with_yuanbao("你好！")
-        print(f"AI回复: {chat_result}")
-        
-        # 📱 获取小红书笔记
-        notes = await client.get_notes_brief_from_xhs(
-            keywords=["美食", "推荐"],
-            max_items=10
-        )
-        print(f"获取到 {len(notes.get('items', []))} 条笔记")
-        
-    finally:
-        await client.stop()
+   # 创建客户端
+   client = EAIRPCClient(
+      base_url="http://localhost:8000",
+      api_key="your-api-key"
+   )
+
+   try:
+      # 启动客户端
+      await client.start()
+
+      # 🤖 与AI聊天
+      chat_result = await client.chat_with_yuanbao("你好！")
+      print(f"AI回复: {chat_result}")
+
+      # 📱 获取小红书笔记
+      notes = await client.get_notes_brief_from_xhs(
+         keywords=["美食", "推荐"],
+         max_items=10
+      )
+      print(f"获取到 {len(notes.get('items', []))} 条笔记")
+
+   finally:
+      await client.stop()
+
 
 if __name__ == "__main__":
-    asyncio.run(main())
+   asyncio.run(main())
 ```
 
 ## API参考
@@ -146,23 +148,23 @@ result = await client.call_plugin(
 如果你更喜欢同步调用，可以使用同步版本：
 
 ```python
-from src.client.rpc_client import EAIRPCClientSync
+from client_sdk.rpc_client import EAIRPCClientSync
 
 # 创建同步客户端
 client = EAIRPCClientSync(
-    base_url="http://localhost:8000",
-    api_key="your-api-key"
+   base_url="http://localhost:8000",
+   api_key="your-api-key"
 )
 
 try:
-    client.start()
-    
-    # 同步调用
-    result = client.get_notes_brief_from_xhs(["美食"], max_items=5)
-    print(f"获取到 {len(result.get('items', []))} 条笔记")
-    
+   client.start()
+
+   # 同步调用
+   result = client.get_notes_brief_from_xhs(["美食"], max_items=5)
+   print(f"获取到 {len(result.get('items', []))} 条笔记")
+
 finally:
-    client.stop()
+   client.stop()
 ```
 
 ## 高级用法

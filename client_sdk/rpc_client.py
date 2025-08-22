@@ -4,9 +4,9 @@ RPC风格的客户端SDK
 
 提供类似RPC的接口，自动处理webhook注册、任务执行和结果等待。
 使用示例:
-    client = EAIRPCClient("http://localhost:8000", api_key="your-key")
-    result = await client.chat_with_yuanbao("你好，请介绍一下自己")
-    notes = await client.get_notes_brief_from_xhs(["美食", "旅行"], max_items=50)
+    client_sdk = EAIRPCClient("http://localhost:8000", api_key="your-key")
+    result = await client_sdk.chat_with_yuanbao("你好，请介绍一下自己")
+    notes = await client_sdk.get_notes_brief_from_xhs(["美食", "旅行"], max_items=50)
 """
 
 import asyncio
@@ -25,9 +25,12 @@ import httpx
 import requests
 import uvicorn
 from fastapi import FastAPI, Header, HTTPException, Request
-from src.utils.async_utils import async_request
 
 logger = logging.getLogger("eai_rpc_client")
+
+
+async def async_request(req_session: requests.Session, method: str, url: str, **kwargs):
+    return await asyncio.to_thread(lambda: req_session.request(method, url, **kwargs))
 
 
 class _PendingCall:
