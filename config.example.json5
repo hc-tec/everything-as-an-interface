@@ -2,6 +2,7 @@
   "app": {
     "environment": "development",
     "debug": true,
+    // master_key 用来对cookies进行加密，加密原理使用的是对称加密，请保管好！
     "master_key": "your-master-key-here",
     "accounts_path": "./accounts",
     "data_path": "./data",
@@ -18,6 +19,7 @@
     "proxy_username": null,
     "proxy_password": null
   },
+  // mongo还未经过测试，暂未完全支持
   "database": {
     "use_mongo": false,
     "mongo_uri": "mongodb://localhost:27017",
@@ -52,6 +54,7 @@
         "batch_size": 20
       }
     },
+    // 自动发现会从src/plugins扫描递归所有.py文件导入插件
     "auto_discover": true,
     "reload_on_change": false,
     "max_concurrent_plugins": 5

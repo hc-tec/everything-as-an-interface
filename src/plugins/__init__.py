@@ -4,10 +4,5 @@
 
 from .base import BasePlugin
 from .registry import register_plugin, get_factory, list_plugins
-
-__all__ = [
-    "BasePlugin",
-    "register_plugin",
-    "get_factory",
-    "list_plugins",
-] 
+from ai_web import *
+from xiaohongshu import *

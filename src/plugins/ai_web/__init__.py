@@ -1,0 +1,1 @@
+from yuanbao_chat import YuanbaoChatPlugin

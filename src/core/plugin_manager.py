@@ -35,18 +35,24 @@ class PluginManager:
         self.plugins: Dict[str, Optional[BasePlugin]] = {pid: None for pid in list_plugins()}
 
     def _auto_discover_plugins(self, plugins_dir: Path) -> None:
-        """Import all plugin modules to register them via decorators.
+        """Recursively import all plugin modules to register them via decorators.
 
         Skips internal modules like base/registry/dunder.
         """
         if not plugins_dir.exists():
             return
+
         sys.path.insert(0, str(plugins_dir.parent.parent))  # ensure src on path
-        for py in plugins_dir.glob("*.py"):
+
+        for py in plugins_dir.rglob("*.py"):
             name = py.stem
             if name in {"__init__", "base", "registry"}:
                 continue
-            module_name = f"src.plugins.{name}"
+
+            # convert path to module name, e.g. src/plugins/foo/bar.py -> src.plugins.foo.bar
+            rel_path = py.relative_to(plugins_dir.parent)
+            module_name = ".".join(rel_path.with_suffix("").parts)
+
             try:
                 importlib.import_module(module_name)
                 logger.debug("Auto-discovered plugin module imported: %s", module_name)

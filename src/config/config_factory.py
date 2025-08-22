@@ -1,5 +1,5 @@
 """Configuration factory for centralized config management."""
-
+import logging
 import os
 from pathlib import Path
 from typing import Optional
@@ -90,16 +90,22 @@ class ConfigFactory:
             Dictionary containing all config instances
         """
         import json
+        import json5
+
         
         if Path(file_path).exists():
-            try:
-                with open(file_path, 'r', encoding='utf-8') as f:
+
+            with open(file_path, 'r', encoding='utf-8') as f:
+                try:
                     config_data = json.load(f)
-                
-                # 将JSON配置转换为环境变量
-                ConfigFactory._apply_json_config(config_data)
-            except (json.JSONDecodeError, IOError) as e:
-                print(f"Warning: Failed to load config file {file_path}: {e}")
+                except (json.JSONDecodeError, IOError) as e:
+                    logging.warning(f"Warning: Failed to load config file {file_path} with json: {e}")
+                try:
+                    config_data = json5.load(f)
+                except Exception as e:
+                    logging.warning(f"Warning: Failed to load config file {file_path} with json5: {e}")
+            # 将JSON配置转换为环境变量
+            ConfigFactory._apply_json_config(config_data)
         
         return ConfigFactory.create_all_configs()
     
