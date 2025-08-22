@@ -7,14 +7,12 @@ import sys
 import signal
 import asyncio
 import json
-import logging
 import os
 from typing import Dict, Any
 
 from src import EverythingAsInterface
 from src.core.orchestrator import Orchestrator
 from src.core.task_config import TaskConfig
-from src.plugins.ai_web.yuanbao_chat import YuanbaoChatPlugin
 from settings import PROJECT_ROOT
 
 async def on_chat_finished(data: Dict[str, Any]) -> None:
@@ -73,7 +71,7 @@ async def main():
             # 可选：填写已保存的 cookie_ids 列表，以跳过手动登录
             cookie_ids=["819969a2-9e59-46f5-b0ca-df2116d9c2a0"],
             extra={
-                "ask_question": "你好",
+                "ask_question": "什么是小星星",
                 # ServiceConfig
                 "max_items": 10,
                 "max_idle_rounds": 5,

@@ -2,9 +2,11 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Generic, Optional, Callable, Awaitable, Dict, Any, List
 
-from src.services.base_service import NetService, T
+from src.services.base_service import T
 from src.services.collection_common import NetStopDecider
 from src.services.net_collection import NetCollectionState
+from src.services.net_service import NetService
+
 
 @dataclass
 class NoteCollectArgs:
