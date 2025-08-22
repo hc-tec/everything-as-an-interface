@@ -1,5 +1,5 @@
 import asyncio
-import logging
+from src.config import get_logger
 import os
 import re
 import time
@@ -11,7 +11,7 @@ from typing import Any, Callable, Dict, Optional, Tuple
 
 from ..net_rules import RuleContext, ResponseView
 
-logger = logging.getLogger("utils.video_downloader")
+logger = get_logger(__name__)
 
 CONTENT_RANGE_RE = re.compile(r"bytes (\d+)-(\d+)/(\d+|\*)")
 

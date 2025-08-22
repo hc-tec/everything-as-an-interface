@@ -1,4 +1,4 @@
-import logging
+from src.config import get_logger
 import asyncio
 import json
 import time
@@ -7,7 +7,7 @@ from typing import Dict, Any, List, Set, Optional, Callable, Awaitable
 from datetime import datetime
 import hashlib
 
-logger = logging.getLogger("subscription")
+logger = get_logger(__name__)
 
 class Subscriber:
     """订阅者类，表示一个数据订阅者"""

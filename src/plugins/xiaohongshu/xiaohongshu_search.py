@@ -7,7 +7,7 @@ while delegating specific tasks to specialized services.
 """
 
 import asyncio
-import logging
+from src.config import get_logger
 from dataclasses import asdict
 from typing import Any, Dict, Optional
 
@@ -20,7 +20,7 @@ from src.services.base_service import ServiceConfig
 from src.services.xiaohongshu.common import NoteCollectArgs
 from src.services.xiaohongshu.note_search_net import XiaohongshuNoteSearchNetService
 
-logger = logging.getLogger("plugin.xiaohongshu_search")
+logger = get_logger(__name__)
 
 BASE_URL = "https://www.xiaohongshu.com"
 LOGIN_URL = f"{BASE_URL}/login"

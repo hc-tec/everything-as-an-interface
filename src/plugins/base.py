@@ -1,6 +1,6 @@
 import datetime
 import json
-import logging
+from src.config import get_logger
 import os
 import re
 import time
@@ -19,6 +19,7 @@ from src.utils.global_response_listener import add_global_response_listener
 from src.utils.login_helper import create_login_helper
 from src.utils.net_rules import ResponseView
 
+logger = get_logger(__name__)
 
 async def download_response_to_file(resp_view: ResponseView) -> None:
     response = resp_view._original
@@ -57,9 +58,6 @@ async def download_response_to_file(resp_view: ResponseView) -> None:
     filename = f"private_data/{dir_name}/response_{format_time}_{time.time()}.json"
     write_json_with_project_root(data, filename)
 
-
-
-logger = logging.getLogger("base_plugin")
 
 class BasePlugin(ABC):
     """

@@ -5,7 +5,7 @@
 """
 
 import asyncio
-import logging
+from src.config import get_logger
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
 
@@ -14,7 +14,7 @@ from src.core.account_manager import AccountManager
 from src.core.task_config import TaskConfig
 from src.utils import wait_until_result
 
-logger = logging.getLogger("login_helper")
+logger = get_logger(__name__)
 
 
 class AuthConfig:

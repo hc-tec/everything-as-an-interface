@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-import logging
+from src.config import get_logger
 from typing import Any, Dict, List, Optional
 
 from playwright.async_api import Locator, Page
@@ -16,6 +16,7 @@ from src.services.xiaohongshu.collections.note_dom_collection import (
 from src.services.xiaohongshu.models import NoteDetailsItem
 from src.services.xiaohongshu.parsers import parse_details_from_dom
 
+logger = get_logger(__name__)
 
 class XiaohongshuNoteDomService(NoteService[NoteDetailsItem]):
     """
@@ -66,5 +67,5 @@ class XiaohongshuNoteDomService(NoteService[NoteDetailsItem]):
         try:
             return await parse_details_from_dom(item)
         except Exception:
-            logging.exception("parse note dom failed")
+            logger.exception("parse note dom failed")
             return None

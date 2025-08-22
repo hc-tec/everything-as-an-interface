@@ -2,7 +2,7 @@ import asyncio
 import hashlib
 import hmac
 import json
-import logging
+from src.config import get_logger
 from dataclasses import dataclass
 from typing import Any, Dict, Optional, List
 
@@ -12,7 +12,7 @@ import requests
 from src.utils.async_utils import async_request
 
 
-logger = logging.getLogger("webhook_dispatcher")
+logger = get_logger(__name__)
 
 
 @dataclass

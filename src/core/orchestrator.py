@@ -1,6 +1,6 @@
 
 import asyncio
-import logging
+from src.config import get_logger
 from typing import Any, Dict, List, Optional
 
 from playwright.async_api import async_playwright
@@ -8,7 +8,7 @@ from playwright.async_api import async_playwright
 from .plugin_context import PluginContext
 from ..config.browser_config import BrowserConfig
 
-
+logger = get_logger(__name__)
 
 class Orchestrator:
     def __init__(
@@ -74,7 +74,7 @@ class Orchestrator:
                 await self._browser.close()
                 self._browser = None
         except Exception as e:
-            logging.warning(f"浏览器关闭失败: {str(e)}")
+            logger.warning(f"浏览器关闭失败: {str(e)}")
         finally:
             self._browser = None
 
@@ -82,7 +82,7 @@ class Orchestrator:
             if self._playwright:
                 await self._playwright.stop()
         except Exception:
-            logging.warning(f"playwright关闭失败: {str(e)}")
+            logger.warning(f"playwright关闭失败: {str(e)}")
         finally:
             self._playwright = None
 

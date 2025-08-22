@@ -5,7 +5,7 @@ if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
     print("--- [DEBUG] Event loop policy successfully set to ProactorEventLoopPolicy. ---")
 
-import logging
+from src.config import get_logger
 import os
 import uuid
 from datetime import datetime, timezone
@@ -23,7 +23,7 @@ from src.services.webhook_dispatcher import WebhookDispatcher, WebhookJob
 from src.services.subscription_registry import SubscriptionRegistry
 
 
-logger = logging.getLogger("api.server")
+logger = get_logger(__name__)
 
 
 API_PREFIX = "/api/v1"

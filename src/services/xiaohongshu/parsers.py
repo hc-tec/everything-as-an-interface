@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import asyncio
 import datetime
-import logging
+# 导入统一的日志配置
+from src.config import get_logger
 import re
 from typing import Any, Dict, List, Optional
 
@@ -10,6 +11,8 @@ from glom import glom
 from playwright.async_api import ElementHandle
 
 from .models import AuthorInfo, NoteStatistics, NoteDetailsItem, NoteBriefItem, VideoInfo
+
+logger = get_logger(__name__)
 
 
 def quick_extract_initial_state(html_content: str) -> Optional[str]:
@@ -28,7 +31,7 @@ def quick_extract_initial_state(html_content: str) -> Optional[str]:
     
     if match:
         state_value = match.group(1).strip()
-        logging.debug("找到 window.__INITIAL_STATE__:")
+        logger.debug("找到 window.__INITIAL_STATE__:")
         return state_value
     return None
 
@@ -74,7 +77,7 @@ def parse_brief_from_network(resp_items: List[Dict[str, Any]]) -> List[NoteBrief
                 )
             )
         except Exception as e:
-            logging.error(f"解析笔记信息出错：{str(e)}")
+            logger.error(f"解析笔记信息出错：{str(e)}")
     return results
 
 
@@ -145,7 +148,7 @@ def parse_details_from_network(note_item: Dict[str, Any]) -> List[NoteDetailsIte
             )
         )
     except Exception as e:
-        logging.error("note parse error", exc_info=e)
+        logger.error("note parse error", exc_info=e)
     return results
 
 

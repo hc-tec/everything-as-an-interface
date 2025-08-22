@@ -1,11 +1,11 @@
 import json
-import logging
+from src.config import get_logger
 import os
 import uuid
 from dataclasses import dataclass, asdict
 from typing import Any, Dict, List, Optional
 
-logger = logging.getLogger("subscription_registry")
+logger = get_logger(__name__)
 
 
 @dataclass

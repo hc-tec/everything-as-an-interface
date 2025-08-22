@@ -6,10 +6,14 @@ from .browser_config import BrowserConfig, ViewportConfig, ProxyConfig
 from .plugin_config import PluginConfig
 from .logging_config import LoggingConfig, FileHandlerConfig, ConsoleHandlerConfig
 from .config_factory import (
-    ConfigFactory
+    ConfigFactory, setup_logging, get_logger
 )
 
+
+
 __all__ = [
+    "setup_logging",
+    "get_logger",
     # Configuration classes
     "AppConfig",
     "DatabaseConfig",

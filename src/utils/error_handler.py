@@ -4,10 +4,10 @@
 """
 
 import functools
-import logging
+from src.config import get_logger
 import traceback
 from contextlib import contextmanager
-from typing import Any, Callable, Dict, Optional, Type, TypeVar, Union
+from typing import Any, Callable, Dict, Optional, Type, TypeVar, Union, TYPE_CHECKING
 from datetime import datetime
 import asyncio
 
@@ -83,7 +83,7 @@ class ErrorHandler:
     """统一错误处理器"""
     
     def __init__(self, logger_name: str = "error_handler") -> None:
-        self.logger = logging.getLogger(logger_name)
+        self.logger = get_logger(logger_name)
         self._error_callbacks: Dict[Type[Exception], Callable[[Exception, ErrorContext], None]] = {}
         
     def register_error_callback(self, error_type: Type[Exception], callback: Callable[[Exception, ErrorContext], None]) -> None:
@@ -208,36 +208,3 @@ async def safe_execute_async(func: Callable[[], Any], default: Any = None, opera
     return await global_error_handler.safe_execute_async(func, default, operation)
 
 
-def setup_logging(
-        level: Union[str, int] = logging.INFO,
-        filename: Optional[str] = None,
-        format_string: Optional[str] = None) -> None:
-    """设置统一的日志配置"""
-    if format_string is None:
-        format_string = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    
-    # 验证日志级别
-    if isinstance(level, str):
-        valid_levels = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
-        if level.upper() not in valid_levels:
-            raise ValueError(f"无效的日志级别: {level}")
-        level = getattr(logging, level.upper())
-        
-    logging.basicConfig(
-        level=level,
-        format=format_string,
-        handlers=[
-            logging.StreamHandler(),
-            logging.FileHandler(filename if filename else "everything-as-an-interface.log", encoding='utf-8')
-        ]
-    )
-    
-    # 设置第三方库的日志级别
-    logging.getLogger("playwright").setLevel(logging.WARNING)
-    logging.getLogger("httpx").setLevel(logging.WARNING)
-    logging.getLogger("urllib3").setLevel(logging.WARNING)
-
-
-def get_logger(name: str) -> logging.Logger:
-    """获取统一配置的日志记录器"""
-    return logging.getLogger(name)

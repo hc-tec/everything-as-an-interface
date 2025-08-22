@@ -1,5 +1,5 @@
 import asyncio
-import logging
+from src.config import get_logger
 import time
 from typing import Dict, Any, List, Optional, Callable, Coroutine, Mapping, Union
 from datetime import datetime
@@ -8,7 +8,7 @@ import uuid
 from .orchestrator import Orchestrator
 from .task_config import TaskConfig
 
-logger = logging.getLogger("scheduler")
+logger = get_logger(__name__)
 
 class Task:
     """任务类，表示一个待执行的任务"""

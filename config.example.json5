@@ -28,7 +28,7 @@
   },
   "logging": {
     "level": "DEBUG",
-    "format_string": "%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(funcName)s - %(message)s",
+    "format_string": "%(asctime)s - %(levelname)s - %(name)s - %(filename)s:%(lineno)d - %(funcName)s - %(message)s",
     "log_file_path": "./logs/app.log",
     "logs_dir": "./logs",
     "file_handler": {

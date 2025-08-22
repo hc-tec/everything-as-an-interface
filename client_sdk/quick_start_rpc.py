@@ -32,6 +32,12 @@ async def main():
             cookie_ids=["28ba44f1-bb67-41ab-86f0-a3d049d902aa"]
         )
         print(f"AI回复: {chat_result.get('data', 'N/A')}")
+        # chat_result = await client.get_notes_brief_from_xhs(
+        #     storage_file="data/note-brief-rpc.json",
+        #     max_items=10,
+        #     cookie_ids=["28ba44f1-bb67-41ab-86f0-a3d049d902aa"]
+        # )
+        # print(f"AI回复: {chat_result.get('data', 'N/A')}")
         
         # # 📱 获取小红书笔记
         # print("\n📱 获取小红书美食笔记...")

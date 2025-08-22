@@ -4,7 +4,6 @@ Everything As An Interface - 万物皆接口
 将各种网站和应用转换为可编程接口，实现自动化和数据聚合
 """
 
-import logging
 from typing import Dict, Any, Optional
 
 # 导入配置管理
@@ -13,7 +12,7 @@ from .config.app_config import AppConfig
 from .config.logging_config import LoggingConfig
 
 # 导入统一的日志配置
-from .utils.error_handler import setup_logging, get_logger
+from .config import setup_logging, get_logger
 
 # 导入核心组件
 from .core.plugin_manager import PluginManager
@@ -64,9 +63,7 @@ class EverythingAsInterface:
         
         # 设置日志
         setup_logging(
-            level=getattr(logging, self.logging_config.level.upper()),
-            filename=self.logging_config.log_file_path,
-            format_string=self.logging_config.format_string
+            logging_config=self.logging_config
         )
         
         self.logger = get_logger("everything_as_interface")

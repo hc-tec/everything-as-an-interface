@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-import logging
+from src.config import get_logger
 from dataclasses import dataclass, field
 from typing import Any, Awaitable, Callable, Dict, Generic, List, Optional, TypeVar
 
@@ -10,6 +10,8 @@ from playwright.async_api import Page
 from src.utils.net_rules import ResponseView
 from src.services.collection_common import scroll_page_once as _scroll_page_once, NetStopDecider
 from src.services.collection_loop import run_generic_collection
+
+logger = get_logger(__name__)
 
 T = TypeVar("T")
 
@@ -78,7 +80,7 @@ async def run_network_collection(
         try:
             await state.queue.get()
         except asyncio.TimeoutError:
-            logging.debug("network collection timed out")
+            logger.debug("network collection timed out")
             return 0
         finally:
             try:

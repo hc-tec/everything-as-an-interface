@@ -1,4 +1,4 @@
-import logging
+from src.config import get_logger
 import json
 import base64
 import os
@@ -9,7 +9,7 @@ from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-logger = logging.getLogger("account_manager")
+logger = get_logger(__name__)
 
 class AccountManager:
     """基于 Cookie 的账号管理器：负责管理各平台的登录 Cookie 集合"""

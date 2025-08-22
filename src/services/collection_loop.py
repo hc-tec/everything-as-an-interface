@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-import logging
+from src.config import get_logger
 from typing import Any, Awaitable, Callable, Dict, Generic, List, Optional, TypeVar
 
 from playwright.async_api import Page
@@ -16,6 +16,7 @@ T = TypeVar("T")
 # If it returns None, the engine falls back to len(state.items) delta to determine progress.
 OnTick = Callable[[], Awaitable[Optional[int]] | Optional[int]]
 
+logger = get_logger(__name__)
 
 async def run_generic_collection(
     *,
@@ -79,7 +80,7 @@ async def run_generic_collection(
 
         if idle_rounds >= max_idle_rounds:
             metrics.event("collect.exit", reason="idle", idle_rounds=idle_rounds)
-            logging.warning("超过最大空转轮数")
+            logger.warning("超过最大空转轮数")
             break
 
         if state.stop_decider:
@@ -98,12 +99,12 @@ async def run_generic_collection(
                               should_stop=stop_decision.should_stop,
                               stop_reason=stop_decision.reason,
                               elapsed=elapsed)
-                logging.info("collector.stop_decider, should_stop=%s, stop_reason=%s, elapsed=%s",
+                logger.info("collector.stop_decider, should_stop=%s, stop_reason=%s, elapsed=%s",
                              stop_decision.should_stop, stop_decision.reason, elapsed)
                 if stop_decision.should_stop:
                     break
             except Exception as e:
-                logging.error(f"stop_decider execute failed: {str(e)}")
+                logger.error(f"stop_decider execute failed: {str(e)}")
 
         if auto_scroll:
             if on_scroll:

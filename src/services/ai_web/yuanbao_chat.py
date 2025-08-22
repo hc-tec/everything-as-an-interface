@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-import logging
+from src.config import get_logger
 from typing import Any, Dict, List, Optional
 
 from glom import glom
@@ -16,6 +16,7 @@ from src.services.net_consume_helpers import NetConsumeHelper
 from src.services.scroll_helper import ScrollHelper
 from src.services.ai_web.models import Conversation, Message
 
+logger = get_logger(__name__)
 
 class YuanbaoChatNetService(AIWebService[Conversation]):
     """

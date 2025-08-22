@@ -6,7 +6,7 @@ The plugin focuses on configuration, coordination, and output formatting,
 while delegating specific tasks to specialized services.
 """
 import asyncio
-import logging
+from src.config import get_logger
 from dataclasses import asdict
 from typing import Any, Dict, Optional
 
@@ -19,7 +19,7 @@ from src.services.ai_web.common import AIAskArgs
 from src.services.ai_web.yuanbao_chat import YuanbaoChatNetService
 from src.services.base_service import ServiceConfig
 
-logger = logging.getLogger("plugin.yuanbao_chat")
+logger = get_logger(__name__)
 
 BASE_URL = "https://yuanbao.tencent.com/chat/naQivTmsDa/"
 LOGIN_URL = f"{BASE_URL}/login"

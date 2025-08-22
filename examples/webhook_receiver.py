@@ -13,7 +13,7 @@ Run:
 import hashlib
 import hmac
 import json
-import logging
+from src.config import get_logger
 import os
 import time
 from collections import OrderedDict
@@ -22,7 +22,7 @@ from typing import Any, Dict
 from fastapi import FastAPI, Header, HTTPException, Request
 
 
-logger = logging.getLogger("webhook_client")
+logger = get_logger(__name__)
 
 app = FastAPI(title="Webhook Receiver")
 

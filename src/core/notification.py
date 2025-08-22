@@ -1,4 +1,4 @@
-import logging
+from src.config import get_logger
 import asyncio
 import json
 import time
@@ -10,7 +10,7 @@ from email.mime.multipart import MIMEMultipart
 from typing import Dict, Any, List, Optional, Callable, Awaitable, Union
 from datetime import datetime
 
-logger = logging.getLogger("notification")
+logger = get_logger(__name__)
 
 class NotificationChannel:
     """通知渠道基类"""

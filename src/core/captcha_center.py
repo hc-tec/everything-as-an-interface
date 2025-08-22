@@ -1,4 +1,4 @@
-import logging
+from src.config import get_logger
 import asyncio
 import base64
 import io
@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from PIL import Image
 
-logger = logging.getLogger("captcha_center")
+logger = get_logger(__name__)
 
 class CaptchaHandler(ABC):
     """验证码处理器抽象基类"""

@@ -2,11 +2,11 @@
 浏览器由Orchestrator管理，此文件仅测试时用到
 """
 import asyncio
-import logging
+from src.config import get_logger
 from typing import Dict, Any, Optional, List, Callable, Union, Tuple
 from playwright.async_api import async_playwright, Browser, Page, BrowserContext, Request, Response, ElementHandle
 
-logger = logging.getLogger("browser")
+logger = get_logger(__name__)
 
 class BrowserAutomation:
     """浏览器自动化工具类"""

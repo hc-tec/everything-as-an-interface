@@ -5,7 +5,7 @@ This plugin orchestrates calls to Xiaohongshu services to collect detailed note 
 """
 
 import asyncio
-import logging
+from src.config import get_logger
 from dataclasses import asdict
 from typing import Any, Dict, List, Optional
 
@@ -20,7 +20,7 @@ from src.services.xiaohongshu.models import NoteAccessInfo, NoteDetailsItem
 from src.services.xiaohongshu.note_explore_page_net import XiaohongshuNoteExplorePageNetService
 from src.utils.file_util import read_json_with_project_root, write_json_with_project_root
 
-logger = logging.getLogger("plugin.xiaohongshu_details")
+logger = get_logger(__name__)
 
 BASE_URL = "https://www.xiaohongshu.com"
 LOGIN_URL = f"{BASE_URL}/login"

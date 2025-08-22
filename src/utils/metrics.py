@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-import logging
+from src.config import get_logger
 from collections import defaultdict
 from typing import Any, Dict, Optional
 
-_logger = logging.getLogger("metrics")
+logger = get_logger(__name__)
 
 
 class Metrics:
@@ -22,7 +22,7 @@ class Metrics:
 
     def event(self, name: str, **fields: Any) -> None:
         try:
-            _logger.debug("METRIC %s %s", name, fields)
+            logger.debug("METRIC %s %s", name, fields)
         except Exception:
             pass
 

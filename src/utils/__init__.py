@@ -19,8 +19,6 @@ from .error_handler import (
     error_context,
     safe_execute,
     safe_execute_async,
-    setup_logging,
-    get_logger,
 )
 
 __all__ = [
@@ -42,6 +40,4 @@ __all__ = [
     "error_context",
     "safe_execute",
     "safe_execute_async",
-    "setup_logging",
-    "get_logger",
 ]

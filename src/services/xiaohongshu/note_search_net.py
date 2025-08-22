@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-import logging
+from src.config import get_logger
 from typing import Any, Dict, List, Optional
 
 from playwright.async_api import Page
@@ -15,6 +15,7 @@ from src.services.net_consume_helpers import NetConsumeHelper
 from src.services.scroll_helper import ScrollHelper
 from src.services.xiaohongshu.models import NoteBriefItem, AuthorInfo, NoteStatistics
 
+logger = get_logger(__name__)
 
 class XiaohongshuNoteSearchNetService(NoteService[NoteBriefItem]):
     """
@@ -88,5 +89,5 @@ class XiaohongshuNoteSearchNetService(NoteService[NoteBriefItem]):
                     )
                 )
             except Exception as e:
-                logging.error(f"解析笔记信息出错：{str(e)}")
+                logger.error(f"解析笔记信息出错：{str(e)}")
         return results

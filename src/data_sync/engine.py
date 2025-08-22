@@ -15,9 +15,6 @@ from .models import (
 from .storage import AbstractStorage
 
 
-
-
-
 class PassiveSyncEngine:
     """Passive sync & diff engine.
 

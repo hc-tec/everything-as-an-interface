@@ -8,7 +8,7 @@ while delegating specific tasks to specialized services.
 """
 
 import asyncio
-import logging
+from src.config import get_logger
 from dataclasses import asdict
 from typing import Any, Dict, List, Optional
 
@@ -21,7 +21,7 @@ from src.services.base_service import ServiceConfig
 from src.services.xiaohongshu.common import NoteCollectArgs
 from src.services.xiaohongshu.note_brief_net import XiaohongshuNoteBriefNetService
 
-logger = logging.getLogger("plugin.xiaohongshu")
+logger = get_logger(__name__)
 
 PLUGIN_ID = "xiaohongshu"
 PLUGIN_VERSION = "2.0.0"

@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import asyncio
 import inspect
-import logging
+from src.config import get_logger
 import re
 from dataclasses import dataclass
 from typing import Any, Awaitable, Callable, Dict, List, Optional, Pattern, Protocol, Union
 from playwright.async_api import Page, Request, Response
 
-logger = logging.getLogger("net_rules")
+logger = get_logger(__name__)
 
 class SupportsDataSync(Protocol):
     def data(self) -> Any: ...

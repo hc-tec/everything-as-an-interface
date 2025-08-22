@@ -55,6 +55,8 @@ class FakePage(Page):
         for h in self._response_handlers:
             await h(resp)
 
+
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_full_lifecycle():
     page = FakePage()

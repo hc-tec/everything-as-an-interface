@@ -10,6 +10,20 @@ from .browser_config import BrowserConfig
 from .plugin_config import PluginConfig
 from .logging_config import LoggingConfig
 
+def setup_logging(logging_config: LoggingConfig) -> None:
+    """设置统一的日志配置。
+
+    优先使用 LoggingConfig 对象提供的 dictConfig；否则退回到基本配置。"""
+    # 若传入高级配置，则直接使用 dictConfig 并返回
+    if logging_config is not None:
+        import logging.config as _lc
+        _lc.dictConfig(logging_config.get_logging_dict_config())
+        return
+
+def get_logger(name: str) -> logging.Logger:
+    """获取统一配置的日志记录器"""
+    return logging.getLogger(name)
+
 
 class ConfigFactory:
     """Factory class for creating and managing application configurations.
@@ -99,10 +113,12 @@ class ConfigFactory:
                 content = f.read()
                 try:
                     config_data = json.loads(content)
+                    logging.debug("Success load config with json")
                 except (json.JSONDecodeError, IOError) as e:
                     logging.warning(f"Warning: Failed to load config file {file_path} with json: {e}")
                 try:
                     config_data = json5.loads(content)
+                    logging.debug("Success load config with json5")
                 except Exception as e:
                     logging.warning(f"Warning: Failed to load config file {file_path} with json5: {e}")
             # 将JSON配置转换为环境变量

@@ -1,4 +1,4 @@
-import logging
+from src.config import get_logger
 import importlib
 import sys
 from pathlib import Path
@@ -10,7 +10,7 @@ from src.config.plugin_config import PluginConfig
 from src.plugins.base import BasePlugin
 from ..plugins.registry import get_factory, list_plugins, PluginFactory
 
-logger = logging.getLogger("plugin_manager")
+logger = get_logger(__name__)
 
 class PluginManager:
     """
@@ -50,7 +50,7 @@ class PluginManager:
                 continue
 
             # convert path to module name, e.g. src/plugins/foo/bar.py -> src.plugins.foo.bar
-            rel_path = py.relative_to(plugins_dir.parent)
+            rel_path = py.relative_to(plugins_dir.parent.parent)
             module_name = ".".join(rel_path.with_suffix("").parts)
 
             try:

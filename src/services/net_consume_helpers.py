@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import logging
 from typing import Any, Awaitable, Callable, Dict, Generic, List, Optional, Tuple, TypeVar
 
 from playwright.async_api import Page
@@ -13,9 +12,11 @@ from src.services.net_collection import (
 )
 from src.utils.net_rule_bus import NetRuleBus, MergedEvent
 from src.utils.net_rules import ResponseView
-
+# 导入统一的日志配置
+from src.config import get_logger
 T = TypeVar("T")
 
+logger = get_logger(__name__)
 
 PayloadValidator = Callable[[Any], bool]
 DefaultParser = Callable[[Dict[str, Any]], Awaitable[List[T]]]
@@ -128,7 +129,7 @@ class NetConsumeHelper(Generic[T]):
                 data = None
 
             if not validator(data):
-                logging.info("Received invalid data: %s", data)
+                logger.info("Received invalid data: %s", data)
                 continue
 
             # Delegate can observe raw response first
@@ -136,7 +137,7 @@ class NetConsumeHelper(Generic[T]):
                 try:
                     await self.delegate.on_response(evt.view, self.state)
                 except Exception:
-                    logging.error("on_response error", exc_info=True)
+                    logger.error("on_response error", exc_info=True)
 
             # Whether to record into state.raw_responses/last_response
             should_record = True
@@ -149,7 +150,7 @@ class NetConsumeHelper(Generic[T]):
                 try:
                     record_response(self.state, data, evt.view)
                 except Exception:
-                    logging.error("record_response error", exc_info=True)
+                    logger.error("record_response error", exc_info=True)
 
             # Let delegate parse items first; if returns None, fallback to default
             parsed: Optional[List[T]] = None
@@ -158,7 +159,7 @@ class NetConsumeHelper(Generic[T]):
                     parsed = await self.delegate.parse_items(data)
                 except Exception:
                     parsed = None
-                    logging.error("parse_items error", exc_info=True)
+                    logger.error("parse_items error", exc_info=True)
 
             if parsed is None:
                 try:
@@ -166,7 +167,7 @@ class NetConsumeHelper(Generic[T]):
                     parsed = await default_parse_items(payload)
                 except Exception:
                     parsed = []
-                    logging.error("default_parse_items error", exc_info=True)
+                    logger.error("default_parse_items error", exc_info=True)
 
             # Post-process via delegate and append to state
             if self.state:
@@ -174,7 +175,7 @@ class NetConsumeHelper(Generic[T]):
                     if self.delegate.on_items_collected:
                         parsed = await self.delegate.on_items_collected(parsed, self._consume_count, self._extra, self.state)
                 except Exception:
-                    logging.error("on_items_collected error", exc_info=True)
+                    logger.error("on_items_collected error", exc_info=True)
                 try:
                     self.state.items.extend(parsed)
                 except Exception:
