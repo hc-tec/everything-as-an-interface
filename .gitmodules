@@ -1,0 +1,3 @@
+[submodule "client_sdk"]
+	path = client_sdk
+	url = https://github.com/hc-tec/everything-as-an-interface-client-sdk-py.git
