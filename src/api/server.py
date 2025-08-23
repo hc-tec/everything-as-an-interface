@@ -20,7 +20,7 @@ from src import EverythingAsInterface
 from src.core.orchestrator import Orchestrator
 from src.core.task_config import TaskConfig
 from src.services.webhook_dispatcher import WebhookDispatcher, WebhookJob
-from src.services.subscription_registry import SubscriptionRegistry
+from src.services.subscription_registry import WebhookSubscriptionStore
 
 
 logger = get_logger(__name__)
@@ -47,12 +47,14 @@ async def lifespan(app: FastAPI):
     # Initialize webhook components
     dispatcher = WebhookDispatcher()
     await dispatcher.start()
-    registry = SubscriptionRegistry()
+
+    # Initialize webhook subscription store (decoupled from core)
+    store = WebhookSubscriptionStore(file_path=os.path.join("data", "subscriptions.json"))
 
     app.state.system = system
     app.state.orchestrator = orchestrator
     app.state.dispatcher = dispatcher
-    app.state.registry = registry
+    app.state.webhook_store = store
 
     logger.info("API server started")
 
@@ -136,8 +138,7 @@ def create_app() -> FastAPI:
     app.state.system = None
     app.state.orchestrator = None
     app.state.dispatcher = None
-    app.state.registry = None
-    app.state._bridged_topics = set()
+    # app.state.registry = None  # removed
 
     # Health
     @app.get(f"{API_PREFIX}/health")
@@ -148,21 +149,6 @@ def create_app() -> FastAPI:
     async def ready() -> Dict[str, Any]:
         ok = app.state.system is not None and app.state.orchestrator is not None
         return {"ready": bool(ok)}
-
-    async def _ensure_bridge(topic_id: str) -> None:
-        system: EverythingAsInterface = app.state.system
-        if topic_id in app.state._bridged_topics:
-            return
-        async def _bridge(data: Dict[str, Any]) -> None:
-            envelope = build_event_envelope(
-                topic_id=topic_id,
-                plugin_id=data.get("plugin_id"),
-                task_id=data.get("task_id"),
-                result=data,
-            )
-            await _dispatch_topic(topic_id, envelope)
-        system.subscription_system.subscribe(topic_id, _bridge)
-        app.state._bridged_topics.add(topic_id)
 
     # Plugins
     @app.get(f"{API_PREFIX}/plugins", dependencies=[Depends(require_api_key)])
@@ -186,23 +172,21 @@ def create_app() -> FastAPI:
         if not system.scheduler.running:
             await system.scheduler.start()
 
-        # Ensure topic bridge if provided
-        if topic_id:
-            await _ensure_bridge(topic_id)
-
         async def _task_callback(result: Dict[str, Any]) -> None:
-            if topic_id:
-                # enrich with minimal identity for downstream
-                enriched = dict(result)
-                enriched.setdefault("plugin_id", body.plugin_id)
-                enriched.setdefault("task_id", task_id)
-                envelope = build_event_envelope(
-                    topic_id=topic_id,
-                    plugin_id=body.plugin_id,
-                    task_id=task_id,
-                    result=enriched,
-                )
-                await _dispatch_topic(topic_id, envelope)
+            # Always install callback; dispatch only when topic_id provided
+            if not topic_id:
+                return
+            # enrich with minimal identity for downstream
+            enriched = dict(result)
+            enriched.setdefault("plugin_id", body.plugin_id)
+            enriched.setdefault("task_id", task_id)
+            envelope = build_event_envelope(
+                topic_id=topic_id,
+                plugin_id=body.plugin_id,
+                task_id=task_id,
+                result=enriched,
+            )
+            await _dispatch_topic(topic_id, envelope)
 
         # Handle run_mode once by setting a very large interval after first run trigger
         interval = int(body.interval or 300)
@@ -212,53 +196,11 @@ def create_app() -> FastAPI:
         task_id = system.scheduler.add_task(
             plugin_id=body.plugin_id,
             interval=interval,
-            callback=_task_callback if topic_id else None,
+            callback=_task_callback,  # always pass callback; it is no-op if no topic
             config=config,
         )
 
         return {"task_id": task_id}
-
-    @app.post(f"{API_PREFIX}/plugins/{{plugin_id}}/run", dependencies=[Depends(require_api_key)])
-    async def run_plugin(plugin_id: str, body: RunPluginBody) -> Dict[str, Any]:
-        system: EverythingAsInterface = app.state.system
-        orchestrator: Orchestrator = app.state.orchestrator
-        config = TaskConfig.from_dict(body.config or {})
-
-        # Prepare cookies
-        cookie_ids = config.get("cookie_ids") or []
-        cookie_items = None
-        if system.account_manager and cookie_ids:
-            valid = []
-            for cid in cookie_ids:
-                ok, _ = system.account_manager.check_cookie_validity(cid)
-                if ok:
-                    valid.append(cid)
-            if valid:
-                cookie_items = system.account_manager.merge_cookies(valid)
-
-        ctx = await orchestrator.allocate_context_page(
-            cookie_items=cookie_items,
-            account_manager=system.account_manager,
-            settings={"plugin": plugin_id, "ephemeral": True},
-        )
-        plugin = system.plugin_manager.instantiate_plugin(plugin_id, ctx, config)
-        await plugin.start()
-        try:
-            result = await plugin.fetch()
-        finally:
-            await plugin.stop()
-
-        if body.topic_id:
-            await _ensure_bridge(body.topic_id)
-            envelope = build_event_envelope(
-                topic_id=body.topic_id,
-                plugin_id=plugin_id,
-                task_id=None,
-                result=result,
-            )
-            await _dispatch_topic(body.topic_id, envelope)
-
-        return {"success": True, "result": result}
 
     # Topics & Subscriptions (webhook)
     @app.get(f"{API_PREFIX}/topics", dependencies=[Depends(require_api_key)])
@@ -269,52 +211,32 @@ def create_app() -> FastAPI:
     @app.post(f"{API_PREFIX}/topics", dependencies=[Depends(require_api_key)])
     async def create_topic(body: CreateTopicBody) -> Dict[str, Any]:
         system: EverythingAsInterface = app.state.system
-        registry: SubscriptionRegistry = app.state.registry
         topic_id = system.subscription_system.create_topic(body.name, body.description or "", topic_id=body.topic_id)
-        registry.ensure_topic(topic_id, body.name, body.description or "")
-        await _ensure_bridge(topic_id)
         return {"topic_id": topic_id}
 
     @app.post(f"{API_PREFIX}/topics/{{topic_id}}/subscriptions", dependencies=[Depends(require_api_key)])
     async def create_subscription(topic_id: str, body: CreateSubscriptionBody) -> Dict[str, Any]:
         system: EverythingAsInterface = app.state.system
-        registry: SubscriptionRegistry = app.state.registry
         if not system.subscription_system.get_topic(topic_id):
             raise HTTPException(status_code=404, detail="Topic not found")
-        sub_id = registry.add_subscription(topic_id, body.url, secret=body.secret, headers=body.headers or {})
+        sub_id = app.state.webhook_store.add_subscription(topic_id, body.url, secret=body.secret, headers=body.headers or {}, enabled=bool(body.enabled))
         return {"subscription_id": sub_id}
 
     @app.delete(f"{API_PREFIX}/subscriptions/{{subscription_id}}", dependencies=[Depends(require_api_key)])
     async def delete_subscription(subscription_id: str) -> Dict[str, Any]:
-        registry: SubscriptionRegistry = app.state.registry
-        ok = registry.remove_subscription(subscription_id)
+        ok = app.state.webhook_store.remove_subscription(subscription_id)
         if not ok:
             raise HTTPException(status_code=404, detail="Subscription not found")
         return {"deleted": True}
 
     @app.patch(f"{API_PREFIX}/subscriptions/{{subscription_id}}", dependencies=[Depends(require_api_key)])
     async def patch_subscription(subscription_id: str, enabled: Optional[bool] = None) -> Dict[str, Any]:
-        registry: SubscriptionRegistry = app.state.registry
         if enabled is None:
             raise HTTPException(status_code=400, detail="Missing 'enabled' query param")
-        ok = registry.enable_subscription(subscription_id, enabled=bool(enabled))
+        ok = app.state.webhook_store.enable_subscription(subscription_id, enabled=bool(enabled))
         if not ok:
             raise HTTPException(status_code=404, detail="Subscription not found")
         return {"updated": True}
-
-    @app.post(f"{API_PREFIX}/subscriptions/test-delivery", dependencies=[Depends(require_api_key)])
-    async def test_delivery(topic_id: str) -> Dict[str, Any]:
-        if not app.state.system.subscription_system.get_topic(topic_id):
-            raise HTTPException(status_code=404, detail="Topic not found")
-        await _ensure_bridge(topic_id)
-        envelope = build_event_envelope(
-            topic_id=topic_id,
-            plugin_id=None,
-            task_id=None,
-            result={"success": True, "message": "test"},
-        )
-        await _dispatch_topic(topic_id, envelope)
-        return {"enqueued": True, "event_id": envelope["event_id"]}
 
     @app.get(f"{API_PREFIX}/tasks/{{task_id}}", dependencies=[Depends(require_api_key)])
     async def get_task(task_id: str) -> Dict[str, Any]:
@@ -336,7 +258,6 @@ def create_app() -> FastAPI:
     async def manual_publish(topic_id: str) -> Dict[str, Any]:
         if not app.state.system.subscription_system.get_topic(topic_id):
             raise HTTPException(status_code=404, detail="Topic not found")
-        await _ensure_bridge(topic_id)
         envelope = build_event_envelope(
             topic_id=topic_id,
             plugin_id=None,
@@ -348,8 +269,7 @@ def create_app() -> FastAPI:
 
     @app.get(f"{API_PREFIX}/subscriptions", dependencies=[Depends(require_api_key)])
     async def list_subscriptions(topic_id: Optional[str] = None) -> Dict[str, Any]:
-        registry: SubscriptionRegistry = app.state.registry
-        return {"subscriptions": registry.list_subscriptions(topic_id)}
+        return {"subscriptions": app.state.webhook_store.list_subscriptions(topic_id)}
 
     @app.get(f"{API_PREFIX}/dead-letters", dependencies=[Depends(require_api_key)])
     async def dead_letters() -> Dict[str, Any]:
@@ -357,9 +277,9 @@ def create_app() -> FastAPI:
         return {"dead_letters": dispatcher.get_dead_letters()}
 
     async def _dispatch_topic(topic_id: str, envelope: Dict[str, Any]) -> None:
-        registry: SubscriptionRegistry = app.state.registry
+        system: EverythingAsInterface = app.state.system
         dispatcher: WebhookDispatcher = app.state.dispatcher
-        subs = registry.get_active_subscriptions_for_topic(topic_id)
+        subs = app.state.webhook_store.get_active_subscriptions_for_topic(topic_id)
         for s in subs:
             job = WebhookJob(
                 event_id=envelope["event_id"],

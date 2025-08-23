@@ -311,8 +311,13 @@ app = FastAPI()
 async def webhook_handler(request: Request):
     # 处理webhook...
 
-# 4. 执行插件
-response = requests.post(f"{base_url}/api/v1/plugins/{plugin_id}/run", json={...})
+# 4. 执行插件（通过一次性任务）
+response = requests.post(f"{base_url}/api/v1/tasks", json={
+    "plugin_id": plugin_id,
+    "run_mode": "once",
+    "config": {...},
+    "topic_id": topic_id
+})
 
 # 5. 等待webhook响应...
 ```

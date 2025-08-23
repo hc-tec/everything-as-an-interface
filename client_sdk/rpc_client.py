@@ -309,14 +309,16 @@ class EAIRPCClient:
         response.raise_for_status()
     
     async def _run_plugin(self, plugin_id: str, config: Dict[str, Any], topic_id: str):
-        """运行插件"""
+        """运行插件（通过创建一次性任务）"""
         response = await async_request(
             self.http_client,
             "post",
-            f"{self.base_url}/api/v1/plugins/{plugin_id}/run",
+            f"{self.base_url}/api/v1/tasks",
             json={
+                "plugin_id": plugin_id,
+                "run_mode": "once",
                 "config": config,
-                "topic_id": topic_id
+                "topic_id": topic_id,
             },
             timeout=30)
         response.raise_for_status()

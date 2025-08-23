@@ -39,7 +39,7 @@ class WebhookDispatcher:
     - Bounded concurrency
     """
 
-    def __init__(self, *, concurrency: int = 4, request_timeout_sec: float = 10.0) -> None:
+    def __init__(self, *, concurrency: int = 4, request_timeout_sec: float = 100.0) -> None:
         self._queue: "asyncio.Queue[Optional[WebhookJob]]" = asyncio.Queue()
         self._workers: List[asyncio.Task] = []
         self._running: bool = False
@@ -93,7 +93,7 @@ class WebhookDispatcher:
             finally:
                 self._queue.task_done()
 
-    async def _deliver_job(self, job: "WebhookJob") -> None:
+    async def _deliver_job(self, job: WebhookJob) -> None:
         body = json.dumps(job.payload, ensure_ascii=False).encode("utf-8")
         headers: Dict[str, str] = {
             "Content-Type": "application/json",

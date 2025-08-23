@@ -430,8 +430,11 @@ config = TaskConfig(
     ```python
     # 传统方式：复杂的手动HTTP调用
     import requests
-    response = requests.post("http://localhost:8000/api/v1/plugins/xiaohongshu/run", json={
-        "config": {"cookie_ids": ["xxx"], "max_items": 10}
+    response = requests.post("http://localhost:8000/api/v1/tasks", json={
+        "plugin_id": "xiaohongshu",
+        "run_mode": "once",
+        "config": {"cookie_ids": ["xxx"], "max_items": 10},
+        "topic_id": "your-topic-id"
     })
     result = response.json()
 

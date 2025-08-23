@@ -237,44 +237,16 @@ class Scheduler:
         logger.info(f"执行任务: {task.task_id} (插件: {task.plugin_id})")
         
         try:
-            # 从任务配置准备 cookie
-            cookie_ids = task.config.get("cookie_ids") or []
-            valid_cookie_ids: List[str] = []
-            cookie_items = None
-            if self.account_manager and cookie_ids:
-                for cid in cookie_ids:
-                    ok, _ = self.account_manager.check_cookie_validity(cid)
-                    if ok:
-                        valid_cookie_ids.append(cid)
-                if valid_cookie_ids:
-                    cookie_items = self.account_manager.merge_cookies(valid_cookie_ids)
-            # 为此执行分配上下文与页面
-            ctx = await self._orchestrator.allocate_context_page(
-                cookie_items=cookie_items,
-                account_manager=self.account_manager,
-                settings={"plugin": task.plugin_id, "task_id": task.task_id},
+            # 统一走一次性执行通道，避免与 execute_plugin 重复实现
+            data = await self.execute_plugin(
+                plugin_id=task.plugin_id,
+                config=task.config,
+                callback=task.callback,
             )
-            # 实例化插件（注册表）
-            plugin = self.plugin_manager.instantiate_plugin(task.plugin_id, ctx, task.config)
-            success = await plugin.start()
-            if not success:
-                raise RuntimeError(f"插件启动失败: {task.plugin_id}")
-            data = await plugin.fetch()
-            await plugin.stop()
-            # 释放上下文
-            if task.config.close_page_when_task_finished:
-                await self._orchestrator.release_context_page(ctx)
-            # 回调与统计
+            # 统计与保存结果
             task.last_data = data
             task.success_count += 1
             
-            # 如果有回调函数，则调用
-            if task.callback and data:
-                await task.callback({
-                    "task_config_extra": task.config.extra,
-                    **data
-                })
-                
             logger.info(f"任务执行成功: {task.task_id}")
         except Exception as e:
             task.error_count += 1
@@ -295,3 +267,78 @@ class Scheduler:
                 )
         finally:
             task.running = False
+    
+    async def execute_plugin(self, 
+                             plugin_id: str, 
+                             config: Optional[TaskConfig] = None,
+                             callback: Optional[Callable[[Dict[str, Any]], Coroutine[Any, Any, None]]] = None) -> Dict[str, Any]:
+        """一次性执行指定插件（不创建调度任务），用于统一 API 的临时执行路径。
+        
+        Args:
+            plugin_id: 插件ID
+            config: 任务配置（可选）
+            callback: 执行完成后的回调（可选）
+        Returns:
+            插件返回的数据结果
+        Raises:
+            RuntimeError: 当未设置必要的组件（插件管理器或 Orchestrator）
+        """
+        if not self.plugin_manager:
+            raise RuntimeError("未设置插件管理器")
+        if not self._orchestrator:
+            raise RuntimeError("未设置 Orchestrator，请先调用 set_orchestrator() 并在外部启动")
+
+        cfg = config or TaskConfig()
+
+        # 准备 cookie
+        cookie_items = None
+        try:
+            cookie_ids = cfg.get("cookie_ids") or []
+            if self.account_manager and cookie_ids:
+                valid_cookie_ids: List[str] = []
+                for cid in cookie_ids:
+                    ok, _ = self.account_manager.check_cookie_validity(cid)
+                    if ok:
+                        valid_cookie_ids.append(cid)
+                if valid_cookie_ids:
+                    cookie_items = self.account_manager.merge_cookies(valid_cookie_ids)
+        except Exception as e:
+            logger.warning(f"准备 cookie 失败: {e}")
+
+        # 分配上下文与页面
+        ctx = await self._orchestrator.allocate_context_page(
+            cookie_items=cookie_items,
+            account_manager=self.account_manager,
+            settings={"plugin": plugin_id, "ephemeral": True},
+        )
+
+        logger.info(f"一次性执行插件: {plugin_id}")
+
+        # 实例化并执行插件
+        plugin = self.plugin_manager.instantiate_plugin(plugin_id, ctx, cfg)
+        await plugin.start()
+        try:
+            data = await plugin.fetch()
+        finally:
+            await plugin.stop()
+
+        # 释放上下文
+        try:
+            if cfg.close_page_when_task_finished:
+                await self._orchestrator.release_context_page(ctx)
+        except Exception:
+            # 忽略释放异常，避免影响主流程
+            pass
+
+        # 回调
+        if callback and data:
+            try:
+                await callback({
+                    "task_config_extra": cfg.extra,
+                    **data
+                })
+            except Exception as e:
+                logger.error(f"一次性执行插件回调失败: {e}")
+
+        logger.info(f"一次性执行完成: {plugin_id}")
+        return data

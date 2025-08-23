@@ -153,8 +153,10 @@ class TestEAIRPCClient:
             
             mock_post.assert_called_once_with(
                 "post",
-                "http://localhost:8008/api/v1/plugins/test-plugin/run",
+                "http://localhost:8008/api/v1/tasks",
                 json={
+                    "plugin_id": "test-plugin",
+                    "run_mode": "once",
                     "config": config,
                     "topic_id": "test-topic"
                 },

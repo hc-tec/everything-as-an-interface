@@ -406,5 +406,4 @@ class SubscriptionSystem:
         topic = self.get_topic(topic_id)
         if not topic:
             return None
-            
         return topic.last_data
