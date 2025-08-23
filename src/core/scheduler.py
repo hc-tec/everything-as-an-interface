@@ -325,6 +325,7 @@ class Scheduler:
         # 释放上下文
         try:
             if cfg.close_page_when_task_finished:
+                logger.info("Task finished, close page url: %s", ctx.page.url)
                 await self._orchestrator.release_context_page(ctx)
         except Exception:
             # 忽略释放异常，避免影响主流程

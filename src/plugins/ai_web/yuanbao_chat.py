@@ -172,7 +172,12 @@ class YuanbaoChatPlugin(BasePlugin):
 
         self._chat_service.set_stop_decider(self.custom_stop_decider_three_times)
 
-        await self.page.goto("https://yuanbao.tencent.com/chat/naQivTmsDa/0fbe1430-3ec5-4127-a8ea-a6816a7c18a3", wait_until="load")
+        conversation_id = self.config.extra.get("conversation_id")
+        if conversation_id:
+            await self.page.goto(f"https://yuanbao.tencent.com/chat/naQivTmsDa/{conversation_id}", wait_until="load")
+        else:
+            await self.page.goto("https://yuanbao.tencent.com/chat/naQivTmsDa", wait_until="load")
+
         await asyncio.sleep(1)
         locator = self.page.locator('[class^="style__text-area__start___"]')
         await locator.type(self.config.extra["ask_question"])
