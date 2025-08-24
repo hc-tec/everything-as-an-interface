@@ -40,7 +40,7 @@
     "plugins_dir": "src/plugins",
     "enabled_plugins": [
       "xiaohongshu_search",
-      "xiaohongshu_brief",
+      "xiaohongshu_favorites_brief",
       "xiaohongshu_details",
       "yuanbao_chat"
     ],

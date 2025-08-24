@@ -5,6 +5,8 @@ This plugin orchestrates calls to Xiaohongshu services to collect detailed note 
 """
 
 import asyncio
+import json
+
 from src.config import get_logger
 from dataclasses import asdict
 from typing import Any, Dict, List, Optional
@@ -124,15 +126,15 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
         await self._ensure_logged_in()
 
         try:
-            diff_file_path = self.config.extra.get("diff_file")
-            diff_data = read_json_with_project_root(diff_file_path)
-            if diff_data.get("count") > 0:
-                diff = diff_data["data"]
+            brief_data = self.config.extra.get("brief_data", {})
+            brief_data = json.loads(brief_data)
+            if brief_data.get("count") > 0:
+                diff = brief_data["data"]
                 return await self._collect_details(diff)
-            raise Exception(diff_data.get("error"))
+            raise Exception(brief_data.get("error"))
                 
         except Exception as e:
-            logger.error(f"Fetch operation failed: {e}")
+            logger.error(f"Fetch operation failed: {e}", exc_info=e)
             return {
                 "success": False,
                 "error": str(e),
@@ -143,17 +145,21 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
 
     async def navigate_to_note_explore_page(self, loop_count: int,
                                             extra: Dict[str, Any]):
+        # 利用此回调，我们可以让网页跳转到笔记详情页
         access_info: NoteAccessInfo = extra.get("access_info")[loop_count - 1]
         note_explore_page = f"https://www.xiaohongshu.com/explore/{access_info.id}?xsec_token={access_info.xsec_token}&xsec_source=pc_feed"
         await self.page.goto(note_explore_page, wait_until="load")
-        await asyncio.sleep(10)
+        await asyncio.sleep(self.config.extra.get("wait_time_sec", 10))
 
     @staticmethod
     async def stop_to_note_explore_page_when_all_collected(
-            loop_count: int, extra: Dict[str, Any], page, all_raw_responses,
-            last_raw_response, all_parsed_items, last_batch_parsed_items,
-            elapsed_seconds, last_response_view):
-        is_all_collected = loop_count >= len(extra.get("access_info"))
+            loop_count,
+            extra_config,
+            page,
+            state,
+            new_batch,
+            elapsed):
+        is_all_collected = loop_count >= len(extra_config.get("access_info"))
         if is_all_collected:
             return StopDecision(should_stop=True, reason="All notes collected", details=None)
         return StopDecision(should_stop=False, reason=None, details=None)
@@ -178,7 +184,6 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
             raise ValueError("No added notes found")
         
         logger.info(f"Collecting details for {len(added_briefs_items)} notes")
-        # 利用此回调，我们可以让网页跳转到笔记详情页
         self._note_explore_net_service.set_stop_decider(self.stop_to_note_explore_page_when_all_collected)
         self._note_explore_net_service.set_delegate_on_items_collected(self.on_items_collected)
         # 小红书进入笔记详情，必须得有两个参数，一个是 id，另一个是 xsec_token
@@ -206,26 +211,23 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
             logger.info(f"Successfully collected {len(details_data)} details out of {len(added_briefs_items)} requested")
 
             logger.info(f"Collect failed notes, total: {len(self._access_failed_notes)}")
-            write_json_with_project_root({
-                "success": False,
-                "data": [asdict(access_info) for access_info in self._access_failed_notes],
-                "count": len(self._access_failed_notes),
-                "plugin_id": PLUGIN_ID,
-                "version": self.PLUGIN_VERSION,
-            }, self.config.extra.get("failed_file"))
             
             return {
                 "success": True,
                 "data": details_data,
                 "count": len(details_data),
+                "failed_notes": {
+                    "data": [asdict(access_info) for access_info in self._access_failed_notes],
+                    "count": len(self._access_failed_notes),
+                },
                 "requested_count": len(added_briefs_items),
                 "plugin_id": PLUGIN_ID,
                 "version": self.PLUGIN_VERSION,
             }
             
         except Exception as e:
-            logger.error(f"Details collection failed: {e}")
-            raise
+            logger.error(f"Details collection failed: {e}", exc_info=e)
+            raise e
 
     def _build_note_net_config(self) -> ServiceConfig:
         """Build ServiceConfig from task config."""

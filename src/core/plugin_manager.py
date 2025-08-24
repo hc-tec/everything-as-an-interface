@@ -100,7 +100,7 @@ class PluginManager:
         """
         # 检查插件是否启用
         if self.plugin_config and not self.plugin_config.is_plugin_enabled(plugin_id):
-            raise ValueError(f"插件 {plugin_id} 未启用")
+            raise ValueError(f"插件 {plugin_id} 不能正常使用")
             
         factory = self.get_plugin_factory(plugin_id)
         plugin = factory(ctx, config)

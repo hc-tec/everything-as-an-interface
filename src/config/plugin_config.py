@@ -6,7 +6,9 @@ from pathlib import Path
 from typing import List, Dict, Any
 
 from settings import PROJECT_ROOT
+from .logging_config import get_logger
 
+logger = get_logger(__name__)
 
 @dataclass
 class PluginConfig:
@@ -56,6 +58,7 @@ class PluginConfig:
             True if plugin is enabled, False otherwise
         """
         if plugin_name in self.disabled_plugins:
+            logger.info(f"Plugin {plugin_name} disabled")
             return False
         
         if not self.enabled_plugins:  # If no specific plugins enabled, enable all

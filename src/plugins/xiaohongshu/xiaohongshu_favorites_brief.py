@@ -29,7 +29,7 @@ logger = get_logger(__name__)
 BASE_URL = "https://www.xiaohongshu.com"
 LOGIN_URL = f"{BASE_URL}/login"
 
-PLUGIN_ID = "xiaohongshu_brief"
+PLUGIN_ID = "xiaohongshu_favorites_brief"
 
 class NoteBriefDelegate(NetServiceDelegate[NoteBriefItem]):
 
@@ -43,30 +43,25 @@ class NoteBriefDelegate(NetServiceDelegate[NoteBriefItem]):
                 deletion_policy=config.get("deletion_policy", "soft"),
                 stop_after_consecutive_known=config.get("stop_after_consecutive_known", 5),
                 stop_after_no_change_batches=config.get("stop_after_no_change_batches", 2),
-                max_new_items=config.get("stop_max_items", 10),
+                max_new_items=config.get("max_new_items", 10),
                 fingerprint_fields=["id", "title"],
             )
         )
         self._stop_decision = StopDecision(should_stop=False, reason=None, details=None)
         self._diff = DiffResult(added=[], updated=[], deleted=[])
 
-    async def load_storage_from_file(self):
+    async def load_storage_from_data(self, data):
         try:
-            local_data = read_json_with_project_root(self.config.get("storage_file", "data/note-briefs.json"))
+            local_data = data
             if local_data["count"] != 0:
                 await self.storage.upsert_many(local_data["data"])
-                logger.debug(f"Loaded note-briefs.json, Data count: {local_data['count']}")
+                logger.debug(f"Loaded data, Data count: {local_data['count']}")
         except Exception as e:
-            logger.warning(f"Failed to load note-briefs.json: {e}")
+            logger.warning(f"Failed to load data: {e}")
 
-    def save_storage_to_file(self):
+    def get_storage_data(self):
         items = list(self.storage.get_items())
-        res = {
-            "success": True,
-            "count": len(items),
-            "data": items,
-        }
-        write_json_with_project_root(res, self.config.get("storage_file", "data/note-briefs.json"))
+        return items
 
     def get_diff(self) -> DiffResult:
         return self._diff
@@ -139,7 +134,6 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
 
             # Initialize Delegates
             self._note_brief_delegate = NoteBriefDelegate(self.config.extra)
-            await self._note_brief_delegate.load_storage_from_file()
 
             # Set Delegates to Services
             self._note_brief_net_service.set_delegate(self._note_brief_delegate)
@@ -193,15 +187,24 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
         await self._ensure_logged_in()
 
         try:
+            await self._note_brief_delegate.load_storage_from_data(self.config.extra.get("storage_data", {}))
             briefs_res = await self._collect_briefs()
             if briefs_res["success"]:
-                self._note_brief_delegate.save_storage_to_file()
                 diff = self._note_brief_delegate.get_diff()
                 logger.info(f"diff: {diff.stats()}")
+                full_data = self._note_brief_delegate.get_storage_data()
                 return {
                     "success": True,
-                    "data": diff.added,
-                    "count": len(diff.added),
+                    "data": full_data,
+                    "count": len(full_data),
+                    "added": {
+                        "data": diff.added,
+                        "count": len(diff.added),
+                    },
+                    "updated": {
+                        "data": diff.updated,
+                        "count": len(diff.updated),
+                    },
                     "plugin_id": self.PLUGIN_ID,
                     "version": self.PLUGIN_VERSION,
                 }
@@ -243,7 +246,6 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
                 "success": True,
                 "data": items_data,
                 "count": len(items_data),
-                "task_type": "briefs",
             }
 
         except Exception as e:
@@ -252,7 +254,6 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
                 "success": False,
                 "data": None,
                 "count": 0,
-                "task_type": "briefs",
                 "error": str(e),
             }
 

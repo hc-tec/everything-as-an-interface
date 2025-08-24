@@ -272,7 +272,7 @@ class Scheduler:
                              plugin_id: str, 
                              config: Optional[TaskConfig] = None,
                              callback: Optional[Callable[[Dict[str, Any]], Coroutine[Any, Any, None]]] = None) -> Dict[str, Any]:
-        """一次性执行指定插件（不创建调度任务），用于统一 API 的临时执行路径。
+        """执行指定插件（不创建调度任务），用于统一 API 的临时执行路径。
         
         Args:
             plugin_id: 插件ID
@@ -289,6 +289,9 @@ class Scheduler:
             raise RuntimeError("未设置 Orchestrator，请先调用 set_orchestrator() 并在外部启动")
 
         cfg = config or TaskConfig()
+        
+        # 计时开始
+        _start_ts = time.perf_counter()
 
         # 准备 cookie
         cookie_items = None
@@ -312,7 +315,7 @@ class Scheduler:
             settings={"plugin": plugin_id, "ephemeral": True},
         )
 
-        logger.info(f"一次性执行插件: {plugin_id}")
+        logger.info(f"开始执行插件: {plugin_id}")
 
         # 实例化并执行插件
         plugin = self.plugin_manager.instantiate_plugin(plugin_id, ctx, cfg)
@@ -321,6 +324,9 @@ class Scheduler:
             data = await plugin.fetch()
         finally:
             await plugin.stop()
+
+        # 计算执行耗时（毫秒）
+        total_elapsed_ms = int((time.perf_counter() - _start_ts) * 1000)
 
         # 释放上下文
         try:
@@ -334,12 +340,14 @@ class Scheduler:
         # 回调
         if callback and data:
             try:
-                await callback({
+                payload = {
                     "task_config_extra": cfg.extra,
+                    "exec_elapsed_ms": total_elapsed_ms,
                     **data
-                })
+                }
+                await callback(payload)
             except Exception as e:
-                logger.error(f"一次性执行插件回调失败: {e}")
+                logger.error(f"插件回调失败: {e}")
 
-        logger.info(f"一次性执行完成: {plugin_id}")
+        logger.info(f"任务执行完成: {plugin_id}，耗时: {total_elapsed_ms}ms")
         return data

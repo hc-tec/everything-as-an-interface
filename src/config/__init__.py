@@ -4,11 +4,10 @@ from .app_config import AppConfig
 from .database_config import DatabaseConfig, MongoConfig, RedisConfig
 from .browser_config import BrowserConfig, ViewportConfig, ProxyConfig
 from .plugin_config import PluginConfig
-from .logging_config import LoggingConfig, FileHandlerConfig, ConsoleHandlerConfig
+from .logging_config import LoggingConfig, FileHandlerConfig, ConsoleHandlerConfig, setup_logging, get_logger
 from .config_factory import (
-    ConfigFactory, setup_logging, get_logger
+    ConfigFactory
 )
-
 
 
 __all__ = [

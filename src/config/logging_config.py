@@ -1,5 +1,5 @@
 """Logging configuration management."""
-
+import logging
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -36,7 +36,7 @@ class ConsoleHandlerConfig:
     """
     
     enabled: bool = field(default_factory=lambda: os.getenv("LOG_CONSOLE_ENABLED", "true").lower() == "true")
-    level: str = field(default_factory=lambda: os.getenv("LOG_CONSOLE_LEVEL", "INFO"))
+    level: str = field(default_factory=lambda: os.getenv("LOG_LEVEL", "INFO"))
     format_style: str = "colored"  # colored, simple, detailed
 
 
@@ -170,3 +170,19 @@ class LoggingConfig:
             level: Logging level to set
         """
         self.logger_levels[logger_name] = level
+
+
+
+def setup_logging(logging_config: LoggingConfig) -> None:
+    """设置统一的日志配置。
+
+    优先使用 LoggingConfig 对象提供的 dictConfig；否则退回到基本配置。"""
+    # 若传入高级配置，则直接使用 dictConfig 并返回
+    if logging_config is not None:
+        import logging.config as _lc
+        _lc.dictConfig(logging_config.get_logging_dict_config())
+        return
+
+def get_logger(name: str) -> logging.Logger:
+    """获取统一配置的日志记录器"""
+    return logging.getLogger(name)

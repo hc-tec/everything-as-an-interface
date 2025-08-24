@@ -80,11 +80,6 @@ async def main():
                 "max_items": 50,
                 "max_idle_rounds": 999,
                 "max_seconds": 99999,
-                # PassiveSyncEngine Config
-                "deletion_policy": "soft",
-                "stop_after_consecutive_known": 5,
-                "stop_after_no_change_batches": 2,
-                "stop_max_items": 50,
             }
         )
     )

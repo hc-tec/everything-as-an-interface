@@ -80,7 +80,7 @@ async def main():
                 "deletion_policy": "soft",
                 "stop_after_consecutive_known": 5,
                 "stop_after_no_change_batches": 2,
-                "stop_max_items": 10,
+                "max_new_items": 10,
             }
         )
     )
