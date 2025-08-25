@@ -98,6 +98,7 @@ def parse_details_from_network(note_item: Dict[str, Any]) -> List[NoteDetailsIte
     try:
         id = note_item["noteId"]
         title = note_item.get("title")
+        xsec_token = note_item.get("xsecToken")
         desc = note_item.get("desc")
         user = note_item.get("user", {})
         author_info = AuthorInfo(
@@ -134,6 +135,7 @@ def parse_details_from_network(note_item: Dict[str, Any]) -> List[NoteDetailsIte
         results.append(
             NoteDetailsItem(
                 id=id,
+                xsec_token=xsec_token,
                 title=title,
                 desc=desc,
                 author_info=author_info,

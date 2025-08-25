@@ -113,6 +113,7 @@ class VideoInfo:
 @dataclass
 class NoteDetailsItem:
     id: str
+    xsec_token: str
     title: str
     desc: str
     author_info: AuthorInfo
