@@ -30,7 +30,7 @@ _COMMON_KEYS: Tuple[str, ...] = (
 
 
 @dataclass
-class TaskConfig(Mapping[str, Any]):
+class TaskParams(Mapping[str, Any]):
     """Task configuration container with extensibility.
 
     Common options are exposed as typed attributes, while any additional
@@ -113,8 +113,8 @@ class TaskConfig(Mapping[str, Any]):
 
     # ----- Construction helpers -----
     @classmethod
-    def from_dict(cls, raw: Optional[Mapping[str, Any]]) -> "TaskConfig":
-        """Create a TaskConfig from an arbitrary mapping.
+    def from_dict(cls, raw: Optional[Mapping[str, Any]]) -> "TaskParams":
+        """Create a TaskParams from an arbitrary mapping.
 
         Unknown keys are preserved in ``extra`` for plugin-specific use.
         """
