@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
 from datetime import datetime
+from src.services.models import WithRaw
 
 @dataclass
 class Message:
@@ -15,7 +16,7 @@ class Message:
     status: int
 
 @dataclass
-class Conversation:
+class Conversation(WithRaw):
     model_name: str
     messages: List[Message]
     conversation_id: str  # 唯一标识符，标识此对话
@@ -30,3 +31,4 @@ class Conversation:
     total_tokens_used: Optional[int]  # 总共消耗的 token 数量
     context_window_size: Optional[int]  # 上下文窗口大小，用于GPT模型的输入长度限制
     session_title: Optional[str]
+
