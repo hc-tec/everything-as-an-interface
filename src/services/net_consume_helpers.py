@@ -19,7 +19,7 @@ T = TypeVar("T")
 logger = get_logger(__name__)
 
 PayloadValidator = Callable[[Any], bool]
-DefaultParser = Callable[[Dict[str, Any]], Awaitable[List[T]]]
+DefaultParser = Callable[[Dict[str, Any], int, Dict[str, Any], Optional[NetCollectionState[T]]], Awaitable[List[T]]]
 
 
 class NetConsumeHelper(Generic[T]):
@@ -135,7 +135,7 @@ class NetConsumeHelper(Generic[T]):
             # Delegate can observe raw response first
             if self.delegate.on_response and self.state:
                 try:
-                    await self.delegate.on_response(evt.view, self.state)
+                    await self.delegate.on_response(evt.view, self._consume_count, self._extra, self.state)
                 except Exception:
                     logger.error("on_response error", exc_info=True)
 
@@ -143,12 +143,12 @@ class NetConsumeHelper(Generic[T]):
             should_record = True
             if self.delegate.should_record_response:
                 try:
-                    should_record = bool(self.delegate.should_record_response(data, evt.view))
+                    should_record = bool(self.delegate.should_record_response(data, evt.view, self._consume_count, self._extra, self.state))
                 except Exception:
                     should_record = True
             if should_record and self.state:
                 try:
-                    record_response(self.state, data, evt.view)
+                    record_response(self.state, data, evt.view, self._consume_count, self._extra)
                 except Exception:
                     logger.error("record_response error", exc_info=True)
 
@@ -156,7 +156,7 @@ class NetConsumeHelper(Generic[T]):
             parsed: Optional[List[T]] = None
             if self.delegate.parse_items:
                 try:
-                    parsed = await self.delegate.parse_items(data)
+                    parsed = await self.delegate.parse_items(data, self._consume_count, self._extra, self.state)
                 except Exception:
                     parsed = None
                     logger.error("parse_items error", exc_info=True)
@@ -164,7 +164,7 @@ class NetConsumeHelper(Generic[T]):
             if parsed is None:
                 try:
                     payload = data
-                    parsed = await default_parse_items(payload)
+                    parsed = await default_parse_items(payload, self._consume_count, self._extra, self.state)
                 except Exception:
                     parsed = []
                     logger.error("default_parse_items error", exc_info=True)

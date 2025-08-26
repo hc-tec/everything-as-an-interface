@@ -52,6 +52,10 @@ class XiaohongshuNoteBriefNetService(NoteService[NoteBriefItem]):
         )
         return items
 
-    async def _parse_items_wrapper(self, payload: Dict[str, Any]) -> List[NoteBriefItem]:
+    async def _parse_items_wrapper(self,
+                                   payload: Dict[str, Any],
+                                   consume_count: int,
+                                   extra: Dict[str, Any],
+                                   state: Any) -> List[NoteBriefItem]:
         items_payload = payload.get("data").get("notes", [])
         return parse_brief_from_network(items_payload)

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Awaitable, Callable, Optional, TypeVar
+from typing import Awaitable, Callable, Optional, TypeVar, Dict, Any
 
 from playwright.async_api import Page
 
@@ -20,20 +20,6 @@ ServiceDelegateOnDetach = Callable[[], Awaitable[None]]
 # async def on_detach(self) -> None:  # pragma: no cover - default no-op
 #     return None
 #
-# async def on_before_response(self, consume_count: int, extra: Dict[str, Any], state: Optional[NetCollectionState[T]]) -> None:  # pragma: no cover - default no-op
-#     return None
-#
-# async def on_response(self, response: ResponseView, state: Optional[NetCollectionState[T]]) -> None:  # pragma: no cover - default no-op
-#     return None
-#
-# def should_record_response(self, payload: Any, response_view: ResponseView) -> bool:  # pragma: no cover - default yes
-#     return True
-#
-# async def parse_items(self, payload: Dict[str, Any]) -> Optional[List[T]]:  # pragma: no cover - default None
-#     return None
-#
-# async def on_items_collected(self, items: List[T], consume_count: int, extra: Dict[str, Any], state: Optional[NetCollectionState[T]]) -> List[T]:  # pragma: no cover - default passthrough
-#     return items
 
 
 # Unified delegate interface
@@ -53,7 +39,6 @@ class ServiceConfig:
         response_timeout_sec: Max seconds to wait for a response event.
         delay_ms: Delay between pages/batches/polls (when applicable).
         queue_maxsize: Optional queue size hint for internal buffers.
-        concurrency: Desired concurrency for request generation (advisory).
         max_pages: Optional page limit for paginated collectors.
         scroll_pause_ms: Pause after each scroll, in milliseconds.
         max_idle_rounds: Stop after this many consecutive idle rounds (for DOM collectors or custom loops).
@@ -66,7 +51,6 @@ class ServiceConfig:
     response_timeout_sec: float = 5.0
     delay_ms: int = 500
     queue_maxsize: Optional[int] = None
-    concurrency: int = 1
     scroll_pause_ms: int = 800
     max_idle_rounds: int = 2
     max_items: Optional[int] = None
@@ -105,8 +89,18 @@ class BaseSiteService:
             except Exception:
                 pass
 
-    def configure(self, cfg: ServiceConfig) -> None:  # pragma: no cover - simple setter
-        self._service_config = cfg
+    def configure(self, extra: Dict[str, Any]) -> None:  # pragma: no cover - simple setter
+        self._service_config = ServiceConfig(
+            max_items=extra.get("max_items", ServiceConfig.max_items),
+            max_seconds=extra.get("max_seconds", ServiceConfig.max_seconds),
+            max_idle_rounds=extra.get("max_idle_rounds", ServiceConfig.max_idle_rounds),
+            auto_scroll=extra.get("auto_scroll", ServiceConfig.auto_scroll),
+            scroll_pause_ms=extra.get("scroll_pause_ms", ServiceConfig.scroll_pause_ms),
+            scroll_mode=extra.get("scroll_mode", ServiceConfig.scroll_mode),
+            scroll_selector=extra.get("scroll_selector", ServiceConfig.scroll_selector),
+            max_pages=extra.get("max_pages", ServiceConfig.max_pages),
+            pager_selector=extra.get("pager_selector", ServiceConfig.pager_selector),
+        )
 
     def set_delegate_on_attach(self, on_attach: ServiceDelegateOnAttach) -> None:
         self.delegate.on_attach = on_attach

@@ -13,10 +13,26 @@ from src.utils.net_rules import ResponseView
 T = TypeVar("T")
 
 ServiceDelegateOnBeforeResponse = Callable[[int, Dict[str, Any], Optional[NetCollectionState[T]]], Awaitable[None]]
-ServiceDelegateOnResponse = Callable[[ResponseView, Optional[NetCollectionState[T]]], Awaitable[None]]
-ServiceDelegateShouldRecordResponse = Callable[[Any, ResponseView], bool]
-ServiceDelegateParseItems = Callable[[Dict[str, Any]], Awaitable[Optional[List[T]]]]
+ServiceDelegateOnResponse = Callable[[ResponseView, int, Dict[str, Any], Optional[NetCollectionState[T]]], Awaitable[None]]
+ServiceDelegateShouldRecordResponse = Callable[[Any, ResponseView, int, Dict[str, Any], Optional[NetCollectionState[T]]], bool]
+ServiceDelegateParseItems = Callable[[Dict[str, Any], int, Dict[str, Any], Optional[NetCollectionState[T]]], Awaitable[Optional[List[T]]]]
 ServiceDelegateOnItemsCollected = Callable[[List[T], int, Dict[str, Any], Optional[NetCollectionState[T]]], Awaitable[List[T]]]
+
+# 上面回调函数的参数格式见下方
+# async def on_before_response(self, consume_count: int, extra: Dict[str, Any], state: Optional[NetCollectionState[T]]) -> None:  # pragma: no cover - default no-op
+#     return None
+#
+# async def on_response(self, response: ResponseView, consume_count: int, extra: Dict[str, Any], state: Optional[NetCollectionState[T]]) -> None:  # pragma: no cover - default no-op
+#     return None
+#
+# def should_record_response(self, payload: Any, response_view: ResponseView, consume_count: int, extra: Dict[str, Any], state: Optional[NetCollectionState[T]]) -> bool:  # pragma: no cover - default yes
+#     return True
+#
+# async def parse_items(self, payload: Dict[str, Any], consume_count: int, extra: Dict[str, Any], state: Optional[NetCollectionState[T]]) -> Optional[List[T]]:  # pragma: no cover - default None
+#     return None
+#
+# async def on_items_collected(self, items: List[T], consume_count: int, extra: Dict[str, Any], state: Optional[NetCollectionState[T]]) -> List[T]:  # pragma: no cover - default passthrough
+#     return items
 
 # Unified delegate interface
 class NetServiceDelegate(ServiceDelegate, Generic[T]):

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
-
+from src.services.models import WithRaw
 
 @dataclass
 class CommentAuthor:
@@ -111,7 +111,7 @@ class VideoInfo:
     id: str
 
 @dataclass
-class NoteDetailsItem:
+class NoteDetailsItem(WithRaw):
     id: str
     xsec_token: str
     title: str
@@ -126,6 +126,8 @@ class NoteDetailsItem:
     video: Optional[VideoInfo]
     timestamp: str
 
+    raw_data: Optional[dict] = None  # 保留原始数据（JSON、dict、甚至是未加工字符串）
+
 
 @dataclass
 class NoteAccessInfo:
@@ -134,7 +136,7 @@ class NoteAccessInfo:
 
 
 @dataclass
-class NoteBriefItem:
+class NoteBriefItem(WithRaw):
     id: str
     xsec_token: str
     title: str

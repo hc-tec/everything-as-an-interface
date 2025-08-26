@@ -48,7 +48,12 @@ class NetCollectionState(Generic[T]):
         self.last_response_view = None
 
 
-def record_response(state: NetCollectionState[Any], data: Any, response_view: Optional[ResponseView] = None) -> None:
+def record_response(
+        state: NetCollectionState[Any],
+        data: Any,
+        response_view: Optional[ResponseView],
+        consume_count: int,
+        extra: Dict[str, Any]) -> None:
     """Record a raw response and wake the collector loop."""
     try:
         state.raw_responses.append(data)

@@ -72,10 +72,6 @@ class YuanbaoChatPlugin(BasePlugin):
             # Attach all services to the page
             await self._chat_service.attach(self.page)
 
-            # Configure note_net service based on task config
-            note_net_config = self._build_note_net_config()
-            self._chat_service.configure(note_net_config)
-
             logger.info("YuanbaoChatPlugin service initialized and attached")
 
         except Exception as e:

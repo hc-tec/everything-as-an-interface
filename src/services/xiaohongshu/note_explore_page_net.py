@@ -57,10 +57,18 @@ class XiaohongshuNoteExplorePageNetService(NoteService[NoteDetailsItem]):
         )
         return items
 
-    async def _parse_items_wrapper(self, payload: Dict[str, Any]) -> List[NoteDetailsItem]:
+    async def _parse_items_wrapper(self,
+                                   payload: Dict[str, Any],
+                                   consume_count: int,
+                                   extra: Dict[str, Any],
+                                   state: Any) -> List[NoteDetailsItem]:
         if payload is None:
             return []
         js_content = quick_extract_initial_state(payload)
+        need_raw_data = extra.get("need_raw_data", False)
+        raw_data = None
+        if need_raw_data:
+            raw_data = js_content
         if js_content:
             data = await self.page.evaluate(f"window.__INITIAL_STATE__ = {js_content}")
             noteDetailMap = data["note"]["noteDetailMap"]
@@ -69,6 +77,6 @@ class XiaohongshuNoteExplorePageNetService(NoteService[NoteDetailsItem]):
                 if "note" in value:
                     note = value["note"]
                     break
-            return parse_details_from_network(note)
+            return parse_details_from_network(note, raw_data=raw_data)
         return []
 

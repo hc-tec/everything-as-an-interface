@@ -81,7 +81,7 @@ def parse_brief_from_network(resp_items: List[Dict[str, Any]]) -> List[NoteBrief
     return results
 
 
-def parse_details_from_network(note_item: Dict[str, Any]) -> List[NoteDetailsItem]:
+def parse_details_from_network(note_item: Dict[str, Any], raw_data: Optional[Any]) -> List[NoteDetailsItem]:
     """
     从网络响应中解析笔记详细信息
 
