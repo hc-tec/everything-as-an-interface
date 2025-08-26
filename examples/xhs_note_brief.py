@@ -12,7 +12,7 @@ from typing import Dict, Any
 
 from src import EverythingAsInterface
 from src.core.orchestrator import Orchestrator
-from src.core.task_config import TaskConfig
+from src.core.task_params import TaskParams
 from settings import PROJECT_ROOT
 
 async def on_new_favorite(data: Dict[str, Any]) -> None:
@@ -67,13 +67,13 @@ async def main():
     task_id = system.scheduler.add_task(
         plugin_id="xiaohongshu_brief",
         interval=300,  # 5分钟检查一次
-        config=TaskConfig(
+        params=TaskParams(
             # 可选：填写已保存的 cookie_ids 列表，以跳过手动登录
             cookie_ids=["28ba44f1-bb67-41ab-86f0-a3d049d902aa"],
             extra={
                 "video_output_dir": "videos_data",
                 "storage_file": "data/note-briefs1.json",
-                # ServiceConfig
+                # ServiceParams
                 "max_items": 10,
 
                 # PassiveSyncEngine Config

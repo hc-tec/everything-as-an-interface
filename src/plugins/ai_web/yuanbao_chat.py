@@ -1,23 +1,18 @@
-"""
-Xiaohongshu Plugin V2 - Service-based Architecture
 
-This is a thin plugin that orchestrates calls to various Xiaohongshu site services.
-The plugin focuses on configuration, coordination, and output formatting,
-while delegating specific tasks to specialized services.
-"""
 import asyncio
-from src.config import get_logger
 from dataclasses import asdict
+from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
 from src.common.plugin import StopDecision
+from src.config import get_logger
 from src.core.plugin_context import PluginContext
-from src.core.task_config import TaskConfig
+from src.core.task_params import TaskParams
 from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
 from src.services.ai_web.common import AIAskArgs
 from src.services.ai_web.yuanbao_chat import YuanbaoChatNetService
-from src.services.base_service import ServiceConfig
+from src.utils.params_helper import ParamsHelper
 
 logger = get_logger(__name__)
 
@@ -28,14 +23,11 @@ PLUGIN_ID = "yuanbao_chat"
 
 
 class YuanbaoChatPlugin(BasePlugin):
-    """
-    Xiaohongshu Plugin V2 - Thin orchestration layer using site services.
 
-    This plugin demonstrates the service-based architecture where:
-    - Plugin handles configuration and orchestration
-    - Services handle site-specific logic and data collection
-    - Plugin formats and returns results
-    """
+    @dataclass
+    class Params:
+        ask_question: str
+        conversation_id: Optional[str] = None
 
     # 平台/登录配置（供 BasePlugin 通用登录逻辑使用）
     LOGIN_URL = "https://yuanbao.tencent.com/chat/naQivTmsDa/"
@@ -57,7 +49,7 @@ class YuanbaoChatPlugin(BasePlugin):
 
     def __init__(self) -> None:
         super().__init__()
-
+        self.plugin_params: Optional[YuanbaoChatPlugin.Params] = None
         # Initialize services (will be attached during setup)
         self._chat_service: Optional[YuanbaoChatNetService] = None
 
@@ -71,6 +63,8 @@ class YuanbaoChatPlugin(BasePlugin):
 
             # Attach all services to the page
             await self._chat_service.attach(self.page)
+
+            self.plugin_params = ParamsHelper.build_params(YuanbaoChatPlugin.Params, self.task_params.extra)
 
             logger.info("YuanbaoChatPlugin service initialized and attached")
 
@@ -100,9 +94,9 @@ class YuanbaoChatPlugin(BasePlugin):
 
         logger.info("All services detached and cleaned up")
 
-    def validate_config(self) -> Dict[str, Any]:
-        if self.config.extra.get("ask_question") is None:
-            return {"valid": False, "errors": ["You should provide ask_question in TaskConfig"]}
+    def validate_params(self) -> Dict[str, Any]:
+        if self.plugin_params.ask_question is None:
+            return {"valid": False, "errors": ["You should provide ask_question in TaskParams"]}
         return {"valid": True, "errors": []}
 
     async def fetch(self) -> Dict[str, Any]:
@@ -114,6 +108,8 @@ class YuanbaoChatPlugin(BasePlugin):
         """
 
         await self._ensure_logged_in()
+
+        self._chat_service.set_params(self.task_params.extra)
 
         try:
             res = await self._chat_with_ai()
@@ -137,14 +133,14 @@ class YuanbaoChatPlugin(BasePlugin):
                 "version": self.PLUGIN_VERSION,
             }
     @staticmethod
-    async def custom_stop_decider_three_times(loop_count, extra_config, page, state, new_batch, elapsed) -> StopDecision:
+    async def custom_stop_decider_three_times(loop_count, extra_params, page, state, new_batch, elapsed) -> StopDecision:
         if loop_count == 3:
             return StopDecision(should_stop=True, reason="send over when executing three times", details=None)
         else:
             return StopDecision(should_stop=False, reason=None, details=None)
 
     @staticmethod
-    async def custom_stop_decider_twice(loop_count, extra_config, page, state, new_batch,
+    async def custom_stop_decider_twice(loop_count, extra_params, page, state, new_batch,
                                               elapsed) -> StopDecision:
         if loop_count == 2:
             return StopDecision(should_stop=True, reason="send over when executing twice", details=None)
@@ -152,7 +148,7 @@ class YuanbaoChatPlugin(BasePlugin):
             return StopDecision(should_stop=False, reason=None, details=None)
 
     @staticmethod
-    async def custom_stop_decider_once(loop_count, extra_config, page, state, new_batch,
+    async def custom_stop_decider_once(loop_count, extra_params, page, state, new_batch,
                                        elapsed) -> StopDecision:
         if loop_count == 1:
             return StopDecision(should_stop=True, reason="only execute once", details=None)
@@ -165,24 +161,23 @@ class YuanbaoChatPlugin(BasePlugin):
         """Collect favorite items using the note_net service."""
         logger.info("Collecting favorites using note_brief_net service")
 
-
-        self._chat_service.set_stop_decider(self.custom_stop_decider_three_times)
-
-        conversation_id = self.config.extra.get("conversation_id")
+        conversation_id = self.plugin_params.conversation_id
         if conversation_id:
+            self._chat_service.set_stop_decider(self.custom_stop_decider_three_times)
             await self.page.goto(f"https://yuanbao.tencent.com/chat/naQivTmsDa/{conversation_id}", wait_until="load")
         else:
+            self._chat_service.set_stop_decider(self.custom_stop_decider_twice)
             await self.page.goto("https://yuanbao.tencent.com/chat/naQivTmsDa", wait_until="load")
 
         await asyncio.sleep(1)
         locator = self.page.locator('[class^="style__text-area__start___"]')
-        await locator.type(self.config.extra["ask_question"])
+        await locator.type(self.task_params.extra["ask_question"])
         await asyncio.sleep(0.5)
         sender = await self.page.query_selector("#yuanbao-send-btn")
         await sender.click()
         try:
             items = await self._chat_service.ask(AIAskArgs(
-                extra_config=self.config.extra,
+                extra_params=self.task_params.extra,
             ))
 
             await self.page.reload(wait_until="load")
@@ -190,7 +185,7 @@ class YuanbaoChatPlugin(BasePlugin):
             self._chat_service.set_stop_decider(self.custom_stop_decider_once)
             self._chat_service.state.clear()
             items = await self._chat_service.ask(AIAskArgs(
-                extra_config=self.config.extra,
+                extra_params=self.task_params.extra,
             ))
 
             # Convert to dictionaries for JSON serialization
@@ -215,25 +210,11 @@ class YuanbaoChatPlugin(BasePlugin):
                 "error": str(e),
             }
 
-    def _build_note_net_config(self) -> ServiceConfig:
-        """Build ServiceConfig from task config."""
-        if not self.config or not self.config.extra:
-            return ServiceConfig()
-
-        extra = self.config.extra
-        return ServiceConfig(
-            max_items=extra.get("max_items", 1000),
-            max_seconds=extra.get("max_seconds", 600),
-            max_idle_rounds=extra.get("max_idle_rounds", 2),
-            auto_scroll=extra.get("auto_scroll", True),
-            scroll_pause_ms=extra.get("scroll_pause_ms", 800),
-        )
-
 
 @register_plugin(PLUGIN_ID)
-def create_plugin(ctx: PluginContext, config: TaskConfig) -> YuanbaoChatPlugin:
+def create_plugin(ctx: PluginContext, params: TaskParams) -> YuanbaoChatPlugin:
     p = YuanbaoChatPlugin()
-    p.configure(config)
+    p.inject_task_params(params)
     # 注入上下文（包含 page/account_manager）
     p.set_context(ctx)
     return p

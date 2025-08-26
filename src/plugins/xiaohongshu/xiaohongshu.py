@@ -14,10 +14,10 @@ from typing import Any, Dict, List, Optional
 
 from src.common.plugin import StopDecision
 from src.core.plugin_context import PluginContext
-from src.core.task_config import TaskConfig
+from src.core.task_params import TaskParams
 from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
-from src.services.base_service import ServiceConfig
+from src.services.base_service import ServiceParams
 from src.services.xiaohongshu.common import NoteCollectArgs
 from src.services.xiaohongshu.note_brief_net import XiaohongshuNoteBriefNetService
 
@@ -62,14 +62,6 @@ class XiaohongshuPlugin(BasePlugin):
             # Initialize services
             self._note_brief_net_service = XiaohongshuNoteBriefNetService()
 
-
-            # Attach all services to the page
-            await self._note_brief_net_service.attach(self.page)
-
-            # Configure note_net service based on task config
-            note_net_config = self._build_note_net_config()
-            self._note_brief_net_service.configure(note_net_config)
-
             stop_decider = self._build_stop_decider()
             if stop_decider:
                 self._note_brief_net_service.set_stop_decider(stop_decider)
@@ -112,6 +104,8 @@ class XiaohongshuPlugin(BasePlugin):
         try:
             # Ensure user is logged in before proceeding
             await self._ensure_logged_in()
+            
+            self._note_brief_net_service.set_params(self.task_params.extra)
             
             # Collect note briefs first
             briefs = await self._collect_note_briefs()
@@ -158,7 +152,7 @@ class XiaohongshuPlugin(BasePlugin):
             
             # Get notes using the service
             notes = await self._note_brief_net_service.collect(
-                NoteCollectArgs(extra_config=self.config.extra)
+                NoteCollectArgs(extra_params=self.task_params.extra)
             )
             
             # Filter out None results and convert to dictionaries
@@ -171,35 +165,21 @@ class XiaohongshuPlugin(BasePlugin):
         except Exception as e:
             logger.error(f"Note brief collection failed: {e}")
             raise
-
-    def _build_note_net_config(self) -> ServiceConfig:
-        """Build ServiceConfig from task config."""
-        if not self.config or not self.config.extra:
-            return ServiceConfig()
         
-        extra = self.config.extra
-        return ServiceConfig(
-            max_items=extra.get("max_items", 1000),
-            max_seconds=extra.get("max_seconds", 600),
-            max_idle_rounds=extra.get("max_idle_rounds", 2),
-            auto_scroll=extra.get("auto_scroll", True),
-            scroll_pause_ms=extra.get("scroll_pause_ms", 800),
-        )
-
     def _build_stop_decider(self) -> Optional[Any]:
         """Build custom stop decider function if specified in config."""
         # In the future, we could parse config to build different stop conditions
         # For now, return a basic implementation
-        def custom_stop_decider(loop_count, extra_config, page, state, new_batch, elapsed) -> StopDecision:
+        def custom_stop_decider(loop_count, extra_params, page, state, new_batch, elapsed) -> StopDecision:
             return StopDecision(should_stop=False, reason=None, details=None)
         
         return custom_stop_decider
 
 
 @register_plugin(PLUGIN_ID)
-def create_plugin(ctx: PluginContext, config: TaskConfig) -> XiaohongshuPlugin:
+def create_plugin(ctx: PluginContext, config: TaskParams) -> XiaohongshuPlugin:
     p = XiaohongshuPlugin()
-    p.configure(config)
+    p.inject_task_params(config)
     # 注入上下文（包含 page/account_manager）
     p.set_context(ctx)
     return p

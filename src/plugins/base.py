@@ -11,13 +11,14 @@ from playwright.async_api import Page
 
 from settings import PROJECT_ROOT
 from src.core.plugin_context import PluginContext
-from src.core.task_config import TaskConfig
+from src.core.task_params import TaskParams
 from src.config.plugin_config import PluginConfig
 from src.utils import ValidationError
 from src.utils.file_util import write_json_with_project_root
 from src.utils.global_response_listener import add_global_response_listener
 from src.utils.login_helper import create_login_helper
 from src.utils.net_rules import ResponseView
+from src.utils.params_helper import ParamsHelper
 
 logger = get_logger(__name__)
 
@@ -65,7 +66,7 @@ class BasePlugin(ABC):
     
     插件生命周期：
     1. 初始化（__init__）
-    2. 配置（configure）
+    2. 配置（set_params）
     3. 启动（start）
     4. 执行/轮询（fetch/poll）
     5. 停止（stop）
@@ -83,7 +84,7 @@ class BasePlugin(ABC):
     PLUGIN_AUTHOR: str = ""
     
     def __init__(self, plugin_config: Optional[PluginConfig] = None) -> None:
-        self.config: Optional[TaskConfig] = None
+        self.task_params: Optional[TaskParams] = None
         self.plugin_config: Optional[PluginConfig] = plugin_config
         self.running: bool = False
         self.accounts: List[Dict[str, Any]] = []
@@ -99,15 +100,15 @@ class BasePlugin(ABC):
         self._login_helper = None
         add_global_response_listener(download_response_to_file)
     
-    def configure(self, config: TaskConfig) -> None:
+    def inject_task_params(self, params: TaskParams) -> None:
         """
         配置插件
         
         Args:
-            config: 插件配置
+            params: 任务参数
         """
-        self.config = config
-        logger.info(f"插件 {self.PLUGIN_ID} 已配置")
+        self.task_params = params
+        logger.info(f"插件 {self.PLUGIN_ID} 参数已注入")
     
     def set_context(self, ctx: PluginContext) -> None:
         """
@@ -121,7 +122,7 @@ class BasePlugin(ABC):
         self._login_helper = create_login_helper(
             page=self.page,
             account_manager=self.account_manager,
-            task_config=self.config,
+            task_config=self.task_params,
             plugin_attrs={
                 # 透传可能存在的类属性，便于向后兼容
                 "LOGIN_URL": getattr(self, "LOGIN_URL", None),
@@ -142,7 +143,7 @@ class BasePlugin(ABC):
         Returns:
             是否成功启动
         """
-        valid = self.validate_config()
+        valid = self.validate_params()
         if not valid["valid"]:
             logger.error("validation failed, error=%s", valid["errors"])
             raise ValidationError(valid["errors"])
@@ -200,9 +201,9 @@ class BasePlugin(ABC):
         # 默认实现，子类可覆盖
         return {"success": False, "message": "未实现验证码处理"}
 
-    def validate_config(self) -> Dict[str, Any]:
+    def validate_params(self) -> Dict[str, Any]:
         """
-        验证配置是否合法
+        验证参数是否合法
 
         Returns:
             验证结果，包含是否成功和错误信息

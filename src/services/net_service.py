@@ -69,3 +69,7 @@ class NetService(BaseSiteService, Generic[T]):
     def set_delegate_on_items_collected(self, on_items_collected: ServiceDelegateOnItemsCollected[T]) -> None:
         self.delegate.on_items_collected = on_items_collected
 
+    def _inject_raw_data(self, payload: Any):
+        if self._service_params.need_raw_data:
+            return payload
+        return None

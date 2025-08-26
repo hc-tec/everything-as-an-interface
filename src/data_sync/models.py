@@ -7,7 +7,7 @@ import json
 
 
 @dataclass
-class SyncConfig:
+class SyncParams:
     """用于被动数据同步和停止条件的配置。
 
     属性：

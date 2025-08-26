@@ -46,15 +46,15 @@ class XiaohongshuNoteDomService(NoteService[NoteDetailsItem]):
                 pass
         await super().detach()
 
-    def configure(self, cfg: NoteDomCollectionConfig) -> None:
+    def set_params(self, cfg: NoteDomCollectionConfig) -> None:
         self.cfg = cfg
 
     async def collect(self, args: NoteCollectArgs) -> List[NoteDetailsItem]:
         if not self.page or not self.state:
             raise RuntimeError("Service not attached to a Page")
 
-        pause = self._service_config.scroll_pause_ms or self.cfg.scroll_pause_ms
-        on_scroll = ScrollHelper.build_on_scroll(self.page, service_config=self._service_config, pause_ms=pause, extra=args.extra_config)
+        pause = self._service_params.scroll_pause_ms or self.cfg.scroll_pause_ms
+        on_scroll = ScrollHelper.build_on_scroll(self.page, service_params=self._service_params, pause_ms=pause, extra=args.extra_params)
 
         items = await run_dom_collection(
             self.state,

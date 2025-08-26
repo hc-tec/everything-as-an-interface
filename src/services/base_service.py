@@ -5,6 +5,8 @@ from typing import Awaitable, Callable, Optional, TypeVar, Dict, Any
 
 from playwright.async_api import Page
 
+from src.utils.params_helper import ParamsHelper
+
 T = TypeVar("T")
 
 # StopDecider = Callable[[Page, List[Any], Optional[Any], List[T], List[T], float, Dict[str, Any], Optional[ResponseView]], bool | Awaitable[bool]]
@@ -32,7 +34,7 @@ class ServiceDelegate:
     on_detach: Optional[ServiceDelegateOnDetach] = None
 
 @dataclass
-class ServiceConfig:
+class ServiceParams:
     """Common configuration for site services.
 
     Attributes:
@@ -53,13 +55,14 @@ class ServiceConfig:
     queue_maxsize: Optional[int] = None
     scroll_pause_ms: int = 800
     max_idle_rounds: int = 2
-    max_items: Optional[int] = None
+    max_items: Optional[int] = 10000
     max_seconds: int = 600
     auto_scroll: bool = True
     scroll_mode: Optional[str] = None
     scroll_selector: Optional[str] = None
     max_pages: Optional[int] = None
     pager_selector: Optional[str] = None
+    need_raw_data: bool = False
 
 
 
@@ -67,7 +70,7 @@ class BaseSiteService:
     """Base for all site services (note/detail/publish etc.)."""
 
     def __init__(self) -> None:
-        self._service_config: ServiceConfig = ServiceConfig()
+        self._service_params: ServiceParams = ServiceParams()
         self.delegate = ServiceDelegate()
 
     def set_delegate(self, delegate: ServiceDelegate) -> None:
@@ -89,18 +92,8 @@ class BaseSiteService:
             except Exception:
                 pass
 
-    def configure(self, extra: Dict[str, Any]) -> None:  # pragma: no cover - simple setter
-        self._service_config = ServiceConfig(
-            max_items=extra.get("max_items", ServiceConfig.max_items),
-            max_seconds=extra.get("max_seconds", ServiceConfig.max_seconds),
-            max_idle_rounds=extra.get("max_idle_rounds", ServiceConfig.max_idle_rounds),
-            auto_scroll=extra.get("auto_scroll", ServiceConfig.auto_scroll),
-            scroll_pause_ms=extra.get("scroll_pause_ms", ServiceConfig.scroll_pause_ms),
-            scroll_mode=extra.get("scroll_mode", ServiceConfig.scroll_mode),
-            scroll_selector=extra.get("scroll_selector", ServiceConfig.scroll_selector),
-            max_pages=extra.get("max_pages", ServiceConfig.max_pages),
-            pager_selector=extra.get("pager_selector", ServiceConfig.pager_selector),
-        )
+    def set_params(self, extra: Dict[str, Any]) -> None:  # pragma: no cover - simple setter
+        self._service_params = ParamsHelper.build_params(ServiceParams, extra)
 
     def set_delegate_on_attach(self, on_attach: ServiceDelegateOnAttach) -> None:
         self.delegate.on_attach = on_attach

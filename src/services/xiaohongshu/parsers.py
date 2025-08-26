@@ -36,12 +36,13 @@ def quick_extract_initial_state(html_content: str) -> Optional[str]:
     return None
 
 
-def parse_brief_from_network(resp_items: List[Dict[str, Any]]) -> List[NoteBriefItem]:
+def parse_brief_from_network(resp_items: List[Dict[str, Any]], raw_data: Any) -> List[NoteBriefItem]:
     """
     从网络响应中解析笔记简要信息
 
     Args:
         resp_items: 网络响应中的笔记列表
+        raw_data: 原始数据
 
     Returns:
         List[NoteBriefItem]: 解析后的笔记简要信息列表
@@ -74,6 +75,7 @@ def parse_brief_from_network(resp_items: List[Dict[str, Any]]) -> List[NoteBrief
                     author_info=author_info,
                     statistic=statistic,
                     cover_image=cover_image,
+                    raw_data=raw_data,
                 )
             )
         except Exception as e:
@@ -87,7 +89,7 @@ def parse_details_from_network(note_item: Dict[str, Any], raw_data: Optional[Any
 
     Args:
         note_item: 笔记详细信息字典
-
+        raw_data: 原始数据
     Returns:
         List[NoteDetailsItem]: 解析后的笔记详细信息列表
     """
@@ -147,6 +149,7 @@ def parse_details_from_network(note_item: Dict[str, Any], raw_data: Optional[Any
                 images=images,
                 video=video_info,
                 timestamp=datetime.datetime.now().isoformat(),
+                raw_data=raw_data
             )
         )
     except Exception as e:

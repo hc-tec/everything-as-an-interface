@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import pytest
 
 from src.data_sync.engine import PassiveSyncEngine
-from src.data_sync.models import SyncConfig
+from src.data_sync.models import SyncParams
 from src.data_sync.storage import InMemoryStorage
 
 
@@ -15,7 +15,7 @@ def iso(dt: datetime) -> str:
 @pytest.mark.asyncio
 async def test_full_snapshot_then_incremental_add_update_delete():
     storage = InMemoryStorage()
-    engine = PassiveSyncEngine(storage=storage, config=SyncConfig(identity_key="id"))
+    engine = PassiveSyncEngine(storage=storage, params=SyncParams(identity_key="id"))
 
     t0 = datetime.utcnow() - timedelta(days=1)
     t1 = datetime.utcnow()
@@ -46,7 +46,7 @@ async def test_full_snapshot_then_incremental_add_update_delete():
 @pytest.mark.asyncio
 async def test_update_detection_without_timestamp_fallback_deep_compare():
     storage = InMemoryStorage()
-    engine = PassiveSyncEngine(storage=storage, config=SyncConfig(identity_key="id"))
+    engine = PassiveSyncEngine(storage=storage, params=SyncParams(identity_key="id"))
 
     # Seed one document without updated_at
     batch1 = [
@@ -67,7 +67,7 @@ async def test_update_detection_without_timestamp_fallback_deep_compare():
 async def test_fingerprint_update_detection_without_timestamp():
     storage = InMemoryStorage()
     # prefer_fingerprint True by default; make sure fingerprint_fields defaults to all non-bookkeeping fields
-    cfg = SyncConfig(identity_key="id")
+    cfg = SyncParams(identity_key="id")
     engine = PassiveSyncEngine(storage=storage, config=cfg)
 
     # Seed a doc with no updated_at
@@ -97,7 +97,7 @@ async def test_fingerprint_update_detection_without_timestamp():
 @pytest.mark.asyncio
 async def test_fingerprint_fields_limits_scope():
     storage = InMemoryStorage()
-    cfg = SyncConfig(identity_key="id", fingerprint_fields=["title"])  # only title participates in fp
+    cfg = SyncParams(identity_key="id", fingerprint_fields=["title"])  # only title participates in fp
     engine = PassiveSyncEngine(storage=storage, config=cfg)
 
     _ = await engine.diff_and_apply([
@@ -118,7 +118,7 @@ async def test_fingerprint_fields_limits_scope():
 @pytest.mark.asyncio
 async def test_stop_conditions():
     storage = InMemoryStorage()
-    cfg = SyncConfig(
+    cfg = SyncParams(
         identity_key="id",
         stop_after_consecutive_known=3,
         stop_after_no_change_batches=2,
@@ -157,7 +157,7 @@ async def test_stop_conditions():
 @pytest.mark.asyncio
 async def test_process_batch_and_suggest_since_timestamp():
     storage = InMemoryStorage()
-    engine = PassiveSyncEngine(storage=storage, config=SyncConfig(identity_key="id"))
+    engine = PassiveSyncEngine(storage=storage, params=SyncParams(identity_key="id"))
 
     ts1 = iso(datetime.utcnow() - timedelta(days=1))
     ts2 = iso(datetime.utcnow())

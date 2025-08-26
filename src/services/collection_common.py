@@ -11,7 +11,7 @@ from src.utils.net_rules import ResponseView
 T = TypeVar("T")
 
 # Type of the user-provided stop decider
-# (loop_count, extra_config, page, state, new_batch, elapsed) -> StopDecision:
+# (loop_count, extra_params, page, state, new_batch, elapsed) -> StopDecision:
 NetStopDecider = Callable[[int, Dict[str, Any], Page, Any, List[T], float], StopDecision | Awaitable[StopDecision]]
 
 

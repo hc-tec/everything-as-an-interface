@@ -6,7 +6,7 @@ from datetime import datetime
 import uuid
 
 from .orchestrator import Orchestrator
-from .task_config import TaskConfig
+from .task_params import TaskParams
 
 logger = get_logger(__name__)
 
@@ -18,7 +18,7 @@ class Task:
                  plugin_id: str, 
                  interval: int, 
                  callback: Optional[Callable[[Dict[str, Any]], Coroutine[Any, Any, None]]] = None,
-                  config: Optional[TaskConfig] = None) -> None:
+                  params: Optional[TaskParams] = None) -> None:
         """
         初始化任务
         
@@ -27,13 +27,13 @@ class Task:
             plugin_id: 插件ID
             interval: 执行间隔(秒)
             callback: 数据处理回调函数
-            config: 任务配置
+            params: 任务参数
         """
         self.task_id = task_id
         self.plugin_id = plugin_id
         self.interval = interval
         self.callback = callback
-        self.config: TaskConfig = config or TaskConfig()
+        self.params: TaskParams = params or TaskParams()
         self.last_run: Optional[datetime] = None
         self.next_run: Optional[datetime] = None
         self.running = False
@@ -66,7 +66,7 @@ class Task:
             "success_count": self.success_count,
             "has_error": self.last_error is not None,
             "last_error": str(self.last_error) if self.last_error else None,
-            "config": self.config,
+            "params": self.params,
         }
 
 
@@ -103,7 +103,7 @@ class Scheduler:
                 plugin_id: str, 
                 interval: int, 
                 callback: Optional[Callable[[Dict[str, Any]], Coroutine[Any, Any, None]]] = None,
-                config: Optional[TaskConfig] = None,
+                params: Optional[TaskParams] = None,
                 task_id: Optional[str] = None) -> str:
         """
         添加任务
@@ -112,7 +112,7 @@ class Scheduler:
             plugin_id: 插件ID
             interval: 执行间隔(秒)
             callback: 数据处理回调函数
-            config: 任务配置
+            params: 任务配置
             task_id: 可选的任务ID，若不提供则自动生成
             
         Returns:
@@ -132,7 +132,7 @@ class Scheduler:
             plugin_id=plugin_id,
             interval=interval,
             callback=callback,
-            config=config
+            params=params
         )
         
         # 添加到任务列表
@@ -240,7 +240,7 @@ class Scheduler:
             # 统一走一次性执行通道，避免与 execute_plugin 重复实现
             data = await self.execute_plugin(
                 plugin_id=task.plugin_id,
-                config=task.config,
+                params=task.params,
                 callback=task.callback,
             )
             # 统计与保存结果
@@ -270,13 +270,13 @@ class Scheduler:
     
     async def execute_plugin(self, 
                              plugin_id: str, 
-                             config: Optional[TaskConfig] = None,
+                             params: Optional[TaskParams] = None,
                              callback: Optional[Callable[[Dict[str, Any]], Coroutine[Any, Any, None]]] = None) -> Dict[str, Any]:
         """执行指定插件（不创建调度任务），用于统一 API 的临时执行路径。
         
         Args:
             plugin_id: 插件ID
-            config: 任务配置（可选）
+            params: 任务配置（可选）
             callback: 执行完成后的回调（可选）
         Returns:
             插件返回的数据结果
@@ -288,7 +288,7 @@ class Scheduler:
         if not self._orchestrator:
             raise RuntimeError("未设置 Orchestrator，请先调用 set_orchestrator() 并在外部启动")
 
-        cfg = config or TaskConfig()
+        cfg = params or TaskParams()
         
         # 计时开始
         _start_ts = time.perf_counter()
@@ -341,7 +341,7 @@ class Scheduler:
         if callback and data:
             try:
                 payload = {
-                    "task_config_extra": cfg.extra,
+                    "task_params_extra": cfg.extra,
                     "exec_elapsed_ms": total_elapsed_ms,
                     **data
                 }

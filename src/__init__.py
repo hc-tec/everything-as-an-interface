@@ -58,8 +58,8 @@ class EverythingAsInterface:
         self.plugin_config = configs["plugin"]
         
         # 验证配置
-        self.config_factory.validate_config(self.app_config)
-        self.config_factory.validate_config(self.browser_config)
+        self.config_factory.validate_params(self.app_config)
+        self.config_factory.validate_params(self.browser_config)
         
         # 设置日志
         setup_logging(

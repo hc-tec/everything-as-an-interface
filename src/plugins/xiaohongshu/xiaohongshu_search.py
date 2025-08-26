@@ -7,18 +7,18 @@ while delegating specific tasks to specialized services.
 """
 
 import asyncio
-from src.config import get_logger
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 from typing import Any, Dict, Optional
 
 from src.common.plugin import StopDecision
+from src.config import get_logger
 from src.core.plugin_context import PluginContext
-from src.core.task_config import TaskConfig
+from src.core.task_params import TaskParams
 from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
-from src.services.base_service import ServiceConfig
 from src.services.xiaohongshu.common import NoteCollectArgs
 from src.services.xiaohongshu.note_search_net import XiaohongshuNoteSearchNetService
+from src.utils.params_helper import ParamsHelper
 
 logger = get_logger(__name__)
 
@@ -29,14 +29,10 @@ PLUGIN_ID = "xiaohongshu_search"
 
 
 class XiaohongshuNoteSearchPlugin(BasePlugin):
-    """
-    Xiaohongshu Plugin V2 - Thin orchestration layer using site services.
-    
-    This plugin demonstrates the service-based architecture where:
-    - Plugin handles configuration and orchestration
-    - Services handle site-specific logic and data collection
-    - Plugin formats and returns results
-    """
+
+    @dataclass
+    class Params:
+        search_words: str
 
     # 平台/登录配置（供 BasePlugin 通用登录逻辑使用）
     LOGIN_URL = "https://www.xiaohongshu.com/login"
@@ -58,10 +54,9 @@ class XiaohongshuNoteSearchPlugin(BasePlugin):
 
     def __init__(self) -> None:
         super().__init__()
-
+        self.plugin_params: Optional[XiaohongshuNoteSearchPlugin.Params] = None
         # Initialize services (will be attached during setup)
         self._note_search_net_service: Optional[XiaohongshuNoteSearchNetService] = None
-
 
     # -----------------------------
     # 生命周期
@@ -74,9 +69,7 @@ class XiaohongshuNoteSearchPlugin(BasePlugin):
             # Attach all services to the page
             await self._note_search_net_service.attach(self.page)
 
-            # Configure note_net service based on task config
-            note_net_config = self._build_note_net_config()
-            self._note_search_net_service.configure(note_net_config)
+            self.plugin_params = ParamsHelper.build_params(XiaohongshuNoteSearchPlugin.Params, self.task_params.extra)
 
             logger.info("XiaohongshuNoteSearchPlugin service initialized and attached")
 
@@ -106,9 +99,9 @@ class XiaohongshuNoteSearchPlugin(BasePlugin):
         
         logger.info("All services detached and cleaned up")
 
-    def validate_config(self) -> Dict[str, Any]:
-        if self.config.extra.get("search_words") is None:
-            return { "valid": False, "errors": ["You should provide search_words in TaskConfig"] }
+    def validate_params(self) -> Dict[str, Any]:
+        if self.plugin_params.search_words is None:
+            return { "valid": False, "errors": ["You should provide search_words in TaskParams"] }
         return { "valid": True, "errors": [] }
 
     async def fetch(self) -> Dict[str, Any]:
@@ -120,6 +113,7 @@ class XiaohongshuNoteSearchPlugin(BasePlugin):
         """
 
         await self._ensure_logged_in()
+        self._note_search_net_service.set_params(self.task_params.extra)
 
         try:
             briefs_res = await self._collect_briefs()
@@ -150,7 +144,7 @@ class XiaohongshuNoteSearchPlugin(BasePlugin):
         logger.info("Collecting favorites using note_brief_net service")
 
         async def to_search_page():
-            search_words = self.config.extra.get("search_words")
+            search_words = self.plugin_params.search_words
             url = f"https://www.xiaohongshu.com/search_result?keyword={search_words}&source=web_search_result_notes"
             await self.page.goto(url, wait_until="load")
             await asyncio.sleep(1)
@@ -158,7 +152,7 @@ class XiaohongshuNoteSearchPlugin(BasePlugin):
         try:
             items = await self._note_search_net_service.collect(NoteCollectArgs(
                 goto_first=to_search_page,
-                extra_config=self.config.extra
+                extra_params=self.task_params.extra
             ))
 
             # Convert to dictionaries for JSON serialization
@@ -183,32 +177,18 @@ class XiaohongshuNoteSearchPlugin(BasePlugin):
                 "error": str(e),
             }
 
-    def _build_note_net_config(self) -> ServiceConfig:
-        """Build ServiceConfig from task config."""
-        if not self.config or not self.config.extra:
-            return ServiceConfig()
-        
-        extra = self.config.extra
-        return ServiceConfig(
-            max_items=extra.get("max_items", 1000),
-            max_seconds=extra.get("max_seconds", 600),
-            max_idle_rounds=extra.get("max_idle_rounds", 2),
-            auto_scroll=extra.get("auto_scroll", True),
-            scroll_pause_ms=extra.get("scroll_pause_ms", 800),
-        )
-
     def _build_stop_decider(self) -> Optional[Any]:
 
-        def custom_stop_decider(loop_count, extra_config, page, state, new_batch, elapsed) -> StopDecision:
+        def custom_stop_decider(loop_count, extra_params, page, state, new_batch, elapsed) -> StopDecision:
             return StopDecision(should_stop=False, reason=None, details=None)
         
         return custom_stop_decider
 
 
 @register_plugin(PLUGIN_ID)
-def create_plugin(ctx: PluginContext, config: TaskConfig) -> XiaohongshuNoteSearchPlugin:
+def create_plugin(ctx: PluginContext, params: TaskParams) -> XiaohongshuNoteSearchPlugin:
     p = XiaohongshuNoteSearchPlugin()
-    p.configure(config)
+    p.inject_task_params(params)
     # 注入上下文（包含 page/account_manager）
     p.set_context(ctx)
     return p

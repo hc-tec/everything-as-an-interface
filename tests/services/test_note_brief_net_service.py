@@ -4,7 +4,7 @@ from types import SimpleNamespace
 
 from src.services.net_service import NetServiceDelegate
 from src.services.xiaohongshu.note_brief_net import XiaohongshuNoteBriefNetService
-from src.services.base_service import ServiceConfig
+from src.services.base_service import ServiceParams
 from src.services.net_collection import NetCollectionState
 from src.services.net_consume_helpers import NetConsumeHelper
 from src.utils.net_rule_bus import MergedEvent
@@ -31,7 +31,7 @@ async def test_note_brief_service_collect_minimal(monkeypatch):
     # 3) 注入我们自己的 state（队列 + items），跳过网络监听，直接驱动循环
     state = NetCollectionState(page=fake_page, queue=asyncio.Queue())
     svc.state = state
-    svc.configure(ServiceConfig(max_items=2, auto_scroll=False, max_seconds=5))
+    svc.set_params(ServiceParams(max_items=2, auto_scroll=False, max_seconds=5))
 
     # 4) 后台喂“解析后的”items，并唤醒队列，驱动 run_network_collection 退出
     async def feed():
@@ -44,7 +44,7 @@ async def test_note_brief_service_collect_minimal(monkeypatch):
     task = asyncio.create_task(feed())
 
     # 5) collect 会调用 run_network_collection，直到 max_items=2
-    args = SimpleNamespace(goto_first=None, extra_config={})
+    args = SimpleNamespace(goto_first=None, extra_params={})
     items = await svc.collect(args=args)
 
     assert [it["id"] for it in items] == ["1", "2"]

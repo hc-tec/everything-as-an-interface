@@ -7,22 +7,21 @@ while delegating specific tasks to specialized services.
 """
 
 import asyncio
-from src.config import get_logger
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 from typing import Any, Dict, List, Optional
 
 from src.common.plugin import StopDecision
+from src.config import get_logger
 from src.core.plugin_context import PluginContext
-from src.core.task_config import TaskConfig
-from src.data_sync import SyncConfig, InMemoryStorage, PassiveSyncEngine, DiffResult
+from src.core.task_params import TaskParams
+from src.data_sync import SyncParams, InMemoryStorage, PassiveSyncEngine, DiffResult
 from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
 from src.services.net_service import NetServiceDelegate
 from src.services.xiaohongshu.common import NoteCollectArgs
-from src.services.base_service import ServiceConfig
 from src.services.xiaohongshu.models import NoteBriefItem
 from src.services.xiaohongshu.note_brief_net import XiaohongshuNoteBriefNetService
-from src.utils.file_util import read_json_with_project_root, write_json_with_project_root
+from src.utils.params_helper import ParamsHelper
 
 logger = get_logger(__name__)
 
@@ -33,22 +32,15 @@ PLUGIN_ID = "xiaohongshu_favorites_brief"
 
 class NoteBriefDelegate(NetServiceDelegate[NoteBriefItem]):
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, params: Dict[str, Any]):
         self.storage = InMemoryStorage()
-        self.config = config
-        self.sync_engine = PassiveSyncEngine(
-            storage=self.storage,
-            config=SyncConfig(
-                identity_key="id",
-                deletion_policy=config.get("deletion_policy", "soft"),
-                stop_after_consecutive_known=config.get("stop_after_consecutive_known", 5),
-                stop_after_no_change_batches=config.get("stop_after_no_change_batches", 2),
-                max_new_items=config.get("max_new_items", 10),
-                fingerprint_fields=["id", "title"],
-            )
-        )
+        self.task_params = params
+
+        self.sync_engine = PassiveSyncEngine(storage=self.storage)
         self._stop_decision = StopDecision(should_stop=False, reason=None, details=None)
         self._diff = DiffResult(added=[], updated=[], deleted=[])
+
+        self.sync_engine.parse_params(params)
 
     async def load_storage_from_data(self, data):
         try:
@@ -83,18 +75,14 @@ class NoteBriefDelegate(NetServiceDelegate[NoteBriefItem]):
         self._diff.deleted.extend(diff.deleted)
         return items
 
-    def make_stop_decision(self, loop_count, extra_config, page, state, new_batch, elapsed) -> StopDecision:
+    def make_stop_decision(self, loop_count, extra_params, page, state, new_batch, elapsed) -> StopDecision:
         return self._stop_decision
 
 class XiaohongshuNoteBriefPlugin(BasePlugin):
-    """
-    Xiaohongshu Plugin V2 - Thin orchestration layer using site services.
-    
-    This plugin demonstrates the service-based architecture where:
-    - Plugin handles configuration and orchestration
-    - Services handle site-specific logic and data collection
-    - Plugin formats and returns results
-    """
+
+    @dataclass
+    class Params:
+        storage_data: str = "{}"
 
     # 每个插件必须定义唯一的插件ID
     PLUGIN_ID: str = PLUGIN_ID
@@ -116,6 +104,7 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
 
     def __init__(self) -> None:
         super().__init__()
+        self.plugin_params: Optional[XiaohongshuNoteBriefPlugin.Params] = None
         # Initialize services (will be attached during setup)
         self._note_brief_net_service: Optional[XiaohongshuNoteBriefNetService] = None
 
@@ -133,7 +122,7 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
             self._note_brief_net_service = XiaohongshuNoteBriefNetService()
 
             # Initialize Delegates
-            self._note_brief_delegate = NoteBriefDelegate(self.config.extra)
+            self._note_brief_delegate = NoteBriefDelegate(self.task_params.extra)
 
             # Set Delegates to Services
             self._note_brief_net_service.set_delegate(self._note_brief_delegate)
@@ -141,9 +130,7 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
             # Attach all services to the page
             await self._note_brief_net_service.attach(self.page)
 
-            # Configure note_net service based on task config
-            note_net_config = self._build_note_net_config()
-            self._note_brief_net_service.configure(note_net_config)
+            self.plugin_params = ParamsHelper.build_params(XiaohongshuNoteBriefPlugin.Params, self.task_params.extra)
 
             # Set custom stop conditions if specified
             self._note_brief_net_service.set_stop_decider(self._note_brief_delegate.make_stop_decision)
@@ -186,8 +173,10 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
 
         await self._ensure_logged_in()
 
+        self._note_brief_net_service.set_params(self.task_params.extra)
+
         try:
-            await self._note_brief_delegate.load_storage_from_data(self.config.extra.get("storage_data", {}))
+            await self._note_brief_delegate.load_storage_from_data(self.task_params.extra.get("storage_data", {}))
             briefs_res = await self._collect_briefs()
             if briefs_res["success"]:
                 diff = self._note_brief_delegate.get_diff()
@@ -234,7 +223,7 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
         try:
             items = await self._note_brief_net_service.collect(NoteCollectArgs(
                 goto_first=goto_favorites,
-                extra_config=self.config.extra
+                extra_params=self.task_params.extra
             ))
 
             # Convert to dictionaries for JSON serialization
@@ -257,32 +246,18 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
                 "error": str(e),
             }
 
-    def _build_note_net_config(self) -> ServiceConfig:
-        """Build ServiceConfig from task config."""
-        if not self.config or not self.config.extra:
-            return ServiceConfig()
-        
-        extra = self.config.extra
-        return ServiceConfig(
-            max_items=extra.get("max_items", 1000),
-            max_seconds=extra.get("max_seconds", 600),
-            max_idle_rounds=extra.get("max_idle_rounds", 2),
-            auto_scroll=extra.get("auto_scroll", True),
-            scroll_pause_ms=extra.get("scroll_pause_ms", 800),
-        )
-
     def _build_stop_decider(self) -> Optional[Any]:
 
-        def custom_stop_decider(loop_count, extra_config, page, state, new_batch, elapsed) -> StopDecision:
+        def custom_stop_decider(loop_count, extra_params, page, state, new_batch, elapsed) -> StopDecision:
             return StopDecision(should_stop=False, reason=None, details=None)
         
         return custom_stop_decider
 
 
 @register_plugin(PLUGIN_ID)
-def create_plugin(ctx: PluginContext, config: TaskConfig) -> XiaohongshuNoteBriefPlugin:
+def create_plugin(ctx: PluginContext, params: TaskParams) -> XiaohongshuNoteBriefPlugin:
     p = XiaohongshuNoteBriefPlugin()
-    p.configure(config)
+    p.inject_task_params(params)
     # 注入上下文（包含 page/account_manager）
     p.set_context(ctx)
     return p

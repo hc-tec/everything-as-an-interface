@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 from typing import Dict, Optional
 
-from src.core.task_config import TaskConfig
+from src.core.task_params import TaskParams
 from src.core.plugin_context import PluginContext
 from src.config.plugin_config import PluginConfig
 from src.plugins.base import BasePlugin
@@ -84,7 +84,7 @@ class PluginManager:
         except KeyError:
             raise ValueError(f"未找到插件: {plugin_id}") from None
 
-    def instantiate_plugin(self, plugin_id: str, ctx: PluginContext, config: TaskConfig) -> BasePlugin:
+    def instantiate_plugin(self, plugin_id: str, ctx: PluginContext, config: TaskParams) -> BasePlugin:
         """实例化插件。
         
         Args:

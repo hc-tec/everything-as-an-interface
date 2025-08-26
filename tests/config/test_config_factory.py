@@ -226,7 +226,7 @@ PLUGIN_AUTO_DISCOVER=false
         assert configs["logging"].level == "ERROR"
         assert configs["plugin"].auto_discover is False
     
-    def test_validate_config_valid(self):
+    def test_validate_params_valid(self):
         """测试验证有效配置"""
         # 创建一个有效的模拟配置对象
         class MockValidAppConfig:
@@ -236,9 +236,9 @@ PLUGIN_AUTO_DISCOVER=false
         config = MockValidAppConfig()
         
         # 应该不抛出异常
-        ConfigFactory.validate_config(config)
+        ConfigFactory.validate_params(config)
     
-    def test_validate_config_invalid_port(self):
+    def test_validate_params_invalid_port(self):
         """测试验证无效端口配置"""
         from src.config.app_config import AppConfig
         
@@ -251,9 +251,9 @@ PLUGIN_AUTO_DISCOVER=false
         config = MockAppConfig()
         
         with pytest.raises(ValueError, match="端口号必须在 1-65535 范围内"):
-            ConfigFactory.validate_config(config)
+            ConfigFactory.validate_params(config)
     
-    def test_validate_config_invalid_timeout(self):
+    def test_validate_params_invalid_timeout(self):
         """测试验证无效超时配置"""
         from src.config.browser_config import BrowserConfig
         
@@ -266,7 +266,7 @@ PLUGIN_AUTO_DISCOVER=false
         config = MockBrowserConfig()
         
         with pytest.raises(ValueError, match="超时时间必须大于 0"):
-            ConfigFactory.validate_config(config)
+            ConfigFactory.validate_params(config)
     
     def test_get_config_value_exists(self):
         """测试获取存在的配置值"""

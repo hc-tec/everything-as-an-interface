@@ -12,7 +12,7 @@ class AIAskArgs:
 
     goto_first: Optional[Callable[[], Awaitable[None]]] = None
     on_tick_start: Optional[Callable[[int, Dict[str, Any]], Awaitable[None]]] = None,
-    extra_config: Optional[Dict[str, Any]] = None
+    extra_params: Optional[Dict[str, Any]] = None
 
 class AIWebService(NetService, Generic[T]):
     """Interface for site note service implementations."""

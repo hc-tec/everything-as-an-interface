@@ -12,7 +12,7 @@
 # import sys
 # from typing import Dict, Any
 
-# from src.core.task_config import TaskConfig
+# from src.core.task_config import TaskParams
 
 # from . import EverythingAsInterface, __version__
 # from .core.orchestrator import Orchestrator
@@ -44,7 +44,7 @@
 #     system = EverythingAsInterface()
 
 #     # 加载配置
-#     config: TaskConfig = {}
+#     config: TaskParams = {}
 #     if args.config:
 #         try:
 #             with open(args.config, "r", encoding="utf-8") as f:

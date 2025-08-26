@@ -157,19 +157,19 @@ if __name__ == "__main__":
 `TaskConfig` 是所有插件的通用配置，包含浏览器和任务的基本设置：
 
 ```python
-from src.core.task_config import TaskConfig
+from src.core.task_params import TaskConfig
 
 config = TaskConfig(
-    headless=False,  # 是否无头模式运行浏览器
-    cookie_ids=["28ba44f1-bb67-41ab-86f0-a3d049d902aa"],  # 使用的Cookie ID列表
-    viewport={"width": 1280, "height": 800},  # 浏览器视口大小
-    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",  # 自定义User-Agent
-    extra_http_headers={"Referer": "https://www.xiaohongshu.com"},  # 额外HTTP头
-    interval=300,  # 任务执行间隔（秒）
-    close_page_when_task_finished=True,  # 任务完成后是否关闭页面
-    extra={  # 插件特定配置
-        # 其他配置项...
-    }
+  headless=False,  # 是否无头模式运行浏览器
+  cookie_ids=["28ba44f1-bb67-41ab-86f0-a3d049d902aa"],  # 使用的Cookie ID列表
+  viewport={"width": 1280, "height": 800},  # 浏览器视口大小
+  user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",  # 自定义User-Agent
+  extra_http_headers={"Referer": "https://www.xiaohongshu.com"},  # 额外HTTP头
+  interval=300,  # 任务执行间隔（秒）
+  close_page_when_task_finished=True,  # 任务完成后是否关闭页面
+  extra={  # 插件特定配置
+    # 其他配置项...
+  }
 )
 ```
 

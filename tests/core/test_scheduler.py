@@ -5,7 +5,7 @@ from unittest.mock import Mock, AsyncMock, patch
 from typing import Dict, Any, Callable
 
 from src.core.scheduler import Task, Scheduler
-from src.core.task_config import TaskConfig
+from src.core.task_params import TaskParams
 from src.utils.error_handler import ApplicationError
 
 
@@ -24,7 +24,7 @@ class TestTask:
         assert task.plugin_id == "test_plugin"
         assert task.interval == 60
         assert task.callback is None
-        assert isinstance(task.config, TaskConfig)
+        assert isinstance(task.config, TaskParams)
         assert task.last_run is None
         assert task.next_run is None
         assert task.running is False
@@ -38,7 +38,7 @@ class TestTask:
         async def dummy_callback(data: Dict[str, Any]):
             return data
         
-        config = TaskConfig()
+        config = TaskParams()
         task = Task(
             task_id="test_task",
             plugin_id="test_plugin",
@@ -166,7 +166,7 @@ class TestScheduler:
          async def dummy_callback(data: Dict[str, Any]):
              return data
          
-         config = TaskConfig()
+         config = TaskParams()
          task_id = scheduler.add_task(
              "test_plugin", 
              60, 
@@ -315,8 +315,8 @@ class TestScheduler:
          mock_plugin_manager.instantiate_plugin.return_value = mock_plugin
          
          # 创建任务
-         from src.core.task_config import TaskConfig
-         config = TaskConfig(extra={"cookie_ids": ["test_cookie"]})
+         from src.core.task_params import TaskParams
+         config = TaskParams(extra={"cookie_ids": ["test_cookie"]})
          task_id = scheduler.add_task("test_plugin", 60, config=config)
          task = scheduler.tasks[task_id]
          
@@ -356,8 +356,8 @@ class TestScheduler:
             assert data == {"result": "success"}
         
         # 创建带回调的任务
-        from src.core.task_config import TaskConfig
-        config = TaskConfig(extra={})
+        from src.core.task_params import TaskParams
+        config = TaskParams(extra={})
         task_id = scheduler.add_task("test_plugin", 60, callback=test_callback, config=config)
         task = scheduler.tasks[task_id]
         
@@ -389,8 +389,8 @@ class TestScheduler:
         mock_plugin_manager.instantiate_plugin.return_value = mock_plugin
         
         # 创建任务
-        from src.core.task_config import TaskConfig
-        config = TaskConfig(extra={})
+        from src.core.task_params import TaskParams
+        config = TaskParams(extra={})
         task_id = scheduler.add_task("test_plugin", 60, config=config)
         task = scheduler.tasks[task_id]
         
@@ -423,8 +423,8 @@ class TestScheduler:
         mock_plugin_manager.instantiate_plugin.return_value = mock_plugin
         
         # 添加应该运行的任务
-        from src.core.task_config import TaskConfig
-        config = TaskConfig(extra={})
+        from src.core.task_params import TaskParams
+        config = TaskParams(extra={})
         task_id = scheduler.add_task("test_plugin", 60, config=config)
         task = scheduler.tasks[task_id]
         task.next_run = datetime.now() - timedelta(seconds=1)  # 设置为过去时间

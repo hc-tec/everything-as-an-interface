@@ -258,7 +258,7 @@ class ConfigFactory:
             set_nested_value(config_data, json_key)
     
     @staticmethod
-    def validate_config(config) -> None:
+    def validate_params(config) -> None:
         """Validate configuration object.
         
         Args:

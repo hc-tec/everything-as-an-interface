@@ -12,7 +12,7 @@ from typing import Dict, Any
 
 from src import EverythingAsInterface
 from src.core.orchestrator import Orchestrator
-from src.core.task_config import TaskConfig
+from src.core.task_params import TaskParams
 from settings import PROJECT_ROOT
 
 async def on_chat_finished(data: Dict[str, Any]) -> None:
@@ -67,12 +67,12 @@ async def main():
     task_id = system.scheduler.add_task(
         plugin_id="yuanbao_chat",
         interval=30000,  # 5分钟检查一次
-        config=TaskConfig(
+        params=TaskParams(
             # 可选：填写已保存的 cookie_ids 列表，以跳过手动登录
             cookie_ids=["819969a2-9e59-46f5-b0ca-df2116d9c2a0"],
             extra={
                 "ask_question": "什么是小星星",
-                # ServiceConfig
+                # ServiceParams
                 "max_items": 10,
                 "max_idle_rounds": 5,
             }

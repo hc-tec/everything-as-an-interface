@@ -11,7 +11,7 @@ from urllib.parse import urlparse
 
 from playwright.async_api import Page
 from src.core.account_manager import AccountManager
-from src.core.task_config import TaskConfig
+from src.core.task_params import TaskParams
 from src.utils import wait_until_result
 
 logger = get_logger(__name__)
@@ -21,7 +21,7 @@ class AuthConfig:
     """认证配置类，负责多层次配置的读取和解析"""
     
     def __init__(self, 
-                 task_config: Optional[TaskConfig] = None,
+                 task_config: Optional[TaskParams] = None,
                  plugin_attrs: Optional[Dict[str, Any]] = None) -> None:
         """
         初始化认证配置
@@ -335,7 +335,7 @@ class LoginHelper:
 
 def create_login_helper(page: Page,
                        account_manager: Optional[AccountManager] = None,
-                       task_config: Optional[TaskConfig] = None,
+                       task_config: Optional[TaskParams] = None,
                        plugin_attrs: Optional[Dict[str, Any]] = None) -> LoginHelper:
     """
     创建登录助手实例的工厂函数

@@ -51,8 +51,8 @@ class PagedCollector(Generic[T]):
         self.on_response = on_response
         self.on_items_collected = on_items_collected
 
-    async def run(self, *, extra_config: Optional[Dict[str, Any]] = None) -> List[T]:
-        extra: Dict[str, Any] = dict(extra_config or {})
+    async def run(self, *, extra_params: Optional[Dict[str, Any]] = None) -> List[T]:
+        extra: Dict[str, Any] = dict(extra_params or {})
         items: List[T] = []
         start = time.monotonic()
         pages = 0

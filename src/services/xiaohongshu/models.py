@@ -126,9 +126,6 @@ class NoteDetailsItem(WithRaw):
     video: Optional[VideoInfo]
     timestamp: str
 
-    raw_data: Optional[dict] = None  # 保留原始数据（JSON、dict、甚至是未加工字符串）
-
-
 @dataclass
 class NoteAccessInfo:
     id: str

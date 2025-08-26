@@ -1,9 +1,9 @@
-from .models import SyncConfig, DiffResult
+from .models import SyncParams, DiffResult
 from .engine import PassiveSyncEngine
 from .storage import AbstractStorage, InMemoryStorage, MongoStorage
 
 __all__ = [
-    "SyncConfig",
+    "SyncParams",
     "DiffResult",
     "PassiveSyncEngine",
     "AbstractStorage",

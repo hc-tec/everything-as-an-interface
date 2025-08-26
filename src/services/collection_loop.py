@@ -20,7 +20,7 @@ logger = get_logger(__name__)
 
 async def run_generic_collection(
     *,
-    extra_config: Optional[Dict[str, Any]] = None,
+    extra_params: Optional[Dict[str, Any]] = None,
     page: Page,
     state: Any,
     max_items: int,
@@ -46,7 +46,7 @@ async def run_generic_collection(
         loop_count += 1
         if on_tick_start:
             try:
-                await on_tick_start(loop_count, extra_config)
+                await on_tick_start(loop_count, extra_params)
             except Exception:
                 pass
         elapsed = loop.time() - start_ts
@@ -88,7 +88,7 @@ async def run_generic_collection(
                 new_batch = state.items[last_len:new_len]
                 result = state.stop_decider(
                     loop_count,
-                    extra_config,
+                    extra_params,
                     page,
                     state,
                     new_batch,

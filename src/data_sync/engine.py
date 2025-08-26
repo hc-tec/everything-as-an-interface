@@ -6,13 +6,14 @@ from src.common.plugin import StopDecision
 
 from .models import (
     DiffResult,
-    SyncConfig,
+    SyncParams,
     StopState,
     get_record_identity,
     select_comparable_fields,
     compute_fingerprint,
 )
 from .storage import AbstractStorage
+from ..utils.params_helper import ParamsHelper
 
 
 class PassiveSyncEngine:
@@ -21,26 +22,29 @@ class PassiveSyncEngine:
     This engine exposes two main entrypoints:
       1) diff_and_apply(current_batch):
          - Compare incoming records with stored snapshot and apply delta
-           (insert/update/delete) based on SyncConfig.
+           (insert/update/delete) based on SyncParams.
          - Return DiffResult for the given batch.
       2) evaluate_stop_condition(current_batch):
          - Update internal StopState counters and determine whether a caller
-           should stop further collection based on configured thresholds.
+           should stop further collection based on set_paramsd thresholds.
 
     The engine is designed to be called repeatedly with batches of freshly
     collected records (already parsed). It does not perform crawling itself.
     """
 
-    def __init__(self, *, storage: AbstractStorage, config: Optional[SyncConfig] = None) -> None:
+    def __init__(self, *, storage: AbstractStorage, params: Optional[SyncParams] = None) -> None:
         """初始化被动同步引擎。
         
         Args:
             storage: 存储实例
-            config: 同步配置
+            params: 同步配置
         """
         self.storage = storage
-        self.config = config or SyncConfig()
+        self.params = params or SyncParams()
         self._stop_state = StopState()
+
+    def parse_params(self, params: Dict[str, Any]):
+        self.params = ParamsHelper.build_params(SyncParams, params)
 
     async def diff_and_apply(self, current_records: Iterable[Mapping[str, Any]]) -> DiffResult:
         """比较传入数据与快照，应用变更并返回差异结果。
@@ -51,7 +55,7 @@ class PassiveSyncEngine:
         Returns:
             差异结果
         """
-        id_key = self.config.identity_key
+        id_key = self.params.identity_key
 
         incoming_by_id = self._index_incoming_records(current_records, id_key=id_key)
         snapshot_index = await self._get_snapshot_index(id_key=id_key)
@@ -174,11 +178,11 @@ class PassiveSyncEngine:
 
         # 目前只是一批次的数据到来，不应该进行删除
         # if missing_ids:
-        #     if self.config.deletion_policy == "soft":
+        #     if self.params.deletion_policy == "soft":
         #         await self.storage.mark_deleted(
         #             missing_ids,
-        #             soft_flag=self.config.soft_delete_flag,
-        #             soft_time_key=self.config.soft_delete_time_key,
+        #             soft_flag=self.params.soft_delete_flag,
+        #             soft_time_key=self.params.soft_delete_time_key,
         #         )
         #     else:
         #         await self.storage.delete_many(missing_ids)
@@ -204,30 +208,30 @@ class PassiveSyncEngine:
             是否已更新的布尔值
         """
 
-        exclude_keys = [id_key, self.config.fingerprint_key]
+        exclude_keys = [id_key, self.params.fingerprint_key]
 
         prev_fp = await self.storage.get_fingerprint_by_id(
-            identity, fingerprint_key=self.config.fingerprint_key
+            identity, fingerprint_key=self.params.fingerprint_key
         )
         if prev_fp is None:
             # 重新计算 fingerprint
             prev_fp = compute_fingerprint(
                 await self.storage.get_by_id(identity),
-                fields=self.config.fingerprint_fields,
-                exclude=self.config.fingerprint_fields is None and exclude_keys or None,
-                algorithm=self.config.fingerprint_algorithm,
+                fields=self.params.fingerprint_fields,
+                exclude=self.params.fingerprint_fields is None and exclude_keys or None,
+                algorithm=self.params.fingerprint_algorithm,
             )
 
         curr_fp = compute_fingerprint(
             rec,
-            fields=self.config.fingerprint_fields,
-            exclude=self.config.fingerprint_fields is None and exclude_keys or None,
-            algorithm=self.config.fingerprint_algorithm,
+            fields=self.params.fingerprint_fields,
+            exclude=self.params.fingerprint_fields is None and exclude_keys or None,
+            algorithm=self.params.fingerprint_algorithm,
         )
 
         try:
             await self.storage.upsert_fingerprint(
-                identity, curr_fp, fingerprint_key=self.config.fingerprint_key
+                identity, curr_fp, fingerprint_key=self.params.fingerprint_key
             )
         except Exception:
             pass
@@ -262,7 +266,7 @@ class PassiveSyncEngine:
         Note: This method is stateless with respect to storage content (does not query DB).
         Callers should use it immediately after diff_and_apply to set accurate counters.
         """
-        cfg = self.config
+        params = self.params
         st = self._stop_state
 
         # The caller is expected to compute added/updated by calling diff_and_apply first.
@@ -271,13 +275,13 @@ class PassiveSyncEngine:
             st.consecutive_no_change_batches += 1
 
         # Evaluate thresholds
-        if cfg.stop_after_no_change_batches is not None and st.consecutive_no_change_batches >= cfg.stop_after_no_change_batches:
+        if params.stop_after_no_change_batches is not None and st.consecutive_no_change_batches >= params.stop_after_no_change_batches:
             return StopDecision(True, reason="no_change_batches", details={"batches": st.consecutive_no_change_batches})
 
-        if cfg.max_new_items is not None and st.total_new_items_in_session >= cfg.max_new_items:
+        if params.max_new_items is not None and st.total_new_items_in_session >= params.max_new_items:
             return StopDecision(True, reason="max_new_items", details={"new_items": st.total_new_items_in_session})
 
-        if cfg.stop_after_consecutive_known is not None and st.consecutive_known_items >= cfg.stop_after_consecutive_known:
+        if params.stop_after_consecutive_known is not None and st.consecutive_known_items >= params.stop_after_consecutive_known:
             return StopDecision(True, reason="consecutive_known", details={"known": st.consecutive_known_items})
 
         return StopDecision(False)

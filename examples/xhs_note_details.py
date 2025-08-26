@@ -13,7 +13,7 @@ from typing import Dict, Any
 from settings import PROJECT_ROOT
 from src import EverythingAsInterface
 from src.core.orchestrator import Orchestrator
-from src.core.task_config import TaskConfig
+from src.core.task_params import TaskParams
 
 
 async def on_new_favorite(data: Dict[str, Any]) -> None:
@@ -69,14 +69,14 @@ async def main():
     task_id = system.scheduler.add_task(
         plugin_id="xiaohongshu_details",
         interval=1000000,  # 10分钟检查一次
-        config=TaskConfig(
+        params=TaskParams(
             # 可选：填写已保存的 cookie_ids 列表，以跳过手动登录
             cookie_ids=["28ba44f1-bb67-41ab-86f0-a3d049d902aa"],
             extra={
                 "search_words": "摄影",
                 "diff_file": "note-diff.json",
                 "failed_file": "data/failed_notes.json",
-                # ServiceConfig
+                # ServiceParams
                 "max_items": 50,
                 "max_idle_rounds": 999,
                 "max_seconds": 99999,

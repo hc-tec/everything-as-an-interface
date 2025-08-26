@@ -158,7 +158,7 @@ class LoggingConfig:
             logger_name: Name of the logger
             
         Returns:
-            Logging level string or None if not configured
+            Logging level string or None if not set_paramsd
         """
         return self.logger_levels.get(logger_name)
     

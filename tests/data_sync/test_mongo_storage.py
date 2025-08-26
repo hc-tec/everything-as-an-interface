@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from uuid import uuid4
 import pytest
 
-from src.data_sync import PassiveSyncEngine, SyncConfig, MongoStorage
+from src.data_sync import PassiveSyncEngine, SyncParams, MongoStorage
 
 def iso(dt: datetime) -> str:
     return dt.replace(microsecond=0).isoformat()
@@ -33,7 +33,7 @@ async def test_mongo_soft_delete_flow(mongo_col):
     storage = MongoStorage(motor_collection=mongo_col, id_field="id")
     engine = PassiveSyncEngine(
         storage=storage,
-        config=SyncConfig(identity_key="id", deletion_policy="soft"),
+        params=SyncParams(identity_key="id", deletion_policy="soft"),
     )
 
     t0 = datetime.utcnow() - timedelta(days=1)
@@ -73,7 +73,7 @@ async def test_mongo_hard_delete_flow(mongo_col):
     storage = MongoStorage(motor_collection=mongo_col, id_field="id")
     engine = PassiveSyncEngine(
         storage=storage,
-        config=SyncConfig(identity_key="id", deletion_policy="hard"),
+        params=SyncParams(identity_key="id", deletion_policy="hard"),
     )
 
     t = datetime.utcnow()

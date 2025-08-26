@@ -42,20 +42,24 @@ class YuanbaoChatNetService(AIWebService[Conversation]):
         if not self.page or not self.state:
             raise RuntimeError("Service not attached to a Page")
 
-        pause = self._service_config.scroll_pause_ms
-        on_scroll = ScrollHelper.build_on_scroll(self.page, service_config=self._service_config, pause_ms=pause, extra=args.extra_config)
+        pause = self._service_params.scroll_pause_ms
+        on_scroll = ScrollHelper.build_on_scroll(self.page, service_params=self._service_params, pause_ms=pause, extra=args.extra_params)
 
         items = await run_network_collection(
             self.state,
-            self._service_config,
-            extra_config=args.extra_config or {},
+            self._service_params,
+            extra_params=args.extra_params or {},
             goto_first=args.goto_first,
             on_scroll=on_scroll,
             network_timeout=60,  # 一分钟超时
         )
         return items
 
-    async def _parse_items_wrapper(self, payload: Dict[str, Any]) -> List[Conversation]:
+    async def _parse_items_wrapper(self,
+                                   payload: Dict[str, Any],
+                                   consume_count: int,
+                                   extra: Dict[str, Any],
+                                   state: Any) -> List[Conversation]:
         convs = payload.get("convs", [])
         messages = []
         for conv in convs:
@@ -101,4 +105,5 @@ class YuanbaoChatNetService(AIWebService[Conversation]):
             total_tokens_used=0,
             context_window_size="",
             session_title=payload.get("title"),
+            raw_data=self._inject_raw_data(payload),
         )]

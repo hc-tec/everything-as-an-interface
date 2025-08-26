@@ -64,9 +64,9 @@ def record_response(
 
 async def run_network_collection(
     state: NetCollectionState[T],
-    cfg: "ServiceConfig",
+    cfg: "ServiceParams",
     *,
-    extra_config: Optional[Dict[str, Any]] = None,
+    extra_params: Optional[Dict[str, Any]] = None,
     goto_first: Optional[Callable[[], Awaitable[None]]] = None,
     on_scroll: Optional[Callable[[], Awaitable[None]]] = None,
     on_tick_start: Optional[Callable[[int, Dict[str, Any]], Awaitable[None]]] = None,
@@ -99,7 +99,7 @@ async def run_network_collection(
         await _scroll_page_once(state.page, pause_ms=cfg.scroll_pause_ms)
 
     return await run_generic_collection(
-        extra_config=extra_config,
+        extra_params=extra_params,
         page=state.page,
         state=state,
         max_items=cfg.max_items,

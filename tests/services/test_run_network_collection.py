@@ -2,14 +2,14 @@ import asyncio
 import pytest
 from types import SimpleNamespace
 from src.services.net_collection import NetCollectionState, run_network_collection
-from src.services.base_service import ServiceConfig
+from src.services.base_service import ServiceParams
 from src.common.plugin import StopDecision
 
 @pytest.mark.asyncio
 async def test_run_network_collection_without_browser():
     fake_page = SimpleNamespace()
     state = NetCollectionState(page=fake_page, queue=asyncio.Queue())
-    cfg = ServiceConfig(max_items=2, max_seconds=10, max_idle_rounds=5, auto_scroll=False)
+    cfg = ServiceParams(max_items=2, max_seconds=10, max_idle_rounds=5, auto_scroll=False)
 
     # 模拟“解析后 items 增长 + 唤醒队列”
     async def producer():
@@ -25,7 +25,7 @@ async def test_run_network_collection_without_browser():
     items = await run_network_collection(
         state=state,
         cfg=cfg,
-        extra_config={},
+        extra_params={},
         goto_first=None,
         on_scroll=None,
     )

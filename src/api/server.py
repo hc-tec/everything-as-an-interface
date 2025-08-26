@@ -18,7 +18,7 @@ from pydantic import BaseModel, Field
 from settings import PROJECT_ROOT
 from src import EverythingAsInterface
 from src.core.orchestrator import Orchestrator
-from src.core.task_config import TaskConfig
+from src.core.task_params import TaskParams
 from src.services.webhook_dispatcher import WebhookDispatcher, WebhookJob
 from src.services.subscription_registry import WebhookSubscriptionStore
 
@@ -81,12 +81,12 @@ class CreateTaskBody(BaseModel):
     plugin_id: str
     run_mode: Optional[str] = Field(default="recurring", pattern="^(once|recurring)$")
     interval: Optional[int] = 300
-    config: Optional[Dict[str, Any]] = None
+    params: Optional[Dict[str, Any]] = None
     topic_id: Optional[str] = None
 
 
 class RunPluginBody(BaseModel):
-    config: Optional[Dict[str, Any]] = None
+    params: Optional[Dict[str, Any]] = None
     topic_id: Optional[str] = None
 
 
@@ -108,7 +108,7 @@ def require_api_key(x_api_key: Optional[str] = Header(default=None)) -> None:
     if expected:
         if not x_api_key or x_api_key != expected:
             raise HTTPException(status_code=401, detail="Unauthorized")
-    # if not configured, open access (dev mode)
+    # if not set_paramsd, open access (dev mode)
 
 
 def build_event_envelope(*, topic_id: str, plugin_id: Optional[str], task_id: Optional[str], result: Dict[str, Any]) -> Dict[str, Any]:
@@ -165,7 +165,7 @@ def create_app() -> FastAPI:
     @app.post(f"{API_PREFIX}/tasks", dependencies=[Depends(require_api_key)])
     async def create_task(body: CreateTaskBody) -> Dict[str, Any]:
         system: EverythingAsInterface = app.state.system
-        config = TaskConfig.from_dict(body.config or {})
+        params = TaskParams.from_dict(body.params or {})
 
         topic_id = body.topic_id
         system.scheduler.set_orchestrator(app.state.orchestrator)
@@ -197,7 +197,7 @@ def create_app() -> FastAPI:
             plugin_id=body.plugin_id,
             interval=interval,
             callback=_task_callback,  # always pass callback; it is no-op if no topic
-            config=config,
+            params=params,
         )
 
         return {"task_id": task_id}

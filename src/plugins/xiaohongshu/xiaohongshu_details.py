@@ -6,21 +6,19 @@ This plugin orchestrates calls to Xiaohongshu services to collect detailed note 
 
 import asyncio
 import json
-
-from src.config import get_logger
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 from typing import Any, Dict, List, Optional
 
 from src.common.plugin import StopDecision
+from src.config import get_logger
 from src.core.plugin_context import PluginContext
-from src.core.task_config import TaskConfig
+from src.core.task_params import TaskParams
 from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
-from src.services.base_service import ServiceConfig
 from src.services.xiaohongshu.common import NoteCollectArgs
 from src.services.xiaohongshu.models import NoteAccessInfo, NoteDetailsItem
 from src.services.xiaohongshu.note_explore_page_net import XiaohongshuNoteExplorePageNetService
-from src.utils.file_util import read_json_with_project_root, write_json_with_project_root
+from src.utils.params_helper import ParamsHelper
 
 logger = get_logger(__name__)
 
@@ -31,14 +29,11 @@ PLUGIN_ID = "xiaohongshu_details"
 
 
 class XiaohongshuNoteDetailPlugin(BasePlugin):
-    """
-    Xiaohongshu Plugin V2 - Thin orchestration layer using site services.
-    
-    This plugin demonstrates the service-based architecture where:
-    - Plugin handles configuration and orchestration
-    - Services handle site-specific logic and data collection
-    - Plugin formats and returns results
-    """
+
+    @dataclass
+    class Params:
+        brief_data: str = "{}"
+        wait_time_sec: int = 10
 
     # 每个插件必须定义唯一的插件ID
     PLUGIN_ID: str = PLUGIN_ID
@@ -60,7 +55,7 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
 
     def __init__(self) -> None:
         super().__init__()
-
+        self.plugin_params: Optional[XiaohongshuNoteDetailPlugin.Params] = None
         # Initialize services (will be attached during setup)
         self._note_explore_net_service: Optional[XiaohongshuNoteExplorePageNetService] = None
 
@@ -75,13 +70,10 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
             # Initialize services
             self._note_explore_net_service = XiaohongshuNoteExplorePageNetService()
 
-
             # Attach all services to the page
             await self._note_explore_net_service.attach(self.page)
 
-            # Configure note_net service based on task config
-            note_net_config = self._build_note_net_config()
-            self._note_explore_net_service.configure(note_net_config)
+            self.plugin_params = ParamsHelper.build_params(XiaohongshuNoteDetailPlugin.Params, self.task_params.extra)
 
             stop_decider = self._build_stop_decider()
             if stop_decider:
@@ -124,9 +116,10 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
         """
 
         await self._ensure_logged_in()
+        self._note_explore_net_service.set_params(self.task_params.extra)
 
         try:
-            brief_data = self.config.extra.get("brief_data", {})
+            brief_data = self.plugin_params.brief_data
             brief_data = json.loads(brief_data)
             if brief_data.get("count") > 0:
                 diff = brief_data["data"]
@@ -149,17 +142,17 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
         access_info: NoteAccessInfo = extra.get("access_info")[loop_count - 1]
         note_explore_page = f"https://www.xiaohongshu.com/explore/{access_info.id}?xsec_token={access_info.xsec_token}&xsec_source=pc_feed"
         await self.page.goto(note_explore_page, wait_until="load")
-        await asyncio.sleep(self.config.extra.get("wait_time_sec", 10))
+        await asyncio.sleep(self.plugin_params.wait_time_sec)
 
     @staticmethod
     async def stop_to_note_explore_page_when_all_collected(
             loop_count,
-            extra_config,
+            extra_params,
             page,
             state,
             new_batch,
             elapsed):
-        is_all_collected = loop_count >= len(extra_config.get("access_info"))
+        is_all_collected = loop_count >= len(extra_params.get("access_info"))
         if is_all_collected:
             return StopDecision(should_stop=True, reason="All notes collected", details=None)
         return StopDecision(should_stop=False, reason=None, details=None)
@@ -197,9 +190,9 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
             details = await self._note_explore_net_service.collect(NoteCollectArgs(
                     goto_first=None,
                     on_tick_start=self.navigate_to_note_explore_page,
-                    extra_config={
+                    extra_params={
                         "access_info": note_access_info,
-                        **self.config.extra
+                        **self.task_params.extra
                     }
                 )
             )
@@ -229,23 +222,9 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
             logger.error(f"Details collection failed: {e}", exc_info=e)
             raise e
 
-    def _build_note_net_config(self) -> ServiceConfig:
-        """Build ServiceConfig from task config."""
-        if not self.config or not self.config.extra:
-            return ServiceConfig()
-        
-        extra = self.config.extra
-        return ServiceConfig(
-            max_items=extra.get("max_items", 1000),
-            max_seconds=extra.get("max_seconds", 600),
-            max_idle_rounds=extra.get("max_idle_rounds", 2),
-            auto_scroll=extra.get("auto_scroll", True),
-            scroll_pause_ms=extra.get("scroll_pause_ms", 800),
-        )
-
     def _build_stop_decider(self) -> Optional[Any]:
 
-        def custom_stop_decider(loop_count, extra_config, page, state, new_batch, elapsed) -> StopDecision:
+        def custom_stop_decider(loop_count, extra_params, page, state, new_batch, elapsed) -> StopDecision:
             return StopDecision(should_stop=False, reason=None, details=None)
         
         return custom_stop_decider
@@ -277,9 +256,9 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
 
 
 @register_plugin(PLUGIN_ID)
-def create_plugin(ctx: PluginContext, config: TaskConfig) -> XiaohongshuNoteDetailPlugin:
+def create_plugin(ctx: PluginContext, params: TaskParams) -> XiaohongshuNoteDetailPlugin:
     p = XiaohongshuNoteDetailPlugin()
-    p.configure(config)
+    p.inject_task_params(params)
     # 注入上下文（包含 page/account_manager）
     p.set_context(ctx)
     return p
