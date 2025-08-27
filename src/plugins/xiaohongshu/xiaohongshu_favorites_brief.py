@@ -18,7 +18,6 @@ from src.data_sync import SyncParams, InMemoryStorage, PassiveSyncEngine, DiffRe
 from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
 from src.services.net_service import NetServiceDelegate
-from src.services.xiaohongshu.common import NoteCollectArgs
 from src.services.xiaohongshu.models import NoteBriefItem
 from src.services.xiaohongshu.note_brief_net import XiaohongshuNoteBriefNetService
 from src.utils.params_helper import ParamsHelper
@@ -140,12 +139,12 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
         except Exception as e:
             logger.error(f"Service setup failed: {e}")
             raise
-        logger.info("启动小红书插件")
+        logger.info("启动小红书收藏夹读取插件")
         return await super().start()
 
     async def stop(self) -> bool:
         await self._cleanup()
-        logger.info("停止小红书插件")
+        logger.info("停止小红书收藏夹读取插件")
         return await super().stop()
 
     async def _cleanup(self) -> None:
@@ -221,10 +220,8 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
             await self.page.click(".sub-tab-list:nth-child(2)")
 
         try:
-            items = await self._note_brief_net_service.collect(NoteCollectArgs(
-                goto_first=goto_favorites,
-                extra_params=self.task_params.extra
-            ))
+            await goto_favorites()
+            items = await self._note_brief_net_service.invoke(self.task_params.extra)
 
             # Convert to dictionaries for JSON serialization
             items_data = [asdict(item) for item in items]
@@ -245,13 +242,6 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
                 "count": 0,
                 "error": str(e),
             }
-
-    def _build_stop_decider(self) -> Optional[Any]:
-
-        def custom_stop_decider(loop_count, extra_params, page, state, new_batch, elapsed) -> StopDecision:
-            return StopDecision(should_stop=False, reason=None, details=None)
-        
-        return custom_stop_decider
 
 
 @register_plugin(PLUGIN_ID)

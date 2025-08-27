@@ -5,7 +5,7 @@ from types import SimpleNamespace
 from src.services.net_service import NetServiceDelegate
 from src.services.xiaohongshu.note_brief_net import XiaohongshuNoteBriefNetService
 from src.services.base_service import ServiceParams
-from src.services.net_collection import NetCollectionState
+from src.services.net_collection_loop import NetCollectionState
 from src.services.net_consume_helpers import NetConsumeHelper
 from src.utils.net_rule_bus import MergedEvent
 from src.utils.net_rules import ResponseView

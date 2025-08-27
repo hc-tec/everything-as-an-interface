@@ -6,18 +6,18 @@ from typing import Any, Dict, List, Optional
 
 from playwright.async_api import Page
 
-from src.services.xiaohongshu.common import NoteService, NoteCollectArgs
-from src.services.net_collection import (
+from src.services.net_collection_loop import (
     NetCollectionState,
     run_network_collection,
 )
 from src.services.net_consume_helpers import NetConsumeHelper
+from src.services.net_service import NetService
 from src.services.scroll_helper import ScrollHelper
 from src.services.xiaohongshu.models import NoteBriefItem, AuthorInfo, NoteStatistics
 
 logger = get_logger(__name__)
 
-class XiaohongshuNoteSearchNetService(NoteService[NoteBriefItem]):
+class XiaohongshuNoteSearchNetService(NetService[NoteBriefItem]):
     """
     小红书瀑布流笔记抓取服务 - 通过监听网络实现，而非解析 Dom
     """
@@ -37,19 +37,19 @@ class XiaohongshuNoteSearchNetService(NoteService[NoteBriefItem]):
 
         await super().attach(page)
 
-    async def collect(self, args: NoteCollectArgs) -> List[NoteBriefItem]:
+    async def invoke(self, extra_params: Dict[str, Any]) -> List[NoteBriefItem]:
         if not self.page or not self.state:
             raise RuntimeError("Service not attached to a Page")
 
         pause = self._service_params.scroll_pause_ms
-        on_scroll = ScrollHelper.build_on_scroll(self.page, service_params=self._service_params, pause_ms=pause, extra=args.extra_params)
+        on_scroll = ScrollHelper.build_on_scroll(self.page, service_params=self._service_params, pause_ms=pause, extra=extra_params)
 
         items = await run_network_collection(
             self.state,
             self._service_params,
-            extra_params=args.extra_params or {},
-            goto_first=args.goto_first,
+            extra_params=extra_params or {},
             on_scroll=on_scroll,
+            delegate=self.loop_delegate,
         )
         return items
 
@@ -91,6 +91,7 @@ class XiaohongshuNoteSearchNetService(NoteService[NoteBriefItem]):
                         author_info=author_info,
                         statistic=statistic,
                         cover_image=cover_image,
+                        raw_data=note_item
                     )
                 )
             except Exception as e:

@@ -75,7 +75,7 @@ def parse_brief_from_network(resp_items: List[Dict[str, Any]], raw_data: Any) ->
                     author_info=author_info,
                     statistic=statistic,
                     cover_image=cover_image,
-                    raw_data=raw_data,
+                    raw_data=note_item,
                 )
             )
         except Exception as e:

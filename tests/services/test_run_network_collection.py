@@ -1,7 +1,7 @@
 import asyncio
 import pytest
 from types import SimpleNamespace
-from src.services.net_collection import NetCollectionState, run_network_collection
+from src.services.net_collection_loop import NetCollectionState, run_network_collection
 from src.services.base_service import ServiceParams
 from src.common.plugin import StopDecision
 

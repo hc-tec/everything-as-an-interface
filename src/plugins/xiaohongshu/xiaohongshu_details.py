@@ -15,7 +15,6 @@ from src.core.plugin_context import PluginContext
 from src.core.task_params import TaskParams
 from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
-from src.services.xiaohongshu.common import NoteCollectArgs
 from src.services.xiaohongshu.models import NoteAccessInfo, NoteDetailsItem
 from src.services.xiaohongshu.note_explore_page_net import XiaohongshuNoteExplorePageNetService
 from src.utils.params_helper import ParamsHelper
@@ -75,10 +74,6 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
 
             self.plugin_params = ParamsHelper.build_params(XiaohongshuNoteDetailPlugin.Params, self.task_params.extra)
 
-            stop_decider = self._build_stop_decider()
-            if stop_decider:
-                self._note_explore_net_service.set_stop_decider(stop_decider)
-
             logger.info("XiaohongshuNoteDetailPlugin service initialized and attached")
 
         except Exception as e:
@@ -136,8 +131,10 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
                 "version": self.PLUGIN_VERSION,
             }
 
-    async def navigate_to_note_explore_page(self, loop_count: int,
-                                            extra: Dict[str, Any]):
+    async def navigate_to_note_explore_page(self,
+                                            loop_count: int,
+                                            extra: Dict[str, Any],
+                                            state: Any):
         # 利用此回调，我们可以让网页跳转到笔记详情页
         access_info: NoteAccessInfo = extra.get("access_info")[loop_count - 1]
         note_explore_page = f"https://www.xiaohongshu.com/explore/{access_info.id}?xsec_token={access_info.xsec_token}&xsec_source=pc_feed"
@@ -186,16 +183,12 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
         ]
 
         try:
+            self._note_explore_net_service.set_delegate_on_loop_item_start(self.navigate_to_note_explore_page)
             # Get details in batch
-            details = await self._note_explore_net_service.collect(NoteCollectArgs(
-                    goto_first=None,
-                    on_tick_start=self.navigate_to_note_explore_page,
-                    extra_params={
-                        "access_info": note_access_info,
-                        **self.task_params.extra
-                    }
-                )
-            )
+            details = await self._note_explore_net_service.invoke(extra_params={
+                "access_info": note_access_info,
+                **self.task_params.extra
+            })
             
             # Filter out None results and convert to dictionaries
             valid_details = [detail for detail in details if detail is not None]
@@ -221,38 +214,6 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
         except Exception as e:
             logger.error(f"Details collection failed: {e}", exc_info=e)
             raise e
-
-    def _build_stop_decider(self) -> Optional[Any]:
-
-        def custom_stop_decider(loop_count, extra_params, page, state, new_batch, elapsed) -> StopDecision:
-            return StopDecision(should_stop=False, reason=None, details=None)
-        
-        return custom_stop_decider
-
-    async def _is_logged_in(self) -> bool:
-        """Check if user is logged in by looking for user profile elements."""
-        try:
-            if not self.page:
-                return False
-            
-            # Look for user avatar or profile menu
-            user_indicators = [
-                '.reds-img-box',
-            ]
-            
-            for selector in user_indicators:
-                try:
-                    element = await self.page.wait_for_selector(selector, timeout=3000)
-                    if element:
-                        return True
-                except:
-                    continue
-            
-            return False
-            
-        except Exception as e:
-            logger.warning(f"Login check failed: {e}")
-            return False
 
 
 @register_plugin(PLUGIN_ID)

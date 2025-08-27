@@ -5,7 +5,6 @@ import pytest
 from playwright.async_api import Page, Response
 
 from src.services.base_service import ServiceParams
-from src.services.xiaohongshu.common import NoteCollectArgs
 from src.services.xiaohongshu.note_brief_net import XiaohongshuNoteBriefNetService
 from src.utils.net_rules import ResponseView
 
@@ -74,8 +73,7 @@ async def test_full_lifecycle():
     # give internal queue consumer chance to run
     await asyncio.sleep(0.1)
 
-    args = NoteCollectArgs()  # 使用默认收集参数
-    items = await svc.collect(args=args)
+    items = await svc.collect()
     assert len(items) >= 3
 
     await svc.detach()

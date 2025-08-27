@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any, Callable, List, Optional, Sequence, TypeVar, Dict, Awaitable
+from abc import ABC, abstractmethod
+from typing import Any, Callable, List, Optional, Sequence, TypeVar, Dict, Awaitable, Generic
 
 from playwright.async_api import Page
 
@@ -11,9 +12,25 @@ from src.utils.net_rules import ResponseView
 T = TypeVar("T")
 
 # Type of the user-provided stop decider
-# (loop_count, extra_params, page, state, new_batch, elapsed) -> StopDecision:
-NetStopDecider = Callable[[int, Dict[str, Any], Page, Any, List[T], float], StopDecision | Awaitable[StopDecision]]
+# (loop_count, extra_params, page, state, new_batch, idle_rounds, elapsed) -> StopDecision:
+StopDecider = Callable[[int, Dict[str, Any], Page, Any, List[T], int, float], StopDecision | Awaitable[StopDecision]]
 
+class CollectionState(Generic[T]):
+    """Mutable state for a note net collection session."""
+
+    page: Page
+    items: List[T] = []
+    stop_decider: Optional[StopDecider[T]] = None
+
+    def __init__(self, page: Page, items=None, stop_decider: Optional[StopDecider[T]] = None):
+        if items is None:
+            items = []
+        self.page = page
+        self.items = items
+        self.stop_decider = stop_decider
+
+    def clear(self):
+        self.items = []
 
 async def scroll_page_once(page: Page, *, pause_ms: int = 800) -> bool:
     """Scroll the page once and return True if the scroll height increased."""
@@ -26,18 +43,59 @@ async def scroll_page_once(page: Page, *, pause_ms: int = 800) -> bool:
     except Exception:
         return False
 
+class ExitCondition(ABC, Generic[T]):
+    @abstractmethod
+    async def should_exit(self,
+                    loop_count: int,
+                    extra_params: Dict[str, Any],
+                    page: Page,
+                    state: Any,
+                    new_batch: List[T],
+                    idle_rounds: int,
+                    elapsed: float) -> StopDecision:
+        """Return reason string if should exit, else None."""
 
-def deduplicate_by(items: Sequence[T], key_fn: Callable[[T], Optional[str]]) -> List[T]:
-    """Return a new list with items deduplicated by key_fn, keeping order."""
-    seen: set[str] = set()
-    results: List[T] = []
-    for it in items:
-        try:
-            key = key_fn(it)
-        except Exception:
-            key = None
-        if not key or key in seen:
-            continue
-        seen.add(key)
-        results.append(it)
-    return results
+class TimeoutExit(ExitCondition, Generic[T]):
+    def __init__(self, max_seconds: int): self.max_seconds = max_seconds
+    async def should_exit(self,
+                    loop_count: int,
+                    extra_params: Dict[str, Any],
+                    page: Page,
+                    state: Any,
+                    new_batch: List[T],
+                    idle_rounds: int,
+                    elapsed: float) -> StopDecision:
+        if elapsed >= self.max_seconds:
+            return StopDecision(should_stop=True, reason="timeout", details={})
+        return StopDecision(should_stop=False, reason="not timeout", details={})
+
+class MaxItemsExit(ExitCondition, Generic[T]):
+    def __init__(self, max_items: int): self.max_items = max_items
+    async def should_exit(self,
+                    loop_count: int,
+                    extra_params: Dict[str, Any],
+                    page: Page,
+                    state: Any,
+                    new_batch: List[T],
+                    idle_rounds: int,
+                    elapsed: float) -> StopDecision:
+        if len(state.items) >= self.max_items:
+            return StopDecision(should_stop=True, reason="max_items",
+                                details={"max_items": self.max_items, "current_items": len(state.items)})
+        return StopDecision(should_stop=False, reason="not max_items", details={})
+
+
+class IdleRoundsExit(ExitCondition, Generic[T]):
+    def __init__(self, max_idle_rounds: int): self.max_idle_rounds = max_idle_rounds
+    async def should_exit(self,
+                    loop_count: int,
+                    extra_params: Dict[str, Any],
+                    page: Page,
+                    state: Any,
+                    new_batch: List[T],
+                    idle_rounds: int,
+                    elapsed: float) -> StopDecision:
+        if idle_rounds >= self.max_idle_rounds:
+            return StopDecision(should_stop=True, reason="max_idle_rounds",
+                                details={"max_idle_rounds": self.max_idle_rounds})
+        return StopDecision(should_stop=False, reason="not max_items", details={})

@@ -7,17 +7,17 @@
 
 让信息，像电力一样触手可及
 
-打开成本太高？ 收藏了的好内容，总被遗忘？消息太多，不知该看哪一个？
+网站太多，打开成本太高？ 收藏了的好内容，总被遗忘？消息太多，不知该看哪一个？
 万物皆接口，帮你接管这一切。
 
 我们把各大网站和应用里的关键内容，自动化抽取为“二次接口”，再交给 程序/AI 来处理。
 你不需要再反复打开 App、翻找信息，只需直接获取结果。
 
-我们能为你做到：
+在未来，我们能为你做到下面四个方面内容：
 
 * ⚡ 信息监控 —— 追踪你关心的博主、话题、热榜
 * 📊 数据分析 —— 聚合海量内容，生成 AI 总结报告
-* 🚨 智能预警 —— 一旦触发条件，立刻通知你
+* 🚨 智能预警 —— 监听网站，一旦触发条件，立刻通知你
 * 🤖 自动操作 —— 自动执行电商监控、收藏分析等繁琐任务
 
 在这里，信息不再分散、不再低效。
@@ -29,7 +29,7 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/yourusername/everything-as-an-interface.git
+git clone https://github.com/yourusername/everything-as-an-interface.git --recursive
 cd everything-as-an-interface
 
 # 创建并激活虚拟环境
@@ -38,50 +38,10 @@ source venv/bin/activate  # Linux/Mac
 venv\Scripts\activate  # Windows
 
 pip install -r requirements-dev.txt
+pip install -r requirements-rpc.txt
 
 # 安装Playwright浏览器
 playwright install
-```
-
-### 启动服务端（API + Webhook）
-
-```bash
-python run.py
-```
-
-可用接口（需在 Header 传 `X-API-Key: $EAI_API_KEY`，未设置时默认开放）
-
-- GET `/api/v1/health` | `/api/v1/ready`
-- GET `/api/v1/plugins`
-- GET `/api/v1/tasks`
-- POST `/api/v1/tasks` 创建任务：
-  ```json
-  {
-    "plugin_id": "xiaohongshu_brief",
-    "run_mode": "recurring",
-    "interval": 300,
-    "config": {"cookie_ids": ["..."], "headless": false},
-    "topic_id": "可选：绑定的topic"
-  }
-  ```
-- POST `/api/v1/plugins/{plugin_id}/run` 立即执行一次，可带 `topic_id`
-- 主题与订阅：
-  - GET/POST `/api/v1/topics`
-  - POST `/api/v1/topics/{topic_id}/subscriptions` 注册 webhook（`url`, `secret`, `headers`）
-  - GET `/api/v1/subscriptions` 列表；DELETE/PATCH `/api/v1/subscriptions/{id}`
-  - POST `/api/v1/subscriptions/test-delivery?topic_id=...` 测试投递
-  - POST `/api/v1/topics/{topic_id}/publish` 手动触发
-
-Webhook 事件包含 `X-EAI-Event-Id`, `X-EAI-Topic-Id`, `X-EAI-Plugin-Id`, `X-EAI-Signature`（如配置 `secret`）。
-
-## RPC客户端（推荐）
-
-为了简化插件调用，我们提供了RPC风格的客户端SDK，无需手动设置webhook服务器和HTTP调用。
-
-### 安装RPC客户端依赖
-
-```bash
-pip install -r requirements-rpc.txt
 ```
 
 # 从0开始了解万物皆接口系统
@@ -90,7 +50,7 @@ pip install -r requirements-rpc.txt
 
 ### 启动服务程序
 
-首先启动EAI服务程序，它默认绑定到 `127.0.0.1:8008`，**注意：不开启热重载模式**（热重载会导致浏览器启动失败）。
+首先启动EAI服务程序，它默认绑定到 `127.0.0.1:8008`，**注意：默认不开启热重载模式**（热重载会导致浏览器启动失败）。
 
 ```bash
 python run.py
@@ -98,8 +58,16 @@ python run.py
 
 启动成功后，你将看到类似以下输出：
 ```
-INFO - EAI API server started successfully on http://127.0.0.1:8008
-INFO - Available plugins: ['xiaohongshu_brief', 'xiaohongshu_details', 'xiaohongshu_search', 'yuanbao_chat']
+--- [DEBUG] Event loop policy successfully set to ProactorEventLoopPolicy. ---
+INFO:     Started server process [6300]
+INFO:     Waiting for application startup.
+WARNING:root:Warning: Failed to load config file D:\everything-as-an-interface2\config.example.json5 with json: Expecting property name enclosed in double quotes: line 5 column 5 (char 70)
+2025-08-27 14:26:39 - DEBUG - src.core.plugin_manager - plugin_manager.py:58 - _auto_discover_plugins - Auto-discovered plugin module imported: src.plugins.ai_web.yuanbao_chat
+2025-08-27 14:26:39 - DEBUG - src.core.plugin_manager - plugin_manager.py:58 - _auto_discover_plugins - Auto-discovered plugin module imported: src.plugins.xiaohongshu.xiaohongshu
+2025-08-27 14:26:39 - DEBUG - src.core.plugin_manager - plugin_manager.py:58 - _auto_discover_plugins - Auto-discovered plugin module imported: src.plugins.xiaohongshu.xiaohongshu_details
+2025-08-27 14:26:39 - DEBUG - src.core.plugin_manager - plugin_manager.py:58 - _auto_discover_plugins - Auto-discovered plugin module imported: src.plugins.xiaohongshu.xiaohongshu_favorites_brief
+2025-08-27 14:26:39 - DEBUG - src.core.plugin_manager - plugin_manager.py:58 - _auto_discover_plugins - Auto-discovered plugin module imported: src.plugins.xiaohongshu.xiaohongshu_search
+2025-08-27 14:26:39 - DEBUG - src.core.plugin_manager - plugin_manager.py:58 - _auto_discover_plugins - Auto-discovered plugin module imported: src.plugins.zhihu.zhihu_collection_list
 ```
 
 ### 使用RPC客户端调用插件
@@ -109,7 +77,7 @@ INFO - Available plugins: ['xiaohongshu_brief', 'xiaohongshu_details', 'xiaohong
 ```python
 import asyncio
 from client_sdk.rpc_client import EAIRPCClient
-
+from client_sdk.params import TaskParams
 
 async def main():
   # 创建RPC客户端
@@ -117,23 +85,28 @@ async def main():
     base_url="http://127.0.0.1:8008",  # 服务程序IP+端口
     api_key="testkey",  # 与服务程序约定的API密钥
     webhook_host="127.0.0.1",  # webhook订阅服务监听地址
-    webhook_port=9002,  # webhook订阅服务端口
+    webhook_port=0,  # webhook订阅服务端口
   )
 
   try:
     # 启动客户端
     await client.start()
     print("✅ RPC客户端已启动")
-
-    # 🤖 获取小红书笔记摘要数据
-    print("\n🤖 获取小红书笔记更新数据...")
-    notes = await client.get_notes_brief_from_xhs(
-      storage_file="data/note-brief-rpc.json",
-      max_items=10,
-      cookie_ids=["28ba44f1-bb67-41ab-86f0-a3d049d902aa"],
-      # 不需要主动声明类似于TaskConfig()的东西，它有哪些配置就直接填哪些配置
+    
+    # 🤖 与AI聊天
+    print("\n🤖 与AI元宝聊天...")
+    chat_result = await client.chat_with_yuanbao(
+        ask_question="你好，我是小星星",
+        conversation_id=None,
+        task_params=TaskParams(
+            cookie_ids=["819969a2-9e59-46f5-b0ca-df2116d9c2a0"],
+            close_page_when_task_finished=True,
+        ),
     )
-    print(f"获取到 {len(notes.get('data', []))} 条笔记更新")
+    if chat_result["success"]:
+        print(f"AI回复: {chat_result.get('data')[0].get('last_model_message', 'N/A')}")
+    else:
+        print(chat_result["error"])
 
   except Exception as e:
     print(f"❌ 错误: {e}")
@@ -150,27 +123,23 @@ if __name__ == "__main__":
 
 ### 配置说明
 
-如果你只是想使用插件而不是自己开发插件，那接下来你只需要了解调用插件应该传入的配置是什么就行。配置分为好多种：`TaskConfig`、`ServiceConfig`，还有一些插件或服务自定义配置。**客户端只需要将根据键值填入参数即可，不用手动声明类似于TaskConfig的结构**
+如果你只是想使用插件而不是自己开发插件，那接下来你只需要了解调用插件应该传入的参数是什么就可以，具体见`client_sdk/params.py`
 
-#### TaskConfig 通用配置
+#### TaskParams 通用配置
 
-`TaskConfig` 是所有插件的通用配置，包含浏览器和任务的基本设置：
+`TaskParams` 是所有插件的通用配置，包含浏览器和任务的基本设置：
 
 ```python
-from src.core.task_params import TaskConfig
+@dataclass
+class TaskParams:
+    headless: Optional[bool] = None
+    cookie_ids: List[str] = field(default_factory=list)
+    viewport: Optional[Dict[str, int]] = None
+    user_agent: Optional[str] = None
+    extra_http_headers: Optional[Dict[str, str]] = None
+    close_page_when_task_finished: bool = False
 
-config = TaskConfig(
-  headless=False,  # 是否无头模式运行浏览器
-  cookie_ids=["28ba44f1-bb67-41ab-86f0-a3d049d902aa"],  # 使用的Cookie ID列表
-  viewport={"width": 1280, "height": 800},  # 浏览器视口大小
-  user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",  # 自定义User-Agent
-  extra_http_headers={"Referer": "https://www.xiaohongshu.com"},  # 额外HTTP头
-  interval=300,  # 任务执行间隔（秒）
-  close_page_when_task_finished=True,  # 任务完成后是否关闭页面
-  extra={  # 插件特定配置
-    # 其他配置项...
-  }
-)
+    # Don't need [extra] field in client_sdk
 ```
 
 **常用TaskConfig参数说明：**
@@ -180,28 +149,28 @@ config = TaskConfig(
 - `viewport` (Dict): 浏览器视口大小，格式 `{"width": 1280, "height": 800}`
 - `user_agent` (str): 自定义User-Agent字符串
 - `extra_http_headers` (Dict): 额外的HTTP请求头
-- `interval` (int): 任务执行间隔（秒）
 - `close_page_when_task_finished` (bool): 任务完成后是否关闭页面，默认 `False`
 
-#### ServiceConfig 通用服务配置
+#### ServiceParams 通用服务配置
 
-`ServiceConfig` 用于配置服务层的通用行为，特别是数据收集相关的设置：
+`ServiceParams` 用于配置服务层的通用行为，特别是数据收集相关的设置：
 
 ```python
-from src.services.base_service import ServiceConfig
-
-service_config = ServiceConfig(
-    max_items=100,  # 最大采集条数
-    max_seconds=600,  # 最大执行时间（秒）
-    scroll_pause_ms=800,  # 滚动暂停时间（毫秒）
-    auto_scroll=True,  # 是否自动滚动
-    max_idle_rounds=2,  # 最大空闲轮次
-    response_timeout_sec=5.0,  # 响应超时时间（秒）
-    concurrency=1,  # 并发数
-    scroll_mode="default",  # 滚动模式：default/selector/pager
-    scroll_selector=None,  # 自定义滚动选择器
-    pager_selector=None,  # 自定义分页选择器
-)
+@dataclass
+class ServiceParams:
+    response_timeout_sec: float = 5.0
+    delay_ms: int = 500
+    queue_maxsize: Optional[int] = None
+    scroll_pause_ms: int = 800
+    max_idle_rounds: int = 2
+    max_items: Optional[int] = 10000
+    max_seconds: int = 600
+    auto_scroll: bool = True
+    scroll_mode: Optional[str] = None
+    scroll_selector: Optional[str] = None
+    max_pages: Optional[int] = None
+    pager_selector: Optional[str] = None
+    need_raw_data: bool = False
 ```
 
 **常用ServiceConfig参数说明：**
@@ -216,108 +185,48 @@ service_config = ServiceConfig(
 - `scroll_mode` (str): 滚动模式，可选值：`"default"`, `"selector"`, `"pager"`
 - `scroll_selector` (str): 自定义滚动元素选择器（当scroll_mode="selector"时使用）
 - `pager_selector` (str): 自定义分页元素选择器（当scroll_mode="pager"时使用）
+- `need_raw_data` (bool): 响应是否需要携带原始数据(采用Net服务时有效，抓取网页元素（Dom）的形式无效)
 
-#### 小红书笔记摘要插件 (xiaohongshu_brief)
+#### 好的，我来给 `SyncParams` 写一份和你提供的 `ServiceParams` 模板风格一致的文档说明：
 
-该插件专门用于获取小红书首页的笔记摘要信息：
+---
 
+#### SyncParams 数据同步配置
+
+`SyncParams` 用于配置被动数据同步的行为，特别是 **停止条件** 和 **删除策略**，确保在数据采集或同步过程中能够智能地判断何时结束、如何处理删除记录。
+（删除策略目前还未完成实现，目前用来检测是否有数据新增上很好用，例如收藏夹场景）
 ```python
-# 完整配置示例
-config = TaskConfig(
-    headless=False,
-    cookie_ids=["28ba44f1-bb67-41ab-86f0-a3d049d902aa"],
-    extra={
-        # ServiceConfig相关配置
-        "max_items": 50,  # 最大采集笔记数
-        "max_seconds": 300,  # 最大执行时间
-        "scroll_pause_ms": 800,  # 滚动间隔
-        "auto_scroll": True,  # 启用自动滚动
-        "max_idle_rounds": 3,  # 最大空闲轮次
-        
-        # PassiveSyncEngine配置（数据同步引擎）
-        "storage_file": "data/note-briefs.json",  # 数据存储文件
-        "deletion_policy": "soft",  # 删除策略：soft/hard
-        "stop_after_consecutive_known": 5,  # 连续已知项目数阈值
-        "stop_after_no_change_batches": 2,  # 无变化批次数阈值
-        "stop_max_items": 30,  # 达到此数量时停止
-        "fingerprint_fields": ["id", "title"],  # 用于去重的字段
-        
-        # 其他插件特定配置
-        "video_output_dir": "videos_data",  # 视频输出目录
-    }
-)
+@dataclass
+class SyncParams:
+    identity_key: str = "id"
+    deletion_policy: str = "soft"
+    soft_delete_flag: str = "deleted"
+    soft_delete_time_key: str = "deleted_at"
+    stop_after_consecutive_known: Optional[int] = None
+    stop_after_no_change_batches: Optional[int] = None
+    max_new_items: Optional[int] = None
+    fingerprint_fields: Optional[Sequence[str]] = None
+    fingerprint_key: str = "_fingerprint"
+    fingerprint_algorithm: str = "sha1"
 ```
 
-**xiaohongshu_brief插件特定参数说明：**
+**常用 SyncParams 参数说明：**
 
-- `storage_file` (str): 数据存储文件路径，默认 `"data/note-briefs.json"`
-- `deletion_policy` (str): 删除策略，`"soft"`（标记删除）或 `"hard"`（物理删除）
-- `stop_after_consecutive_known` (int): 连续遇到已知项目的数量阈值，默认 `5`
-- `stop_after_no_change_batches` (int): 连续无变化的批次数阈值，默认 `2`
-- `stop_max_items` (int): 达到此项目数量时停止采集，默认 `10`
-- `fingerprint_fields` (List[str]): 用于生成项目指纹的字段，默认 `["id", "title"]`
-- `video_output_dir` (str): 视频文件保存目录
+* `identity_key` (str): 用于唯一标识记录的字段名，默认 `"id"`
+* `deletion_policy` (str): 删除策略，默认 `"soft"`。
+  * `"soft"`：逻辑删除（通过标记字段）
+  * `"hard"`：物理删除（直接移除文档）
+* `soft_delete_flag` (str): 标记软删除的字段名，默认 `"deleted"`
+* `soft_delete_time_key` (str): 存储软删除时间戳的字段名，默认 `"deleted_at"`
+* `stop_after_consecutive_known` (int): 当一个批次中出现指定数量的连续“已知项”时停止同步。例如设置为 `5`，当连续 5 条数据都是已同步记录时，任务结束
+* `stop_after_no_change_batches` (int): 在连续若干个批次中没有新增或更新数据时停止同步。例如设置为 `3`，表示连续 3 个批次无变化就结束
+* `max_new_items` (int): 当一次会话中新采集的数据量达到此上限时停止同步
+* `fingerprint_fields` (List\[str]): 用于生成数据指纹的字段集合。如果为 `None`，则使用除内部 bookkeeping 字段外的所有字段
+* `fingerprint_key` (str): 指纹存储字段名，默认 `"_fingerprint"`
+* `fingerprint_algorithm` (str): 指纹算法，默认 `"sha1"`，可选 `"sha1"`, `"sha256"`
 
-#### 小红书笔记详情插件 (xiaohongshu_details)
+---
 
-用于获取小红书笔记的详细信息，包括评论、点赞等：
-
-```python
-config = TaskConfig(
-    headless=False,
-    cookie_ids=["your-cookie-id"],
-    extra={
-        # ServiceConfig
-        "max_items": 20,
-        "max_seconds": 180,
-        
-        # 插件特定配置
-        "include_comments": True,  # 是否获取评论
-        "max_comments_per_note": 50,  # 每条笔记最多获取评论数
-        "include_author_info": True,  # 是否获取作者信息
-        "save_media_files": True,  # 是否保存媒体文件
-        "media_output_dir": "downloads/xhs_media",  # 媒体文件输出目录
-        "note_ids": ["64b1234567890abcdef"],  # 指定要获取的笔记ID列表
-    }
-)
-```
-
-#### 小红书搜索插件 (xiaohongshu_search)
-
-用于在小红书上搜索笔记：
-
-```python
-config = TaskConfig(
-    headless=False,
-    cookie_ids=["your-cookie-id"],
-    extra={
-        # ServiceConfig
-        "max_items": 100,
-        "max_seconds": 240,
-        
-        # 搜索特定配置
-        "search_keywords": "美食探店",  # 搜索关键词列表
-        "sort_by": "popularity",  # 排序方式：time/popularity/relevance
-        "min_likes": 100,  # 最低点赞数过滤
-    }
-)
-```
-
-#### AI聊天插件 (yuanbao_chat)
-
-用于与AI元宝进行对话：
-
-```python
-config = TaskConfig(
-    headless=False,
-    cookie_ids=["your-cookie-id"],
-    extra={
-        # AI对话配置
-        "ask_question": "请介绍一下小红书平台的特点",  # 对话消息
-        "conversation_id": "conv_123",  # 会话ID，用于保持上下文
-    }
-)
-```
 
 ### 重要提示
 
@@ -325,7 +234,7 @@ config = TaskConfig(
 
 2. **数据存储**: 大部分插件都会将采集到的数据存储到本地文件中，请确保有足够的磁盘空间。
 
-3. **频率控制**: 避免过于频繁的请求，建议设置合理的 `interval` 和 `scroll_pause_ms` 以减少对目标网站的压力。这样也可以避免被防爬虫和封帐号。
+3. **频率控制**: 避免过于频繁的请求，这样也可以避免被检测和封帐号。
 
 4. **错误处理**: 插件运行过程中可能会遇到网络错误、登录失效等情况，请在代码中添加适当的异常处理。**后续服务程序需要添加上对错误的处理功能**。
 
@@ -426,24 +335,6 @@ config = TaskConfig(
 * 外部接口层
     * 形式：FastAPI 服务端 + Webhook 分发。
     * 价值：把能力以 HTTP/RPC+Webhook 的方式暴露给任何语言与平台使用，而非局限在项目内部。你可以在任意支持 HTTP/Webhook 的技术栈里消费这些能力，进行自动化编排与数据聚合。
-    * RPC SDK（python）设计哲学：
-    ```python
-    # 传统方式：复杂的手动HTTP调用
-    import requests
-    response = requests.post("http://localhost:8000/api/v1/tasks", json={
-        "plugin_id": "xiaohongshu",
-        "run_mode": "once",
-        "config": {"cookie_ids": ["xxx"], "max_items": 10},
-        "topic_id": "your-topic-id"
-    })
-    result = response.json()
-
-    # RPC方式：像调用本地函数一样简单
-    result = await client.get_notes_brief_from_xhs(
-        cookie_ids=["xxx"],
-        max_items=10
-    )
-    ```
 更多深入内容，可查阅[开发者SOP](./docs/developer_sop.md)
 
 

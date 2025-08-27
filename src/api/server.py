@@ -11,7 +11,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
-from fastapi import FastAPI, HTTPException, Depends, Header
+from fastapi import HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -19,8 +19,8 @@ from settings import PROJECT_ROOT
 from src import EverythingAsInterface
 from src.core.orchestrator import Orchestrator
 from src.core.task_params import TaskParams
-from src.services.webhook_dispatcher import WebhookDispatcher, WebhookJob
-from src.services.subscription_registry import WebhookSubscriptionStore
+from src.api.webhook_dispatcher import WebhookDispatcher, WebhookJob
+from src.api.subscription_registry import WebhookSubscriptionStore
 
 
 logger = get_logger(__name__)
@@ -30,7 +30,7 @@ API_PREFIX = "/api/v1"
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from playwright.async_api import async_playwright, Playwright
+from playwright.async_api import async_playwright
 
 
 # 2. (推荐) 使用 lifespan 管理 Playwright 实例

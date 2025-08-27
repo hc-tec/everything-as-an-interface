@@ -8,41 +8,34 @@ from typing import Any, Awaitable, Callable, Dict, Generic, List, Optional, Type
 from playwright.async_api import Page
 
 from src.utils.net_rules import ResponseView
-from src.services.collection_common import scroll_page_once as _scroll_page_once, NetStopDecider
-from src.services.collection_loop import run_generic_collection
+from src.services.collection_common import scroll_page_once as _scroll_page_once, StopDecider, CollectionState
+from src.services.collection_loop import run_generic_collection, CollectionLoopDelegate
 
 logger = get_logger(__name__)
 
 T = TypeVar("T")
 
-class NetCollectionState(Generic[T]):
+class NetCollectionState(CollectionState, Generic[T]):
     """Mutable state for a note net collection session."""
 
-    page: Page
     queue: asyncio.Queue
-    items: List[T] = []
     raw_responses: List[Any] = []
     last_raw_response: Optional[Any] = None
     last_response_view: Optional[ResponseView] = None
-    stop_decider: Optional[NetStopDecider[T]] = None
 
     def __init__(self, page: Page, queue: asyncio.Queue, items=None,
                  raw_responses=None, last_raw_response: Optional[Any] = None,
-                 last_response_view: Optional[ResponseView] = None, stop_decider: Optional[NetStopDecider[T]] = None):
+                 last_response_view: Optional[ResponseView] = None, stop_decider: Optional[StopDecider[T]] = None):
+        super().__init__(page, items, stop_decider)
         if raw_responses is None:
             raw_responses = []
-        if items is None:
-            items = []
-        self.page = page
         self.queue = queue
-        self.items = items
         self.raw_responses = raw_responses
         self.last_raw_response = last_raw_response
         self.last_response_view = last_response_view
-        self.stop_decider = stop_decider
 
     def clear(self):
-        self.items = []
+        super().clear()
         self.raw_responses = []
         self.last_raw_response = None
         self.last_response_view = None
@@ -70,8 +63,8 @@ async def run_network_collection(
     goto_first: Optional[Callable[[], Awaitable[None]]] = None,
     on_scroll: Optional[Callable[[], Awaitable[None]]] = None,
     on_tick_start: Optional[Callable[[int, Dict[str, Any]], Awaitable[None]]] = None,
-    key_fn: Optional[Callable[[T], Optional[str]]] = None,
     network_timeout: float = 5.0,
+    delegate: CollectionLoopDelegate=CollectionLoopDelegate(),
 ) -> List[T]:
     """Run a unified network-driven collection loop using the generic engine.
 
@@ -110,6 +103,5 @@ async def run_network_collection(
         goto_first=goto_first,
         on_tick=on_tick,
         on_scroll=on_scroll or default_scroll,
-        on_tick_start=on_tick_start,
-        key_fn=key_fn,
-    ) 
+        delegate=delegate,
+    )
