@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Awaitable, Callable, Optional, TypeVar, Dict, Any
 
 from playwright.async_api import Page
 
 from src.utils.params_helper import ParamsHelper
-
 T = TypeVar("T")
 
 # StopDecider = Callable[[Page, List[Any], Optional[Any], List[T], List[T], float, Dict[str, Any], Optional[ResponseView]], bool | Awaitable[bool]]
@@ -66,7 +66,7 @@ class ServiceParams:
 
 
 
-class BaseSiteService:
+class BaseService:
     """Base for all site services (note/detail/publish etc.)."""
 
     def __init__(self) -> None:
@@ -101,4 +101,5 @@ class BaseSiteService:
     def set_delegate_on_detach(self, on_detach: ServiceDelegateOnDetach) -> None:
         self.delegate.on_detach = on_detach
 
-
+    def invoke(self, extra_params: Dict[str, Any]) -> Any:
+        raise NotImplementedError()

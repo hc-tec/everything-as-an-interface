@@ -5,11 +5,11 @@ from typing import Any, Dict, List, Optional
 
 from playwright.async_api import Page
 
-from src.services.xiaohongshu.common import NoteService, NoteCollectArgs
-from src.services.collection_common import NetStopDecider
+from src.services.collection_common import StopDecider
 from src.services.net_consume_helpers import NetConsumeHelper
+from src.services.net_service import NetService
 from src.services.scroll_helper import ScrollHelper
-from src.services.net_collection import (
+from src.services.net_collection_loop import (
     NetCollectionState,
     run_network_collection,
 )
@@ -17,7 +17,7 @@ from src.services.xiaohongshu.models import NoteDetailsItem
 from src.services.xiaohongshu.parsers import quick_extract_initial_state, parse_details_from_network
 
 
-class XiaohongshuNoteExplorePageNetService(NoteService[NoteDetailsItem]):
+class XiaohongshuNoteExplorePageNetService(NetService[NoteDetailsItem]):
     """
     小红书笔记详情抓取服务 - 通过监听网络实现，从 Dom 中提取 Js 对象来获取笔记数据，而非分析标签
     """
@@ -37,23 +37,22 @@ class XiaohongshuNoteExplorePageNetService(NoteService[NoteDetailsItem]):
 
         await super().attach(page)
 
-    async def collect(self, args: NoteCollectArgs) -> List[NoteDetailsItem]:
+    async def invoke(self, extra_params: Dict[str, Any]) -> List[NoteDetailsItem]:
         if not self.page or not self.state:
             raise RuntimeError("Service not attached to a Page")
 
-        self._net_helper.set_extra(args.extra_params)
+        self._net_helper.set_extra(extra_params)
 
         pause = self._service_params.scroll_pause_ms
         on_scroll = ScrollHelper.build_on_scroll(self.page, service_params=self._service_params,
-                                                 pause_ms=pause, extra=args.extra_params)
+                                                 pause_ms=pause, extra=extra_params)
 
         items = await run_network_collection(
             self.state,
             self._service_params,
-            extra_params=args.extra_params or {},
-            goto_first=args.goto_first,
+            extra_params=extra_params or {},
             on_scroll=on_scroll,
-            on_tick_start=args.on_tick_start
+            delegate=self.loop_delegate,
         )
         return items
 

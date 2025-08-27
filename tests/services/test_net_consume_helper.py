@@ -2,7 +2,7 @@ import asyncio
 import pytest
 from types import SimpleNamespace
 from src.services.net_consume_helpers import NetConsumeHelper
-from src.services.net_collection import NetCollectionState
+from src.services.net_collection_loop import NetCollectionState
 from src.utils.net_rule_bus import MergedEvent
 from src.utils.net_rules import ResponseView
 from src.services.net_service import NetServiceDelegate

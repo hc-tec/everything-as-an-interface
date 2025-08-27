@@ -16,7 +16,6 @@ from src.core.plugin_context import PluginContext
 from src.core.task_params import TaskParams
 from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
-from src.services.xiaohongshu.common import NoteCollectArgs
 from src.services.xiaohongshu.note_search_net import XiaohongshuNoteSearchNetService
 from src.utils.params_helper import ParamsHelper
 
@@ -150,10 +149,7 @@ class XiaohongshuNoteSearchPlugin(BasePlugin):
             await asyncio.sleep(1)
 
         try:
-            items = await self._note_search_net_service.collect(NoteCollectArgs(
-                goto_first=to_search_page,
-                extra_params=self.task_params.extra
-            ))
+            items = await self._note_search_net_service.invoke(self.task_params.extra)
 
             # Convert to dictionaries for JSON serialization
             items_data = [asdict(item) for item in items]

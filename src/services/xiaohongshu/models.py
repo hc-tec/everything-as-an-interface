@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 from src.services.models import WithRaw
+from src.services.models import NoteDetailsItem, NoteBriefItem, NoteStatistics, NoteAccessInfo, AuthorInfo, VideoInfo
 
 @dataclass
 class CommentAuthor:
@@ -91,52 +92,3 @@ class PublishConfig:
     topic_id: Optional[str] = None
 
 
-@dataclass
-class AuthorInfo:
-    user_id: str
-    username: str
-    avatar: str
-    xsec_token: str
-
-@dataclass
-class NoteStatistics:
-    like_num: str      # 点赞数量
-    collect_num: str   # 收藏数量
-    chat_num: str      # 评论数量
-
-@dataclass
-class VideoInfo:
-    duration_sec: int
-    src: str
-    id: str
-
-@dataclass
-class NoteDetailsItem(WithRaw):
-    id: str
-    xsec_token: str
-    title: str
-    desc: str
-    author_info: AuthorInfo
-    tags: List[str]
-    date: str
-    ip_zh: str
-    comment_num: str
-    statistic: NoteStatistics
-    images: Optional[list[str]]
-    video: Optional[VideoInfo]
-    timestamp: str
-
-@dataclass
-class NoteAccessInfo:
-    id: str
-    xsec_token: str
-
-
-@dataclass
-class NoteBriefItem(WithRaw):
-    id: str
-    xsec_token: str
-    title: str
-    author_info: AuthorInfo
-    statistic: NoteStatistics
-    cover_image: str

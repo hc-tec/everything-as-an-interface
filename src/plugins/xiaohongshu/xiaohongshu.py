@@ -18,7 +18,6 @@ from src.core.task_params import TaskParams
 from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
 from src.services.base_service import ServiceParams
-from src.services.xiaohongshu.common import NoteCollectArgs
 from src.services.xiaohongshu.note_brief_net import XiaohongshuNoteBriefNetService
 
 logger = get_logger(__name__)
@@ -151,9 +150,7 @@ class XiaohongshuPlugin(BasePlugin):
             await asyncio.sleep(2)  # Allow page to settle
             
             # Get notes using the service
-            notes = await self._note_brief_net_service.collect(
-                NoteCollectArgs(extra_params=self.task_params.extra)
-            )
+            notes = await self._note_brief_net_service.invoke(self.task_params.extra)
             
             # Filter out None results and convert to dictionaries
             valid_notes = [note for note in notes if note is not None]

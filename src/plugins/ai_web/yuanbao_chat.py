@@ -10,7 +10,6 @@ from src.core.plugin_context import PluginContext
 from src.core.task_params import TaskParams
 from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
-from src.services.ai_web.common import AIAskArgs
 from src.services.ai_web.yuanbao_chat import YuanbaoChatNetService
 from src.utils.params_helper import ParamsHelper
 
@@ -133,14 +132,14 @@ class YuanbaoChatPlugin(BasePlugin):
                 "version": self.PLUGIN_VERSION,
             }
     @staticmethod
-    async def custom_stop_decider_three_times(loop_count, extra_params, page, state, new_batch, elapsed) -> StopDecision:
+    async def custom_stop_decider_three_times(loop_count, extra_params, page, state, new_batch, idle_rounds, elapsed) -> StopDecision:
         if loop_count == 3:
             return StopDecision(should_stop=True, reason="send over when executing three times", details=None)
         else:
             return StopDecision(should_stop=False, reason=None, details=None)
 
     @staticmethod
-    async def custom_stop_decider_twice(loop_count, extra_params, page, state, new_batch,
+    async def custom_stop_decider_twice(loop_count, extra_params, page, state, new_batch, idle_rounds,
                                               elapsed) -> StopDecision:
         if loop_count == 2:
             return StopDecision(should_stop=True, reason="send over when executing twice", details=None)
@@ -148,7 +147,7 @@ class YuanbaoChatPlugin(BasePlugin):
             return StopDecision(should_stop=False, reason=None, details=None)
 
     @staticmethod
-    async def custom_stop_decider_once(loop_count, extra_params, page, state, new_batch,
+    async def custom_stop_decider_once(loop_count, extra_params, page, state, new_batch, idle_rounds,
                                        elapsed) -> StopDecision:
         if loop_count == 1:
             return StopDecision(should_stop=True, reason="only execute once", details=None)
@@ -176,17 +175,13 @@ class YuanbaoChatPlugin(BasePlugin):
         sender = await self.page.query_selector("#yuanbao-send-btn")
         await sender.click()
         try:
-            items = await self._chat_service.ask(AIAskArgs(
-                extra_params=self.task_params.extra,
-            ))
+            items = await self._chat_service.invoke(self.task_params.extra)
 
             await self.page.reload(wait_until="load")
 
             self._chat_service.set_stop_decider(self.custom_stop_decider_once)
             self._chat_service.state.clear()
-            items = await self._chat_service.ask(AIAskArgs(
-                extra_params=self.task_params.extra,
-            ))
+            items = await self._chat_service.invoke(self.task_params.extra)
 
             # Convert to dictionaries for JSON serialization
             items_data = [asdict(item) for item in items]

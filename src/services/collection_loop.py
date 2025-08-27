@@ -6,15 +6,23 @@ from typing import Any, Awaitable, Callable, Dict, Generic, List, Optional, Type
 
 from playwright.async_api import Page
 
-from .collection_common import scroll_page_once as _scroll_page_once, deduplicate_by as _deduplicate_by
+from .collection_common import scroll_page_once as _scroll_page_once
 from src.utils.metrics import metrics
 from ..common.plugin import StopDecision
+from src.services.collection_common import CollectionState, ExitCondition, MaxItemsExit, TimeoutExit, IdleRoundsExit
 
 T = TypeVar("T")
 
-# Callback that performs one iteration "tick" and returns an optional explicit count of newly added items.
-# If it returns None, the engine falls back to len(state.items) delta to determine progress.
 OnTick = Callable[[], Awaitable[Optional[int]] | Optional[int]]
+
+OnLoopItemStart = Callable[[int, Dict[str, Any], CollectionState], Awaitable[None]]
+OnLoopItemCollected = Callable[[int, Dict[str, Any], int, List[T], CollectionState], Awaitable[None]]
+OnLoopItemEnd = Callable[[int, Dict[str, Any], CollectionState], Awaitable[None]]
+
+class CollectionLoopDelegate(Generic[T]):
+    on_loop_item_start: Optional[OnLoopItemStart] = None
+    on_loop_item_collected: Optional[OnLoopItemCollected[T]] = None
+    on_loop_item_end: Optional[OnLoopItemEnd] = None
 
 logger = get_logger(__name__)
 
@@ -22,7 +30,7 @@ async def run_generic_collection(
     *,
     extra_params: Optional[Dict[str, Any]] = None,
     page: Page,
-    state: Any,
+    state: CollectionState,
     max_items: int,
     max_seconds: int,
     max_idle_rounds: int,
@@ -31,9 +39,21 @@ async def run_generic_collection(
     goto_first: Optional[Callable[[], Awaitable[None]]] = None,
     on_tick: Optional[OnTick] = None,
     on_scroll: Optional[Callable[[], Awaitable[None]]] = None,
-    on_tick_start: Optional[Callable[[int, Dict[str, Any]], Awaitable[None]]] = None,
-    key_fn: Optional[Callable[[T], Optional[str]]] = None,
+    delegate: CollectionLoopDelegate = CollectionLoopDelegate(),
 ) -> List[T]:
+
+    """
+    可扩展：未来可以加：
+        RateLimitExit（采集速率限制）
+        MemoryExit（内存溢出保护）
+        PageCrashExit（页面崩溃检测）
+    """
+    exit_condition_list: List[ExitCondition] = [
+        TimeoutExit(max_seconds),
+        MaxItemsExit(max_items),
+        IdleRoundsExit(max_idle_rounds),
+    ]
+
     if goto_first:
         await goto_first()
 
@@ -44,18 +64,12 @@ async def run_generic_collection(
     loop_count = 0
     while True:
         loop_count += 1
-        if on_tick_start:
+        if delegate.on_loop_item_start:
             try:
-                await on_tick_start(loop_count, extra_params)
+                await delegate.on_loop_item_start(loop_count, extra_params, state)
             except Exception:
                 pass
         elapsed = loop.time() - start_ts
-        if elapsed >= max_seconds:
-            metrics.event("collect.exit", reason="timeout", elapsed=elapsed)
-            break
-        if len(state.items) >= max_items:
-            metrics.event("collect.exit", reason="max_items", count=len(state.items))
-            break
 
         added = 0
         metrics.inc("collect.ticks")
@@ -66,32 +80,47 @@ async def run_generic_collection(
             except Exception:
                 added = 0
 
-        # If on_tick did not explicitly report added items, infer from length delta
         if added == 0:
             new_len = len(state.items)
             if new_len > last_len:
                 added = new_len - last_len
                 last_len = new_len
 
-        if added > 0:
-            idle_rounds = 0
-        else:
-            idle_rounds += 1
+        idle_rounds = 0 if added > 0 else idle_rounds + 1
 
-        if idle_rounds >= max_idle_rounds:
-            metrics.event("collect.exit", reason="idle", idle_rounds=idle_rounds)
-            logger.warning("超过最大空转轮数")
-            break
+        new_batch = state.items[last_len:new_len]
+
+        if delegate.on_loop_item_collected:
+            delegate.on_loop_item_collected(loop_count, extra_params, added, new_batch, state)
+
+        for cond in exit_condition_list:
+            stop_decision = await cond.should_exit(
+                loop_count,
+                extra_params,
+                page,
+                state,
+                new_batch,
+                idle_rounds,
+                elapsed
+            )
+            if stop_decision.should_stop:
+                metrics.event("collect.exit",
+                              reason=stop_decision.reason,
+                              details=stop_decision.details,
+                              elapsed=elapsed)
+                logger.info("collector.exit, should_stop=%s, stop_reason=%s, elapsed=%s",
+                            stop_decision.should_stop, stop_decision.reason, elapsed)
+                break
 
         if state.stop_decider:
             try:
-                new_batch = state.items[last_len:new_len]
                 result = state.stop_decider(
                     loop_count,
                     extra_params,
                     page,
                     state,
                     new_batch,
+                    idle_rounds,
                     elapsed,
                 )
                 stop_decision: StopDecision = await result if asyncio.iscoroutine(result) else result
@@ -116,7 +145,10 @@ async def run_generic_collection(
                 await _scroll_page_once(page, pause_ms=scroll_pause_ms)
             metrics.inc("collect.scrolls")
 
+        if delegate.on_loop_item_end:
+            await delegate.on_loop_item_end(loop_count, extra_params, state)
+    # 退出时 break 掉了，末尾的 on_loop_item_end 没有执行，再执行一次来让调用次数一致
+    if delegate.on_loop_item_end:
+        await delegate.on_loop_item_end(loop_count, extra_params, state)
+
     return state.items.copy()
-    # if key_fn is None:
-    #     key_fn = lambda it: getattr(it, "id", None)  # type: ignore[return-value]
-    # return _deduplicate_by(state.items, key_fn)

@@ -6,7 +6,7 @@ from typing import Any, Awaitable, Callable, Dict, Generic, List, Optional, Tupl
 from playwright.async_api import Page
 
 from src.services.net_service import NetServiceDelegate
-from src.services.net_collection import (
+from src.services.net_collection_loop import (
     NetCollectionState,
     record_response,
 )

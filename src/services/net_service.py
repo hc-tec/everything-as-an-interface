@@ -1,13 +1,17 @@
 from __future__ import annotations
 
+from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Any, Awaitable, Callable, Dict, Generic, List, Optional, TypeVar
 
 from playwright.async_api import Page
 
-from src.services.base_service import ServiceDelegate, BaseSiteService
-from src.services.net_collection import NetCollectionState
+from src.services.base_service import ServiceDelegate, BaseService
+from src.services.collection_common import StopDecider
+from src.services.collection_loop import CollectionLoopDelegate, OnLoopItemStart, OnLoopItemCollected, OnLoopItemEnd
+from src.services.net_collection_loop import NetCollectionState
 # from src.services.net_consume_helpers import NetConsumeHelper
+
 from src.utils.net_rules import ResponseView
 
 T = TypeVar("T")
@@ -46,12 +50,15 @@ class NetServiceDelegate(ServiceDelegate, Generic[T]):
     parse_items: Optional[ServiceDelegateParseItems[T]] = None
     on_items_collected: Optional[ServiceDelegateOnItemsCollected[T]] = None
 
-class NetService(BaseSiteService, Generic[T]):
+
+class NetService(BaseService, Generic[T]):
 
     def __init__(self):
         super().__init__()
         self.delegate = NetServiceDelegate()
+        self.loop_delegate = CollectionLoopDelegate()
         self.page: Optional[Page] = None
+        self.state: Optional[NetCollectionState[T]] = None
         self._net_helper: Optional[Any[T]] = None # NetConsumeHelper
 
     def set_delegate_on_before_response(self, on_before_response: ServiceDelegateOnBeforeResponse[T]) -> None:
@@ -69,7 +76,22 @@ class NetService(BaseSiteService, Generic[T]):
     def set_delegate_on_items_collected(self, on_items_collected: ServiceDelegateOnItemsCollected[T]) -> None:
         self.delegate.on_items_collected = on_items_collected
 
+    def set_delegate_on_loop_item_start(self, on_loop_item_start: OnLoopItemStart[T]) -> None:
+        self.state.on_loop_item_start = on_loop_item_start
+
+    def set_delegate_on_loop_item_collected(self, on_loop_item_collected: OnLoopItemCollected[T]) -> None:
+        self.state.on_loop_item_collected = on_loop_item_collected
+
+    def set_delegate_on_loop_item_end(self, on_loop_item_end: OnLoopItemEnd) -> None:
+        self.state.on_loop_item_end = on_loop_item_end
+
     def _inject_raw_data(self, payload: Any):
         if self._service_params.need_raw_data:
             return payload
         return None
+
+    def set_stop_decider(self, decider: Optional[StopDecider[T]]) -> None:  # pragma: no cover - interface
+        if self.state:
+            self.state.stop_decider = decider
+
+

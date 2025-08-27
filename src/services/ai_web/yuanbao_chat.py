@@ -7,18 +7,18 @@ from typing import Any, Dict, List, Optional
 from glom import glom
 from playwright.async_api import Page
 
-from src.services.ai_web.common import AIWebService, AIAskArgs
-from src.services.net_collection import (
+from src.services.net_collection_loop import (
     NetCollectionState,
     run_network_collection,
 )
 from src.services.net_consume_helpers import NetConsumeHelper
+from src.services.net_service import NetService
 from src.services.scroll_helper import ScrollHelper
 from src.services.ai_web.models import Conversation, Message
 
 logger = get_logger(__name__)
 
-class YuanbaoChatNetService(AIWebService[Conversation]):
+class YuanbaoChatNetService(NetService[Conversation]):
     """
     元宝网页端AI服务 - 通过监听网络实现，而非解析 Dom
     """
@@ -38,20 +38,20 @@ class YuanbaoChatNetService(AIWebService[Conversation]):
 
         await super().attach(page)
 
-    async def ask(self, args: AIAskArgs) -> List[Conversation]:
+    async def invoke(self, extra_params: Dict[str, Any]) -> List[Conversation]:
         if not self.page or not self.state:
             raise RuntimeError("Service not attached to a Page")
 
         pause = self._service_params.scroll_pause_ms
-        on_scroll = ScrollHelper.build_on_scroll(self.page, service_params=self._service_params, pause_ms=pause, extra=args.extra_params)
+        on_scroll = ScrollHelper.build_on_scroll(self.page, service_params=self._service_params, pause_ms=pause, extra=extra_params)
 
         items = await run_network_collection(
             self.state,
             self._service_params,
-            extra_params=args.extra_params or {},
-            goto_first=args.goto_first,
+            extra_params=extra_params or {},
             on_scroll=on_scroll,
             network_timeout=60,  # 一分钟超时
+            delegate=self.loop_delegate,
         )
         return items
 

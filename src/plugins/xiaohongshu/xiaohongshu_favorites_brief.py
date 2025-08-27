@@ -18,7 +18,6 @@ from src.data_sync import SyncParams, InMemoryStorage, PassiveSyncEngine, DiffRe
 from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
 from src.services.net_service import NetServiceDelegate
-from src.services.xiaohongshu.common import NoteCollectArgs
 from src.services.xiaohongshu.models import NoteBriefItem
 from src.services.xiaohongshu.note_brief_net import XiaohongshuNoteBriefNetService
 from src.utils.params_helper import ParamsHelper
@@ -221,10 +220,8 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
             await self.page.click(".sub-tab-list:nth-child(2)")
 
         try:
-            items = await self._note_brief_net_service.collect(NoteCollectArgs(
-                goto_first=goto_favorites,
-                extra_params=self.task_params.extra
-            ))
+            await goto_favorites()
+            items = await self._note_brief_net_service.invoke(self.task_params.extra)
 
             # Convert to dictionaries for JSON serialization
             items_data = [asdict(item) for item in items]

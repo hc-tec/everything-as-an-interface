@@ -6,8 +6,8 @@ from typing import Any, Dict, List, Optional
 
 from playwright.async_api import Locator, Page
 
+from src.services.base_service import BaseService
 from src.services.scroll_helper import ScrollHelper
-from src.services.xiaohongshu.common import NoteService, NoteCollectArgs
 from src.services.xiaohongshu.collections.note_dom_collection import (
     NoteDomCollectionConfig,
     NoteDomCollectionState,
@@ -18,7 +18,9 @@ from src.services.xiaohongshu.parsers import parse_details_from_dom
 
 logger = get_logger(__name__)
 
-class XiaohongshuNoteDomService(NoteService[NoteDetailsItem]):
+
+
+class XiaohongshuNoteDomService(BaseService):
     """
     小红书笔记详情抓取服务 - 通过DOM解析实现
     """
@@ -49,12 +51,12 @@ class XiaohongshuNoteDomService(NoteService[NoteDetailsItem]):
     def set_params(self, cfg: NoteDomCollectionConfig) -> None:
         self.cfg = cfg
 
-    async def collect(self, args: NoteCollectArgs) -> List[NoteDetailsItem]:
+    async def invoke(self, extra_params: Dict[str, Any]) -> List[NoteDetailsItem]:
         if not self.page or not self.state:
             raise RuntimeError("Service not attached to a Page")
 
         pause = self._service_params.scroll_pause_ms or self.cfg.scroll_pause_ms
-        on_scroll = ScrollHelper.build_on_scroll(self.page, service_params=self._service_params, pause_ms=pause, extra=args.extra_params)
+        on_scroll = ScrollHelper.build_on_scroll(self.page, service_params=self._service_params, pause_ms=pause, extra=extra_params)
 
         items = await run_dom_collection(
             self.state,

@@ -15,7 +15,6 @@ from src.core.plugin_context import PluginContext
 from src.core.task_params import TaskParams
 from src.plugins.base import BasePlugin
 from src.plugins.registry import register_plugin
-from src.services.xiaohongshu.common import NoteCollectArgs
 from src.services.xiaohongshu.models import NoteAccessInfo, NoteDetailsItem
 from src.services.xiaohongshu.note_explore_page_net import XiaohongshuNoteExplorePageNetService
 from src.utils.params_helper import ParamsHelper
@@ -136,8 +135,10 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
                 "version": self.PLUGIN_VERSION,
             }
 
-    async def navigate_to_note_explore_page(self, loop_count: int,
-                                            extra: Dict[str, Any]):
+    async def navigate_to_note_explore_page(self,
+                                            loop_count: int,
+                                            extra: Dict[str, Any],
+                                            state: Any):
         # 利用此回调，我们可以让网页跳转到笔记详情页
         access_info: NoteAccessInfo = extra.get("access_info")[loop_count - 1]
         note_explore_page = f"https://www.xiaohongshu.com/explore/{access_info.id}?xsec_token={access_info.xsec_token}&xsec_source=pc_feed"
@@ -186,16 +187,12 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
         ]
 
         try:
+            self._note_explore_net_service.set_delegate_on_loop_item_start(self.navigate_to_note_explore_page)
             # Get details in batch
-            details = await self._note_explore_net_service.collect(NoteCollectArgs(
-                    goto_first=None,
-                    on_tick_start=self.navigate_to_note_explore_page,
-                    extra_params={
-                        "access_info": note_access_info,
-                        **self.task_params.extra
-                    }
-                )
-            )
+            details = await self._note_explore_net_service.invoke(extra_params={
+                "access_info": note_access_info,
+                **self.task_params.extra
+            })
             
             # Filter out None results and convert to dictionaries
             valid_details = [detail for detail in details if detail is not None]
