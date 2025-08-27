@@ -76,7 +76,7 @@ class BrowserConfig:
     viewport: ViewportConfig = field(default_factory=ViewportConfig)
     user_agent: Optional[str] = field(default_factory=lambda: os.getenv(
         "BROWSER_USER_AGENT",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
     ))
     proxy: ProxyConfig = field(default_factory=ProxyConfig)
     timeout_ms: int = field(default_factory=lambda: int(os.getenv("BROWSER_TIMEOUT_MS", "30000")))

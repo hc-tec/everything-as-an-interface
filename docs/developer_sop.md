@@ -1,254 +1,558 @@
 # 开发者 SOP
 [toc]
 
-## 最佳实践（可直接照做）
+## 最佳实践
 * **数据采集分过程，不要一次就拿下详细数据！！！！**（这点最最最最最最关键！！！）
   * 比如小红书笔记数据采集，可以先通过瀑布流获取简略的笔记信息，一条笔记由note_id和xsec_token确定，你至少需要保证这两条数据到手。
   * 接下来，利用获取笔记详情插件，来不断的爬取笔记的详情数据！
-* 订阅最小化：用精确正则命中目标 API，避免噪声；一站多口时订多条。
-* 解析幂等：item 必须含稳定主键；关注字段变化时采用 fingerprint 合理取字段。
-* 合理节流：scroll_pause_ms、delay_ms、max_idle_rounds 配合，既快又稳。
-* 防封：随机 UA/Headers；慢动作/人类化滚动；限制并发；必要时 DOM 混合策略。
-* 可观测性：在回调与 stop_decider 里打点（count、elapsed、exit reason），便于溯源。
-* 清理资源：helper.stop()、解绑 bus、关闭页面；异常路径同样要回收。
 
 ## 0. 目标读者
 * 仅“使用插件”的开发者：只需要用 RPC 客户端/REST 快速接入，阅读`README.md`即可
 * 扩展能力的开发者：新增插件、沉淀服务、打磨同步与可靠性，同样需要先阅读`README.md`即可
 
-## 1. 架构速读与阅读顺序
-* 入口与生命周期：src/api/server.py（FastAPI、lifespan、Orchestrator/Scheduler 初始化）
-* 客户端交互：src/client/rpc_client.py（topic/subscription 自动化、签名校验、Future 等待）
-* 配置系统：src/config/*、config.example.json5（集中化配置与环境变量映射）
-* 同步引擎：docs/data_sync/README.zh.md（PassiveSyncEngine 的使用方式）
-* 其他：examples/*（从例子反推真实参数组合）
+## 1. 我们的爬虫是如何运作的（重要）
 
-最佳实践：
-* 遇到“为什么这么设计”，先对照你文档中的“分层说明”，再回到具体代码定位
-* 所有“跨插件复用”的逻辑优先落服务层，插件仅做编排与场景 glue
+我们的爬虫核心基于 **Playwright 自动化测试工具**。通过它，我们可以模拟真实用户打开网页，并利用其对 **DOM 操作** 和 **网络请求/响应监听** 的能力，构建所需的爬取功能。
 
+换句话说，我们的对象始终是网页本身。这里并不存在一个统一的 API，可以一次性直接获取到所需的数据（例如某网站的收藏内容）。一切都是 **所见即所得** ——我们所要做的，就是抓取页面数据并将结果提取出来。
 
-## 2. 配置与参数（开发者视角）
-* 服务端鉴权
-    * 默认读取 EAI_API_KEY，客户端以 X-API-Key 头传入
-    * 开发模式未设置时为开放访问；建议在团队/生产环境必须配置
-* 浏览器与网络
-    * headless 在本地关闭、CI/服务器开启
-    * 需要代理时，通过 browser.proxy.* 注入（见 config.example.json5 与 BrowserConfig）
-* 任务与服务
-    * TaskConfig：围绕“浏览器/任务级别”参数
-    * ServiceConfig & extra：围绕“数据采集策略与业务特性”参数
-    * 客户端不需要显式构造 TaskConfig 对象，按键填入即可
+为了快速上手，让我们先来看看使用自动化爬取时需要考虑的几个关键问题：
 
-最佳实践：
-* 把“频率控制”和“超时策略”放在 ServiceConfig 中显式声明；避免隐式死循环
-* 采集数据尽量使用 storage_file + PassiveSync，以便具备幂等与增量能力
+* **你需要的数据是什么？**
+* **哪些页面包含这些数据？**
+* **是否需要登录？**（有些网站无需登录，可跳过）
 
-## 3. 数据同步（PassiveSyncEngine）
-* 适用场景：分页/滚动流式采集（首页、搜索页、收藏夹等）
-* 能力：识别新增/更新；按阈值建议停止，避免浪费
-* 当前限制：删除识别待完善，先以新增/更新为主
+  * 登录入口在哪里？
+  * 登录方式是什么？（目前仅支持手动登录）
+  * 如何判断登录成功？
+* **登录成功后，如何进入目标页面？**
 
-最佳实践：
-* 选择稳定的 identity_key（如笔记 id）
-* 启用 fingerprint_fields 只覆盖对业务有意义的字段，避免 HTML/时序噪声导致“假更新”
-* 通过 stop_after_consecutive_known/stop_after_no_change_batches 保证会话可终止
+  * 目标页面地址是什么？
+* 打算用哪种方式来爬取数据？
 
-## 4. 服务层与插件层的协作
-* 原则：服务层沉淀“可复用能力”，插件专注“场景编排与入口路由”
-* 示例：瀑布流采集器放在服务层（滚动、加载、提取、反爬控制），插件只决定去哪一个页面、如何组装参数
+  * **监听网络响应（推荐）**
 
-最佳实践：
-* 服务层 API 要保持“平台无关/页面少耦合”；把 CSS Selector/特定接口路径集中管理
-* 同一站内不同入口（首页/搜索/收藏）尽量共用一套服务能力，减少重复
+    * 目标数据在哪个 API 请求里？（建议全局搜索，很快能找到）
+    * 如何监听目标 API？
+    * 如何解析 API 返回的数据？
+  * **解析 DOM（备用方案）**
 
-## 5. 开发一个新插件（从 0 到 1）- 深入版
-### 5.1 选择策略：网络监听 vs 直接 DOM 解析
-* 网络监听（推荐优先）
-    * 优点：结构化、稳定、性能好；避免复杂 DOM 解析；天然更贴近后端分页/游标语义。
-    * 何时用：接口返回 JSON；列表/详情接口可直接拿数据；需要精确去重与增量。
-* DOM 解析
-    * 优点：无 API 也能用；对强前端渲染页面能兜底。
-    * 何时用：接口受强校验/签名保护；前端异步渲染且可稳定选择器获取。
-    * 风险与对策：易碎、慢、易被反爬 → 使用滚动节流、选择器断言、尽量提取语义稳定的属性；与网络监听组合使用更稳。
+    * 如何从页面元素中提取数据？
 
-最佳实践：
-* “能网就网，网不全再 DOM 补齐”。用 PassiveSync 做幂等与增量，避免重复开销。
-* 把“滚动/翻页/节流/限速”集中给 ServiceConfig 调整，插件只做编排。
+当我们需要把爬虫扩展成一个 **插件/服务** 时，还要进一步思考：
+
+* 是否需要让用户输入参数？（如：指定某个博主的笔记）
+* 哪些参数需要用户提供？（如：博主 ID）
+* 参数该如何定义与使用？（本项目已提供最佳实践）
+
+---
+
+### 项目中尚未实现但值得探索的问题
+
+* 页面是否支持复用？如何优化复用能力？
+* Cookie 管理是否可以更细致？哪些字段最关键？
+* 是否需要前端监控界面？
+* 能否支持在浏览器直接运行？（让没有电脑的用户也能使用）
+* 更多 **AI 插件** 的接入，以增强数据处理能力：
+  * 图片 OCR
+  * 文本抽取（LangExtract）
+  * 深度研究（Deep Research）
+  * ……
+
+---
+
+我们的目标并不是停留在“数据采集”层面，而是打造一个 **数据基础层**：让数据不再孤立在不同平台，而是能通过二次接口统一展现。
+
+想一想，你每天要打开多少个网页、多少个 App？你曾经收藏过的内容又有多久没有再看过？
+
+未来更重要的，不仅是“能不能拿到数据”，而是 **如何用好这些数据**。AI 代表着更先进的生产力：在数据采集之上，如何进一步 **分析、总结、转化为价值**，才是更值得探索的方向。
 
 
-### 5.2 NetHelper 与回调（NetConsumeHelper + NetRuleBus）
-* 角色分工
-    * NetRuleBus：绑定 Page，用正则订阅 request/response，产出 ResponseView/RequestView 队列。
-    * NetConsumeHelper：消费“合并队列”，应用校验、委托回调（on_before_response / on_response / parse_items / on_items_collected），把解析好的 items 放进状态并唤醒采集循环。
-    * NetServiceDelegate：挂载到 Service，用于插入回调逻辑与定制解析。
+## 2. 为什么需要做插件（Plugin）/服务（Service）分层
+我是这样定义Plugin和Service的
+* Plugin：它可以管理一个或多个Service，主要的职责是推进服务的运行，负责控制：
+  * 应该打开哪个页面？
+  * 如何与用户提供的参数作配合，进入到需要的页面？
+  * 服务推进的速度应该是怎么样的？
+  * 管控着服务的爬取周期（通过Delegate）
+  * 什么情况下应该优雅的关闭服务？
+  * 等等各种比较大的问题
+* Service：它主要负责某一个细微点的执行，
+  * 监听一个网络响应
+  * 负责将api数据解析成需要的格式
 
-关键代码（回调与消费主循环）：
-```python
-class NetConsumeHelper(Generic[T]):
-    ...
-    async def start(
-        self,
-        *,
-        default_parse_items: DefaultParser[T],
-        payload_ok: Optional[PayloadValidator] = None,
-    ) -> None:
-        if self._consumer:
-            return
-        self._consumer = asyncio.create_task(
-            self._consume_loop(default_parse_items=default_parse_items, payload_ok=payload_ok)
-        )
+这样设计之下，有几个好处：
+* 职责清晰、明确，业务不容易混乱
+* Service具备复用的潜力
 
-    async def _consume_loop(...):
-        ...
-        while True:
-            self._consume_count += 1
-            if self.delegate.on_before_response:
-                await self.delegate.on_before_response(self._consume_count, self._extra, self.state)
-            evt: MergedEvent = await self._merged_q.get()
-            ...
-            # 原始数据
-            data = evt.view.data()
-            ...
-            # on_response 先观察原始响应
-            if self.delegate.on_response and self.state:
-                await self.delegate.on_response(evt.view, self.state)
-            ...
-            # 记录到 state.raw_responses / last_response
-            if should_record and self.state:
-                record_response(self.state, data, evt.view)
-            ...
-            # 优先用 delegate.parse_items，否则用默认 default_parse_items
-            if self.delegate.parse_items:
-                parsed = await self.delegate.parse_items(data)
-            if parsed is None:
-                parsed = await default_parse_items(payload)
-            ...
-            # on_items_collected 后处理并入 state.items，然后唤醒队列
-            if self.delegate.on_items_collected:
-                parsed = await self.delegate.on_items_collected(parsed, self._consume_count, self._extra, self.state)
-            self.state.items.extend(parsed)
-            await self.state.queue.put(parsed)
-```
+## 3. 从0开始开发插件
 
-NetRuleBus 订阅与合并队列：
-通过`subscribe_many`可以将多个订阅的接口请求合并到一起（似乎略显鸡肋），之后处理响应时需要区分到底是哪一个url
+延续前面的思路，我们来实际走一遍插件开发流程。接下来以 **小红书收藏笔记获取插件** 为例，带大家从零开始构建。我们的插件代码放在 `src/plugins/xiaohongshu` 目录下。
 
-ResponseView/RequestView：
-当响应到达之后，_preloaded会自动赋值为解析后的数据，如果返回json数据，则可以通过data方法直接拿到
-```python
-class ResponseView:
-    def __init__(self, original: Response, preloaded: Any) -> None: ...
-    def data(self) -> Any:
-        return self._preloaded
-```
+---
 
-### 5.3 Service 层内容一览（做什么、怎么扩展）
-BaseSiteService + ServiceConfig（浏览/滚动/限速等通用参数）
+### 3.1 明确数据需求
+
+首先要解决的问题是：**我们到底需要哪些数据？**
+
+在这里，我们的目标是获取小红书收藏笔记的 **详细信息**。所以第一步，就是定义清晰的数据需求。
+
+创建文件 `src/services/xiaohongshu/models.py`（为保证复用性，本项目将其实际放在 `src/services/models.py`）。
+
 ```python
 @dataclass
-class ServiceConfig:
-    response_timeout_sec: float = 5.0
-    delay_ms: int = 500
-    queue_maxsize: Optional[int] = None
-    concurrency: int = 1
-    scroll_pause_ms: int = 800
-    max_idle_rounds: int = 2
-    max_items: Optional[int] = None
-    max_seconds: int = 600
-    auto_scroll: bool = True
-    scroll_mode: Optional[str] = None
+class UserInfo:
+    user_id: str
+    username: str
+    avatar: str
+    xsec_token: Optional[str] = None
+    gender: Optional[str] = None
+    is_following: Optional[bool] = None
+    is_followed: Optional[bool] = None
+    user_type: Optional[str] = None
+
+
+@dataclass
+class AuthorInfo(UserInfo):
+    pass
+
+
+@dataclass
+class NoteStatistics:
+    like_num: str      # 点赞数量
+    collect_num: str   # 收藏数量
+    chat_num: str      # 评论数量
+
+
+@dataclass
+class VideoInfo:
+    duration_sec: int
+    src: str
+    id: str
+
+
+@dataclass
+class NoteDetailsItem(WithRaw):
+    id: str
+    xsec_token: str
+    title: str
+    desc: str
+    author_info: AuthorInfo
+    tags: List[str]
+    date: str
+    ip_zh: str
+    comment_num: str
+    statistic: NoteStatistics
+    images: Optional[list[str]]
+    video: Optional[VideoInfo]
+    timestamp: str
 ```
 
-* NetService + NetServiceDelegate（网络驱动型服务的回调集合）
-    * on_before_response(consume_count, extra, state)
-    * on_response(response_view, state)
-    * should_record_response(payload, response_view) → 控制是否入 raw_responses
-    * parse_items(payload) → 返回 List[T] 或 None
-    * on_items_collected(items, consume_count, extra, state) → 二次加工/去重/补充字段
-* NetCollectionState（本次会话状态）
-    * items/raw_responses/last_response_view/stop_decider/queue
-    * 使用 record_response(state, payload, view) 进行统一记录
+规则很简单：需要什么数据，就定义什么字段。
 
-* scroll_helper（滚动/选择器模式）
-    * 通过 scroll_mode/scroll_selector/pager_selector 与 scroll_page_once 控制滚动或分页
+---
+
+### 3.2 哪些页面包含数据
+
+这个问题并不复杂。小红书收藏页面就是我们需要的入口，相信大家都很熟悉。
+
+---
+
+### 3.3 是否需要登录
+
+* **登录入口**： [https://www.xiaohongshu.com/login](https://www.xiaohongshu.com/login)
+* **登录方式**：手动扫码登录，登录态有效期较长，可以反复使用。
+* **如何判断登录成功？**
+  登录成功后会跳转到首页，用户头像会显示出来。我们选择头像元素的选择器 `.reds-img-box` 来作为登录成功的判断依据。
+
+---
+
+### 3.4 登录成功后，如何进入目标页面
+
+小红书的用户界面 URL 格式中包含 **用户 ID**。虽然我们可以通过监听 API 来获取，但对于只需要一个 ID 的场景来说有些繁琐。于是我们采用更直接的方式：用 **Playwright 控制按钮点击**。
+
+1. 点击用户头像，进入用户个人页面。
+2. 再点击“收藏”，进入收藏标签页。
+
+---
+
+### 3.5 爬取数据的方式
+
+进入收藏页后，打开开发者工具（F12），切换到 **网络 (Network)** 标签，再刷新页面，就能找到一个 API ——它返回了收藏笔记的 **简略信息**。
+
+这时候问题来了：
+简略信息 ≠ 详细信息。
+要拿到完整内容，就得逐条点开笔记详情，这样一来就需要处理 DOM，写起来很繁琐。
+
+但是，稍微分析一下 URL 规则，就能找到更优解：
+
+笔记详情页 URL 格式：
+
+```
+https://www.xiaohongshu.com/explore/{noteId}?xsec_token={NoteXSecToken}&xsec_source=pc_feed
+```
+
+也就是说，只要拿到 **noteId** 和 **xsec\_token**，就能拼出笔记详情页的地址。幸运的是，这两个参数正好包含在简略信息里。
+
+因此，策略立刻调整为 **两步走**：
+
+1. 获取收藏笔记的简略信息。
+2. 根据简略信息中的 `noteId` 和 `xsec_token`，再去获取对应的详细信息。
+
+这样不仅更高效，还能避免复杂的 DOM 操作。
+
+---
+
+### 3.6 最终规划
+
+我们需要开发两个插件：
+
+1. **收藏笔记简略信息插件** ——获取收藏笔记的基础信息（含 noteId 和 xsec\_token）。
+2. **笔记详情信息插件** ——利用简略信息中的参数，抓取笔记的完整内容。
+
+> 为什么不是两个独立服务？
+> 因为插件可以更快迭代，时间成本更低。同时，错误恢复等问题可以放在更高层去做。
 
 
-### 5.4 通用采集主循环：run_generic_collection
-入口与关键参数：
+下一节开始，我们正式进行插件的开发
+---
+
+## 收藏笔记的简略信息插件
+
+简略信息本身就是一个新的数据需求，因此我们需要先为它定义数据结构。
+
 ```python
-async def run_generic_collection(
-    *,
-    extra_config: Optional[Dict[str, Any]] = None,
-    page: Page,
-    state: Any,
-    max_items: int,
-    max_seconds: int,
-    max_idle_rounds: int,
-    auto_scroll: bool,
-    scroll_pause_ms: int,
-    goto_first: Optional[Callable[[], Awaitable[None]]] = None,
-    on_tick: Optional[OnTick] = None,
-    on_scroll: Optional[Callable[[], Awaitable[None]]] = None,
-    on_tick_start: Optional[Callable[[int, Dict[str, Any]], Awaitable[None]]] = None,
-    key_fn: Optional[Callable[[T], Optional[str]]] = None,
-) -> List[T]:
+@dataclass
+class NoteBriefItem(WithRaw):
+    id: str
+    xsec_token: str
+    title: str
+    author_info: AuthorInfo
+    statistic: NoteStatistics
+    cover_image: str
 ```
-循环行为要点（idle 检测、超时、滚动、stop_decider）：
+
+定义好数据模型之后，我们就可以着手编写 Service 逻辑。创建文件：
+`src/services/xiaohongshu/note_brief_net.py`
+
+在 Service 中，我们需要依次解决几个核心问题：
+
+1. **监听哪个 API？如何监听？**
+2. **如何解析出需要的数据？**
+
+---
+
+#### 1. 如何监听 API
+
+项目中已经封装好了一个工具类 `net_helper.py`，位于
+`src/services/net_consume_helpers.py`。
+
+它可以帮助我们快速完成 **网络请求监听 + 数据消费**，下面给出一个使用示例：
+
 ```python
-elapsed = loop.time() - start_ts
-if elapsed >= max_seconds: break
-if len(state.items) >= max_items: break
-...
-# on_tick 未显式返回新增数时，用 len(state.items) 的增量推断
-...
-if idle_rounds >= max_idle_rounds: break
-...
-if state.stop_decider:
-    stop_decision = await result
-    if stop_decision.should_stop:
-        break
-...
-if auto_scroll:
-    await (on_scroll() if on_scroll else _scroll_page_once(page, pause_ms=scroll_pause_ms))
+class XiaohongshuNoteBriefNetService(NetService[NoteBriefItem]):
+    """
+    小红书瀑布流笔记抓取服务 - 通过监听网络实现，而非解析 Dom
+    """
+    def __init__(self) -> None:
+        super().__init__()
+
+    async def attach(self, page: Page) -> None:
+        self.page = page
+        self.state = NetCollectionState[NoteBriefItem](page=page, queue=asyncio.Queue())
+
+        # 实例化 NetConsumeHelper，传入 state 和回调 delegate
+        self._net_helper = NetConsumeHelper(state=self.state, delegate=self.delegate)
+
+        # 绑定要监听的 API
+        await self._net_helper.bind(page, [
+            (r".*/note/collect/page/*", "response"),
+        ])
+
+        # 启动监听并传入解析函数
+        await self._net_helper.start(default_parse_items=self._parse_items_wrapper)
+
+        await super().attach(page)
+
+    async def _parse_items_wrapper(self,
+                                   payload: Dict[str, Any],
+                                   consume_count: int,
+                                   extra: Dict[str, Any],
+                                   state: Any) -> List[NoteBriefItem]:
+        items_payload = payload.get("data").get("notes", [])
+        return parse_brief_from_network(items_payload, raw_data=self._inject_raw_data(payload))
 ```
-网络驱动统一入口（把“事件队列唤醒”转为 on_tick）：
-当响应到达时，会往state.queue里put数据，这样state.queue.get()就能够获知数据到达
+
+**说明：**
+
+* `self._net_helper = NetConsumeHelper(...)`：负责注册网络监听逻辑。
+* `bind(...)`：定义监听规则，这里使用正则 `r".*/note/collect/page/*"` 来匹配收藏 API，并指定监听 **响应** 而不是请求。
+* `start(...)`：真正启动监听，并指定默认解析函数 `_parse_items_wrapper`。
+
+---
+
+#### 2. 为什么需要 run\_network\_collection？
+
+虽然网络监听已经完成，但 Service 并没有结束。我们还需要实现 `invoke` 方法：
+
 ```python
-async def run_network_collection(state, cfg, *, goto_first=None, on_scroll=None, on_tick_start=None, key_fn=None, network_timeout=5.0) -> List[T]:
-    async def on_tick() -> Optional[int]:
-        await state.queue.get()
-        state.queue.task_done()
-        return 0  # 新增数用 len(items) 增量推断
-    async def default_scroll(): await _scroll_page_once(state.page, pause_ms=cfg.scroll_pause_ms)
-    return await run_generic_collection(..., on_tick=on_tick, on_scroll=on_scroll or default_scroll, ...)
+class XiaohongshuNoteBriefNetService(NetService[NoteBriefItem]):
+    """
+    小红书瀑布流笔记抓取服务 - 通过监听网络实现，而非解析 Dom
+    """
+
+    async def invoke(self, extra_params: Dict[str, Any]) -> List[NoteBriefItem]:
+        if not self.page or not self.state:
+            raise RuntimeError("Service not attached to a Page")
+
+        pause = self._service_params.scroll_pause_ms
+        on_scroll = ScrollHelper.build_on_scroll(
+            self.page,
+            service_params=self._service_params,
+            pause_ms=pause,
+            extra=extra_params
+        )
+
+        items = await run_network_collection(
+            self.state,
+            self._service_params,
+            extra_params=extra_params or {},
+            on_scroll=on_scroll,
+            delegate=self.loop_delegate,
+        )
+        return items
 ```
 
-### 5.5 从 0 到 1：最小网络监听插件“套路”
-* 目标：在某站点“搜索页”抓取列表项
-* 步骤：
-    * 维护正则订阅清单：[(".*api/search.*", "response")]
-    * 建立 NetCollectionState(page, asyncio.Queue())
-    * 构造 NetConsumeHelper(state=..., delegate=NetServiceDelegate())
-    * 定义 payload_ok → 校验返回结构
-    * 实现 delegate.parse_items(payload) → 提取成标准 Item 列表
-    * 可选：on_before_response/on_response/on_items_collected
-    * helper.bind(page, patterns) → helper.start(default_parse_items, payload_ok)
-    * run_network_collection(state, cfg, goto_first=navigate_to_search, on_tick_start=...)
-    * 结束后 await helper.stop()
+`invoke` 方法供插件调用，它接收参数并返回一个数据列表。
+其核心依赖是 `run_network_collection`，它的作用是：
 
-具体可以参考一个service示例
+* **为什么需要它？**
 
+  * 项目采用 **协程** 实现，主协程执行`run_network_collection`，而监听 API 的逻辑运行在另一个协程循环中，而 `invoke` 需要同步拿到数据。
+  * 为了桥接两者，`run_network_collection` 会新开一个 loop 来消费队列数据。
+* **如何配合？**
 
-### 6.6 StopDecider（何时优雅停止）
-* 在 state.stop_decider 注入：以“批增量 + 时间”做决策，返回 StopDecision(should_stop, reason)
-* 常见策略：
-    * 连续空转 N 轮（新项目 0）停止
-    * 连续命中已知 ID 过多停止
-    * 本会话累计新增到上限停止
-    * 观察 payload.cursor 或 has_more 终止条件
+  * 网络监听协程把抓到的数据塞入 `asyncio.Queue`。
+  * `run_network_collection` 则持续从队列中取数据，一旦有数据，就立即触发解析和处理。
+
+这两个循环（监听循环 + 消费循环）是本项目的 **核心机制**，理解了它，整个 Service 的执行模型就清晰了。
+
+---
+
+📌 **总结流程**
+
+**数据流转：网络监听 → 数据入队 → run\_network\_collection 消费队列 → invoke 返回结果**
 
 
 
+👌 好的，我帮你把这一部分润色成 **清晰、结构化的技术说明**，既保持原意，又让开发者读起来更顺畅：
+
+---
+
+### 数据解析逻辑
+
+当网络数据到来后，下一步就是**解析响应内容**。
+通过分析 API 的 JSON 格式，我们可以很容易地写出数据解析函数：
+
+```python
+def parse_brief_from_network(resp_items: List[Dict[str, Any]], raw_data: Any) -> List[NoteBriefItem]:
+    """
+    从网络响应中解析笔记简要信息
+
+    Args:
+        resp_items: 网络响应中的笔记列表
+        raw_data: 原始数据
+
+    Returns:
+        List[NoteBriefItem]: 解析后的笔记简要信息列表
+    """
+    results: List[NoteBriefItem] = []
+    for note_item in resp_items or []:
+        try:
+            id = note_item["note_id"]
+            title = note_item.get("display_title")
+            xsec_token = note_item.get("xsec_token")
+
+            # 作者信息
+            user = note_item.get("user", {})
+            author_info = AuthorInfo(
+                username=user.get("nickname"),
+                avatar=user.get("avatar"),
+                user_id=user.get("user_id"),
+                xsec_token=user.get("xsec_token"),
+            )
+
+            # 互动数据
+            interact = note_item.get("interact_info", {})
+            statistic = NoteStatistics(
+                like_num=str(interact.get("liked_count", 0)),
+                collect_num=None,
+                chat_num=None,
+            )
+
+            # 封面图
+            cover_image = note_item.get("cover", {}).get("url_default")
+
+            # 封装为 NoteBriefItem
+            results.append(
+                NoteBriefItem(
+                    id=id,
+                    xsec_token=xsec_token,
+                    title=title,
+                    author_info=author_info,
+                    statistic=statistic,
+                    cover_image=cover_image,
+                    raw_data=note_item,
+                )
+            )
+        except Exception as e:
+            logger.error(f"解析笔记信息出错：{str(e)}")
+    return results
+```
+
+相比 DOM 解析，这种方式更加直观和稳定，极大降低了解析难度。
+
+---
+
+### 插件开发
+
+完成 Service 后，下一步就是编写插件。
+新建文件：
+`src/plugins/xiaohongshu/xiaohongshu_favorites_brief.py`
+
+#### 插件基本定义
+
+```python
+class XiaohongshuNoteBriefPlugin(BasePlugin):
+
+    # 插件唯一标识
+    PLUGIN_ID: str = PLUGIN_ID
+    PLUGIN_NAME: str = __name__
+    PLUGIN_VERSION: str = "2.0.0"
+    PLUGIN_DESCRIPTION: str = f"Xiaohongshu note brief info plugin (service-based v{PLUGIN_VERSION})"
+    PLUGIN_AUTHOR: str = ""
+
+    # 平台 / 登录配置（供 BasePlugin 的通用登录逻辑使用）
+    LOGIN_URL = "https://www.xiaohongshu.com/login"
+    PLATFORM_ID = "xiaohongshu"
+    LOGGED_IN_SELECTORS = [
+        ".reds-img-box",
+    ]
+```
+
+其中 `LOGIN_URL`、`PLATFORM_ID`、`LOGGED_IN_SELECTORS` 并非仅仅是说明信息，它们会被 **login\_helper** 使用。
+login\_helper 对登录流程进行了简单封装，插件只需提供少量配置，即可完成：
+
+* 登录检测
+* Cookie 注册
+* 登录态保持
+
+---
+
+#### fetch：插件的入口方法
+
+每个插件必须实现 `fetch` 方法，它是插件运转的起点：
+
+```python
+async def fetch(self) -> Dict[str, Any]:
+
+    await self._ensure_logged_in()
+    self._note_brief_net_service.set_params(self.task_params.extra)
+    try:
+        # 加载历史存储（避免重复抓取）
+        await self._note_brief_delegate.load_storage_from_data(self.task_params.extra.get("storage_data", {}))
+
+        # 核心逻辑：抓取收藏笔记
+        briefs_res = await self._collect_briefs()
+
+        if briefs_res["success"]:
+            diff = self._note_brief_delegate.get_diff()
+            logger.info(f"diff: {diff.stats()}")
+
+            full_data = self._note_brief_delegate.get_storage_data()
+            return {
+                "success": True,
+                "data": full_data,
+                "count": len(full_data),
+                "plugin_id": self.PLUGIN_ID,
+                "version": self.PLUGIN_VERSION,
+            }
+
+        raise Exception(briefs_res["error"])
+
+    except Exception as e:
+        logger.error(f"Fetch operation failed: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "data": [],
+            "plugin_id": self.PLUGIN_ID,
+            "version": self.PLUGIN_VERSION,
+        }
+```
+
+核心逻辑 `_collect_briefs`：
+
+1. 确认已登录。
+2. 进入用户收藏页面。
+3. 调用 `note_brief_net_service` 启动 Service，收集笔记数据。
+4. 将结果序列化为 JSON。
+
+```python
+async def _collect_briefs(self) -> Dict[str, Any]:
+    if not self._note_brief_net_service:
+        raise RuntimeError("Services not initialized. Call setup() first.")
+
+    async def goto_favorites():
+        await self.page.click('.user, .side-bar-component')
+        await asyncio.sleep(1)
+        await self.page.click(".sub-tab-list:nth-child(2)")
+
+    try:
+        await goto_favorites()
+        items = await self._note_brief_net_service.invoke(self.task_params.extra)
+
+        # 转换为字典，便于 JSON 输出
+        items_data = [asdict(item) for item in items]
+
+        logger.info(f"Successfully collected {len(items_data)} favorite items")
+
+        return {
+            "success": True,
+            "data": items_data,
+            "count": len(items_data),
+        }
+
+    except Exception as e:
+        ...
+```
+
+---
+
+### 插件注册
+
+插件最后需要显式注册：
+
+```python
+@register_plugin(PLUGIN_ID)
+def create_plugin(ctx: PluginContext, params: TaskParams) -> XiaohongshuNoteBriefPlugin:
+    p = XiaohongshuNoteBriefPlugin()
+    p.inject_task_params(params)
+    # 注入上下文（包含 page / account_manager）
+    p.set_context(ctx)
+    return p
+```
+
+这样，插件即可被框架正确识别和加载。
+
+---
+
+📌 **总结流程**
+
+* **fetch**：插件入口 → 确认登录 → 调用 `_collect_briefs`
+* **\_collect\_briefs**：进入收藏页 → 调用 Service → 收集并序列化数据
+* **Service**：监听 API → 解析 JSON → 返回简略信息
+
+## 笔记详情信息插件
 
 

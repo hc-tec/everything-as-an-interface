@@ -139,12 +139,12 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
         except Exception as e:
             logger.error(f"Service setup failed: {e}")
             raise
-        logger.info("启动小红书插件")
+        logger.info("启动小红书收藏夹读取插件")
         return await super().start()
 
     async def stop(self) -> bool:
         await self._cleanup()
-        logger.info("停止小红书插件")
+        logger.info("停止小红书收藏夹读取插件")
         return await super().stop()
 
     async def _cleanup(self) -> None:
@@ -242,13 +242,6 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
                 "count": 0,
                 "error": str(e),
             }
-
-    def _build_stop_decider(self) -> Optional[Any]:
-
-        def custom_stop_decider(loop_count, extra_params, page, state, new_batch, elapsed) -> StopDecision:
-            return StopDecision(should_stop=False, reason=None, details=None)
-        
-        return custom_stop_decider
 
 
 @register_plugin(PLUGIN_ID)

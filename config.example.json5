@@ -13,7 +13,7 @@
     "headless": false,
     "viewport_width": 1280,
     "viewport_height": 800,
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
     "timeout": 30,
     "proxy_server": null,
     "proxy_username": null,
@@ -42,7 +42,8 @@
       "xiaohongshu_search",
       "xiaohongshu_favorites_brief",
       "xiaohongshu_details",
-      "yuanbao_chat"
+      "yuanbao_chat",
+      "zhihu_collection_list"
     ],
     "disabled_plugins": [],
     "plugin_settings": {

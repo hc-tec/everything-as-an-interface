@@ -42,7 +42,7 @@ class YuanbaoChatPlugin(BasePlugin):
     # 插件版本
     PLUGIN_VERSION: str = "1.0.0"
     # 插件描述
-    PLUGIN_DESCRIPTION: str = f"YuanbaoChatPlugin note search plugin (service-based v{PLUGIN_VERSION})"
+    PLUGIN_DESCRIPTION: str = f"Ai Yuanbao in Web (service-based v{PLUGIN_VERSION})"
     # 插件作者
     PLUGIN_AUTHOR: str = ""
 
@@ -70,12 +70,12 @@ class YuanbaoChatPlugin(BasePlugin):
         except Exception as e:
             logger.error(f"Service setup failed: {e}")
             raise
-        logger.info("启动小红书插件")
+        logger.info("启动AI元宝网页端插件")
         return await super().start()
 
     async def stop(self) -> bool:
         await self._cleanup()
-        logger.info("停止小红书插件")
+        logger.info("停止AI元宝网页端插件")
         return await super().stop()
 
     async def _cleanup(self) -> None:
@@ -186,7 +186,7 @@ class YuanbaoChatPlugin(BasePlugin):
             # Convert to dictionaries for JSON serialization
             items_data = [asdict(item) for item in items]
 
-            logger.info(f"Successfully collected {len(items_data)} favorite items")
+            logger.info(f"Successfully chat")
 
             return {
                 "success": True,

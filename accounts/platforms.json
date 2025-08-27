@@ -41,5 +41,15 @@
     ],
     "login_url": "https://yuanbao.tencent.com/chat/naQivTmsDa/",
     "requires_login": true
+  },
+  "zhihu": {
+    "name": "zhihu",
+    "icon": "zhihu.png",
+    "cookie_domains": [
+      "zhihu.com",
+      ".zhihu.com"
+    ],
+    "login_url": "zhihu.com",
+    "requires_login": true
   }
 }

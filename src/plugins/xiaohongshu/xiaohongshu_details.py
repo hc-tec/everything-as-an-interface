@@ -74,10 +74,6 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
 
             self.plugin_params = ParamsHelper.build_params(XiaohongshuNoteDetailPlugin.Params, self.task_params.extra)
 
-            stop_decider = self._build_stop_decider()
-            if stop_decider:
-                self._note_explore_net_service.set_stop_decider(stop_decider)
-
             logger.info("XiaohongshuNoteDetailPlugin service initialized and attached")
 
         except Exception as e:
@@ -218,38 +214,6 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
         except Exception as e:
             logger.error(f"Details collection failed: {e}", exc_info=e)
             raise e
-
-    def _build_stop_decider(self) -> Optional[Any]:
-
-        def custom_stop_decider(loop_count, extra_params, page, state, new_batch, elapsed) -> StopDecision:
-            return StopDecision(should_stop=False, reason=None, details=None)
-        
-        return custom_stop_decider
-
-    async def _is_logged_in(self) -> bool:
-        """Check if user is logged in by looking for user profile elements."""
-        try:
-            if not self.page:
-                return False
-            
-            # Look for user avatar or profile menu
-            user_indicators = [
-                '.reds-img-box',
-            ]
-            
-            for selector in user_indicators:
-                try:
-                    element = await self.page.wait_for_selector(selector, timeout=3000)
-                    if element:
-                        return True
-                except:
-                    continue
-            
-            return False
-            
-        except Exception as e:
-            logger.warning(f"Login check failed: {e}")
-            return False
 
 
 @register_plugin(PLUGIN_ID)
