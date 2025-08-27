@@ -91,7 +91,7 @@ class XiaohongshuNoteSearchNetService(NetService[NoteBriefItem]):
                         author_info=author_info,
                         statistic=statistic,
                         cover_image=cover_image,
-                        raw_data=note_item
+                        raw_data=self._inject_raw_data(note_item)
                     )
                 )
             except Exception as e:

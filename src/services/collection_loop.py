@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import asyncio
+
+from paddle.distributed.fleet import nranks
+
 from src.config import get_logger
 from typing import Any, Awaitable, Callable, Dict, Generic, List, Optional, TypeVar
 
@@ -62,6 +65,7 @@ async def run_generic_collection(
     idle_rounds = 0
     last_len = 0
     loop_count = 0
+    need_break = False
     while True:
         loop_count += 1
         if delegate.on_loop_item_start:
@@ -110,7 +114,9 @@ async def run_generic_collection(
                               elapsed=elapsed)
                 logger.info("collector.exit, should_stop=%s, stop_reason=%s, elapsed=%s",
                             stop_decision.should_stop, stop_decision.reason, elapsed)
-                break
+                need_break = True
+
+        if need_break: break
 
         if state.stop_decider:
             try:

@@ -72,11 +72,13 @@ class BaseService:
     def __init__(self) -> None:
         self._service_params: ServiceParams = ServiceParams()
         self.delegate = ServiceDelegate()
+        self.page: Optional[Page] = None
 
     def set_delegate(self, delegate: ServiceDelegate) -> None:
         self.delegate = delegate
 
     async def attach(self, page: Page) -> None:
+        self.page = page
         # Delegate hook
         if self.delegate.on_attach:
             try:
@@ -101,5 +103,5 @@ class BaseService:
     def set_delegate_on_detach(self, on_detach: ServiceDelegateOnDetach) -> None:
         self.delegate.on_detach = on_detach
 
-    def invoke(self, extra_params: Dict[str, Any]) -> Any:
+    async def invoke(self, extra_params: Dict[str, Any]) -> Any:
         raise NotImplementedError()

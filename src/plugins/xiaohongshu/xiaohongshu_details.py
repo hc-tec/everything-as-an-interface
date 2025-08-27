@@ -148,6 +148,7 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
             page,
             state,
             new_batch,
+            idle_rounds,
             elapsed):
         is_all_collected = loop_count >= len(extra_params.get("access_info"))
         if is_all_collected:

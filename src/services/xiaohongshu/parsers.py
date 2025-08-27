@@ -47,40 +47,7 @@ def parse_brief_from_network(resp_items: List[Dict[str, Any]], raw_data: Any) ->
     Returns:
         List[NoteBriefItem]: 解析后的笔记简要信息列表
     """
-    results: List[NoteBriefItem] = []
-    for note_item in resp_items or []:
-        try:
-            id = note_item["note_id"]
-            title = note_item.get("display_title")
-            xsec_token = note_item.get("xsec_token")
-            user = note_item.get("user", {})
-            author_info = AuthorInfo(
-                username=user.get("nickname"),
-                avatar=user.get("avatar"),
-                user_id=user.get("user_id"),
-                xsec_token=user.get("xsec_token")
-            )
-            interact = note_item.get("interact_info", {})
-            statistic = NoteStatistics(
-                like_num=str(interact.get("liked_count", 0)),
-                collect_num=None,
-                chat_num=None
-            )
-            cover_image = note_item.get("cover", {}).get("url_default")
-            results.append(
-                NoteBriefItem(
-                    id=id,
-                    xsec_token=xsec_token,
-                    title=title,
-                    author_info=author_info,
-                    statistic=statistic,
-                    cover_image=cover_image,
-                    raw_data=note_item,
-                )
-            )
-        except Exception as e:
-            logger.error(f"解析笔记信息出错：{str(e)}")
-    return results
+
 
 
 def parse_details_from_network(note_item: Dict[str, Any], raw_data: Optional[Any]) -> List[NoteDetailsItem]:

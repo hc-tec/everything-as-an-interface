@@ -74,7 +74,7 @@ class NoteBriefDelegate(NetServiceDelegate[NoteBriefItem]):
         self._diff.deleted.extend(diff.deleted)
         return items
 
-    def make_stop_decision(self, loop_count, extra_params, page, state, new_batch, elapsed) -> StopDecision:
+    def make_stop_decision(self, loop_count, extra_params, page, state, new_batch, idle_rounds, elapsed) -> StopDecision:
         return self._stop_decision
 
 class XiaohongshuNoteBriefPlugin(BasePlugin):

@@ -57,7 +57,6 @@ class NetService(BaseService, Generic[T]):
         super().__init__()
         self.delegate = NetServiceDelegate()
         self.loop_delegate = CollectionLoopDelegate()
-        self.page: Optional[Page] = None
         self.state: Optional[NetCollectionState[T]] = None
         self._net_helper: Optional[Any[T]] = None # NetConsumeHelper
 
@@ -77,13 +76,13 @@ class NetService(BaseService, Generic[T]):
         self.delegate.on_items_collected = on_items_collected
 
     def set_delegate_on_loop_item_start(self, on_loop_item_start: OnLoopItemStart[T]) -> None:
-        self.state.on_loop_item_start = on_loop_item_start
+        self.loop_delegate.on_loop_item_start = on_loop_item_start
 
     def set_delegate_on_loop_item_collected(self, on_loop_item_collected: OnLoopItemCollected[T]) -> None:
-        self.state.on_loop_item_collected = on_loop_item_collected
+        self.loop_delegate.on_loop_item_collected = on_loop_item_collected
 
     def set_delegate_on_loop_item_end(self, on_loop_item_end: OnLoopItemEnd) -> None:
-        self.state.on_loop_item_end = on_loop_item_end
+        self.loop_delegate.on_loop_item_end = on_loop_item_end
 
     def _inject_raw_data(self, payload: Any):
         if self._service_params.need_raw_data:

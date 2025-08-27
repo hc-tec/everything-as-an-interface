@@ -43,7 +43,8 @@
       "xiaohongshu_favorites_brief",
       "xiaohongshu_details",
       "yuanbao_chat",
-      "zhihu_collection_list"
+      "zhihu_collection_list",
+      "paddle_ocr",
     ],
     "disabled_plugins": [],
     "plugin_settings": {
