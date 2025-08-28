@@ -25,6 +25,7 @@ _COMMON_KEYS: Tuple[str, ...] = (
     "user_agent",
     "extra_http_headers",
     "close_page_when_task_finished",
+    "use_browser",
 )
 
 
@@ -44,6 +45,9 @@ class TaskParams(Mapping[str, Any]):
     user_agent: Optional[str] = None
     extra_http_headers: Optional[Dict[str, str]] = None
     close_page_when_task_finished: bool = False
+    # Whether this task requires a browser environment. If False, we will not
+    # allocate/playwright browser context for this task.
+    use_browser: Optional[bool] = True
 
     # Extension space for plugin-specific options
     extra: Dict[str, Any] = field(default_factory=dict)
@@ -103,6 +107,8 @@ class TaskParams(Mapping[str, Any]):
             merged["extra_http_headers"] = self.extra_http_headers
         if self.close_page_when_task_finished is not None:
             merged["close_page_when_task_finished"] = self.close_page_when_task_finished
+        if self.use_browser is not None:
+            merged["use_browser"] = self.use_browser
         return merged
 
     # ----- Construction helpers -----
@@ -130,6 +136,7 @@ class TaskParams(Mapping[str, Any]):
             user_agent=cls._as_str(common.get("user_agent")),
             extra_http_headers=cls._as_dict_str(common.get("extra_http_headers")),
             close_page_when_task_finished=cls._as_bool(common.get("close_page_when_task_finished")),
+            use_browser=cls._as_bool(common.get("use_browser", True)),
             extra=extra,
         )
 

@@ -281,39 +281,59 @@ class Scheduler:
         Returns:
             插件返回的数据结果
         Raises:
-            RuntimeError: 当未设置必要的组件（插件管理器或 Orchestrator）
+            RuntimeError: 当未设置必要的组件（插件管理器）
         """
         if not self.plugin_manager:
             raise RuntimeError("未设置插件管理器")
-        if not self._orchestrator:
-            raise RuntimeError("未设置 Orchestrator，请先调用 set_orchestrator() 并在外部启动")
 
         cfg = params or TaskParams()
         
+        # 检查是否需要浏览器环境
+        use_browser = cfg.get("use_browser", True)
+        if not use_browser:
+            logger.info(f"插件 {plugin_id} 不需要浏览器环境，跳过浏览器上下文分配")
+        elif not self._orchestrator:
+            raise RuntimeError("未设置 Orchestrator，请先调用 set_orchestrator() 并在外部启动")
+
         # 计时开始
         _start_ts = time.perf_counter()
 
-        # 准备 cookie
-        cookie_items = None
-        try:
-            cookie_ids = cfg.get("cookie_ids") or []
-            if self.account_manager and cookie_ids:
-                valid_cookie_ids: List[str] = []
-                for cid in cookie_ids:
-                    ok, _ = self.account_manager.check_cookie_validity(cid)
-                    if ok:
-                        valid_cookie_ids.append(cid)
-                if valid_cookie_ids:
-                    cookie_items = self.account_manager.merge_cookies(valid_cookie_ids)
-        except Exception as e:
-            logger.warning(f"准备 cookie 失败: {e}")
+        ctx = None
+        
+        if use_browser:
+            # 需要浏览器：准备 cookie 并分配上下文
+            cookie_items = None
+            try:
+                cookie_ids = cfg.get("cookie_ids") or []
+                if self.account_manager and cookie_ids:
+                    valid_cookie_ids: List[str] = []
+                    for cid in cookie_ids:
+                        ok, _ = self.account_manager.check_cookie_validity(cid)
+                        if ok:
+                            valid_cookie_ids.append(cid)
+                    if valid_cookie_ids:
+                        cookie_items = self.account_manager.merge_cookies(valid_cookie_ids)
+            except Exception as e:
+                logger.warning(f"准备 cookie 失败: {e}")
 
-        # 分配上下文与页面
-        ctx = await self._orchestrator.allocate_context_page(
-            cookie_items=cookie_items,
-            account_manager=self.account_manager,
-            settings={"plugin": plugin_id, "ephemeral": True},
-        )
+            # 分配浏览器上下文与页面
+            ctx = await self._orchestrator.allocate_context_page(
+                cookie_items=cookie_items,
+                account_manager=self.account_manager,
+                settings={"plugin": plugin_id, "ephemeral": True},
+            )
+        else:
+            # 不需要浏览器：创建轻量化的 mock 上下文
+            from .plugin_context import PluginContext
+            ctx = PluginContext(
+                page=None,
+                browser_context=None,
+                account_manager=self.account_manager,
+                storage=None,
+                event_bus=None,
+                logger=logger,
+                settings={"plugin": plugin_id, "ephemeral": True},
+            )
 
         logger.info(f"开始执行插件: {plugin_id}")
 
@@ -328,14 +348,15 @@ class Scheduler:
         # 计算执行耗时（毫秒）
         total_elapsed_ms = int((time.perf_counter() - _start_ts) * 1000)
 
-        # 释放上下文
-        try:
-            if cfg.close_page_when_task_finished:
-                logger.info("Task finished, close page url: %s", ctx.page.url)
-                await self._orchestrator.release_context_page(ctx)
-        except Exception:
-            # 忽略释放异常，避免影响主流程
-            pass
+        # 释放上下文（仅在浏览器模式下）
+        if use_browser and ctx:
+            try:
+                if cfg.close_page_when_task_finished:
+                    logger.info("Task finished, close page url: %s", ctx.page.url)
+                    await self._orchestrator.release_context_page(ctx)
+            except Exception:
+                # 忽略释放异常，避免影响主流程
+                pass
 
         # 回调
         if callback and data:

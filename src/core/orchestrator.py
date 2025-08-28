@@ -108,7 +108,7 @@ class Orchestrator:
             context_args["viewport"] = viewport
         if user_agent is not None:
             context_args["user_agent"] = user_agent
-            
+
         context = await self._browser.new_context(**context_args)
         if extra_http_headers:
             await context.set_extra_http_headers(extra_http_headers)

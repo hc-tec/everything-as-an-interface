@@ -11,9 +11,9 @@
   "browser": {
     "channel": "msedge",
     "headless": false,
-    "viewport_width": 1280,
-    "viewport_height": 800,
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    "viewport_width": 1920,
+    "viewport_height": 1080,
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/538.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/538.36",
     "timeout": 30,
     "proxy_server": null,
     "proxy_username": null,

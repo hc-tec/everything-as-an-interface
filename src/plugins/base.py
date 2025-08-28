@@ -118,21 +118,26 @@ class BasePlugin(ABC):
         self.page = self.ctx.page
         self.account_manager = self.ctx.account_manager
         logger.info(f"插件 {self.PLUGIN_ID} 已注入 Context")
-        # 创建登录助手（在有上下文后）
-        self._login_helper = create_login_helper(
-            page=self.page,
-            account_manager=self.account_manager,
-            task_config=self.task_params,
-            plugin_attrs={
-                # 透传可能存在的类属性，便于向后兼容
-                "LOGIN_URL": getattr(self, "LOGIN_URL", None),
-                "PROBE_URL": getattr(self, "PROBE_URL", None),
-                "HOME_URL": getattr(self, "HOME_URL", None),
-                "PLATFORM_ID": getattr(self, "PLATFORM_ID", None),
-                "LOGGED_IN_SELECTORS": getattr(self, "LOGGED_IN_SELECTORS", None),
-                "COOKIE_DOMAINS": getattr(self, "COOKIE_DOMAINS", None),
-            }
-        )
+        
+        # 仅在有 page 时创建登录助手
+        if self.page is not None:
+            self._login_helper = create_login_helper(
+                page=self.page,
+                account_manager=self.account_manager,
+                task_config=self.task_params,
+                plugin_attrs={
+                    # 透传可能存在的类属性，便于向后兼容
+                    "LOGIN_URL": getattr(self, "LOGIN_URL", None),
+                    "PROBE_URL": getattr(self, "PROBE_URL", None),
+                    "HOME_URL": getattr(self, "HOME_URL", None),
+                    "PLATFORM_ID": getattr(self, "PLATFORM_ID", None),
+                    "LOGGED_IN_SELECTORS": getattr(self, "LOGGED_IN_SELECTORS", None),
+                    "COOKIE_DOMAINS": getattr(self, "COOKIE_DOMAINS", None),
+                }
+            )
+        else:
+            logger.info(f"插件 {self.PLUGIN_ID} 运行在无浏览器模式，跳过登录助手创建")
+            self._login_helper = None
 
 
     @abstractmethod

@@ -130,7 +130,6 @@ class ZhihuCollectionListPlugin(BasePlugin):
             raise RuntimeError("Services not initialized. Call setup() first.")
 
         if self.plugin_params.user_id is None:
-            await asyncio.sleep(1000)
             avatar = await self.page.wait_for_selector("#Popover16-toggle", timeout=5000)
             await avatar.click()
             await asyncio.sleep(2)
