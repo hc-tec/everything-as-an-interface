@@ -76,6 +76,7 @@ class NoteBriefItem(WithRaw):
 class CollectionItem(WithRaw):
     id: str
     title: str
+    cover: Optional[str] # 收藏夹封面
     description: Optional[str]
     link: str  # 收藏夹链接
     item_count: int # 收藏夹中的项数量

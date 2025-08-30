@@ -87,6 +87,7 @@ class BaseService:
                 pass
 
     async def detach(self) -> None:
+        self.page = None
         # Delegate hook (before unbind)
         if self.delegate.on_detach:
             try:

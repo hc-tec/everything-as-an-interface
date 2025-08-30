@@ -171,11 +171,11 @@ class LoginHelper:
             return False
         
         try:
-            # 首先检查当前登录状态
-            if await self.is_logged_in(logged_in_selectors):
-                logger.debug("当前已处于登录状态")
-                return True
-            
+            # # 首先检查当前登录状态
+            # if await self.is_logged_in(logged_in_selectors):
+            #     logger.debug("当前已处于登录状态")
+            #     return True
+
             # 获取配置
             config = self.auth_config.get_config()
             

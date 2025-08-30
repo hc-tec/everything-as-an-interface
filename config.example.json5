@@ -45,6 +45,8 @@
       "yuanbao_chat",
       "zhihu_collection_list",
       "paddle_ocr",
+      "bilibili_collection_list",
+      "bilibili_collection_videos",
     ],
     "disabled_plugins": [],
     "plugin_settings": {

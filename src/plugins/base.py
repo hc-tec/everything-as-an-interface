@@ -60,7 +60,7 @@ async def download_response_to_file(resp_view: ResponseView) -> None:
     write_json_with_project_root(data, filename)
 
 
-class BasePlugin(ABC):
+class BasePlugin:
     """
     插件基类：所有自动化接口插件都需继承此类
     
@@ -140,7 +140,6 @@ class BasePlugin(ABC):
             self._login_helper = None
 
 
-    @abstractmethod
     async def start(self) -> bool:
         """
         启动插件
@@ -156,7 +155,6 @@ class BasePlugin(ABC):
         logger.info(f"插件 {self.PLUGIN_ID} 已启动")
         return True
     
-    @abstractmethod
     async def stop(self) -> bool:
         """
         停止插件
@@ -276,3 +274,12 @@ class BasePlugin(ABC):
         # 允许通过类属性 LOGGED_IN_SELECTORS 传递默认选择器
         selectors = getattr(self, "LOGGED_IN_SELECTORS", None)
         return await self._login_helper.is_logged_in(selectors=selectors)
+
+    async def _dont_open_new_page(self):
+        # 可选：走“强制单标签页”策略
+        context = self.ctx.browser_context
+        if not context:
+            return
+        await context.add_init_script("window.open = (url) => { location.href = url; return window; }")
+        await context.add_init_script("document.addEventListener('click', e => { const a=e.target?.closest('a[target=_blank]'); if(a) a.target='_self'; }, true)")
+        logger.info("已尝试让网页不再打开新页面，而是直接在原页面打开，这样可以防止（网络监听或元素选择）的page切换")
