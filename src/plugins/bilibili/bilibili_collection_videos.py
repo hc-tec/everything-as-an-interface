@@ -4,6 +4,8 @@ import re
 from dataclasses import asdict, dataclass
 from typing import Any, Dict, Optional, List
 
+from playwright.async_api import ElementHandle
+
 from src.common.plugin import StopDecision
 from src.config import get_logger
 from src.core.plugin_context import PluginContext
@@ -26,8 +28,9 @@ class BilibiliCollectionVideosPlugin(BasePlugin):
 
     @dataclass
     class Params:
-        user_id: Optional[str]
         collection_id: Optional[str] # 传入需要获取的收藏夹ID列表
+        user_id: Optional[str] = None
+        total_page: Optional[int] = None
 
     # 平台/登录配置（供 BasePlugin 通用登录逻辑使用）
     LOGIN_URL = LOGIN_URL
@@ -122,11 +125,36 @@ class BilibiliCollectionVideosPlugin(BasePlugin):
                 "version": self.PLUGIN_VERSION,
             }
 
-    async def _make_stop_decision(self, loop_count, extra_params, page, state: CollectionState, *args, **kwargs):
-        current_video_count = len(state.items)
-        if current_video_count >= 10:
+    async def _make_stop_decision(self,
+                                  loop_count,
+                                  extra_params,
+                                  page,
+                                  state: CollectionState,
+                                  *args, **kwargs):
+        if loop_count >= self.plugin_params.total_page:
             return StopDecision(should_stop=True, reason="Reach max collection count")
         return StopDecision(should_stop=False, reason="Don't reach max collection count")
+
+    async def _get_total_page_num(self):
+        logger.debug("尝试获取当前收藏夹的总页数")
+        try:
+            btn = await self.page.wait_for_selector("div.vui_pagenation--btns button:nth-last-of-type(2)", timeout=2000)
+            total_page_num = int(await btn.text_content())
+            self.plugin_params.total_page = total_page_num
+        except Exception as e:
+            self.plugin_params.total_page = 1
+
+    async def _click_to_next_page(self,
+                                  loop_count: int,
+                                  extra_params: Dict[str, Any],
+                                  state: CollectionState):
+        logger.debug("进入下一页")
+        try:
+            input_ = await self.page.wait_for_selector(".vui_pagenation-go input", timeout=200)
+            await input_.type(str(loop_count+1))
+            await input_.press("Enter")
+        except Exception as e:
+            pass
 
     async def _collect(self) -> Dict[str, Any]:
         if self.plugin_params.user_id is None:
@@ -142,7 +170,7 @@ class BilibiliCollectionVideosPlugin(BasePlugin):
             else:
                 raise RuntimeError("User ID not found. Check url correctly.")
         else:
-            # 跳转到其他人的个人空间中
+            # 直接跳转到个人空间中
             pass
 
         user_id = self.plugin_params.user_id
@@ -150,7 +178,10 @@ class BilibiliCollectionVideosPlugin(BasePlugin):
         url = f"https://space.bilibili.com/{user_id}/favlist?fid={collection_id}&ftype=create"
         await self.page.goto(url, wait_until="load")
 
+        await self._get_total_page_num()
+
         self._service.set_stop_decider(self._make_stop_decision)
+        self._service.set_delegate_on_loop_item_end(self._click_to_next_page)
         try:
             items = await self._service.invoke(self.task_params.extra)
 

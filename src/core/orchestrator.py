@@ -57,10 +57,11 @@ class Orchestrator:
         if self._browser is None:
             # 使用配置类生成启动选项
             launch_kwargs = self._browser_config.get_launch_options()
-            
-            # 允许运行时覆盖
-            if headless is not None:
-                launch_kwargs["headless"] = headless
+
+            if headless:
+                launch_kwargs["args"].append("--headless")
+            else:
+                launch_kwargs["headless"] = False
             if channel is not None:
                 launch_kwargs["channel"] = channel
             if proxy is not None:

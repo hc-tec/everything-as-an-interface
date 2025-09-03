@@ -11,13 +11,20 @@
   "browser": {
     "channel": "msedge",
     "headless": false,
-    "viewport_width": 1920,
-    "viewport_height": 1080,
+    "viewport": {
+      "width": 1280,
+      "height": 800,
+    },
     "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/538.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/538.36",
     "timeout": 30,
-    "proxy_server": null,
-    "proxy_username": null,
-    "proxy_password": null
+    "proxy": {
+      "enabled": false,
+      "host": null,
+      "port": null,
+      "username": null,
+      "password": null
+    },
+    "mute_audio": true
   },
   // mongo还未经过测试，暂未完全支持
   "database": {
@@ -47,6 +54,7 @@
       "paddle_ocr",
       "bilibili_collection_list",
       "bilibili_collection_videos",
+      "bilibili_video_details"
     ],
     "disabled_plugins": [],
     "plugin_settings": {

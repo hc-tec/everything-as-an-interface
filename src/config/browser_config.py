@@ -83,16 +83,22 @@ class BrowserConfig:
     slow_mo_ms: int = field(default_factory=lambda: int(os.getenv("BROWSER_SLOW_MO_MS", "0")))
     devtools: bool = field(default_factory=lambda: os.getenv("BROWSER_DEVTOOLS", "false").lower() == "true")
     downloads_path: Optional[str] = field(default_factory=lambda: os.getenv("BROWSER_DOWNLOADS_PATH"))
+    mute_auto: bool = field(default_factory=lambda: os.getenv("BROWSER_MUTE_AUDIO", "false").lower() == "true")
     extra_http_headers: Dict[str, str] = field(default_factory=dict)
     
     def get_launch_options(self) -> Dict[str, Any]:
         """Get browser launch options for Playwright."""
         options = {
-            "headless": self.headless,
             "channel": self.channel,
             "timeout": self.timeout_ms,
+            "args": []
         }
-        
+        if self.mute_auto:
+            options["args"].append("--mute-audio")
+
+        if self.headless:
+            options["args"].append("--headless")
+
         if self.slow_mo_ms > 0:
             options["slow_mo"] = self.slow_mo_ms
         

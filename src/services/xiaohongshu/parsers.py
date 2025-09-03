@@ -15,7 +15,7 @@ from .models import AuthorInfo, NoteStatistics, NoteDetailsItem, NoteBriefItem, 
 logger = get_logger(__name__)
 
 
-def quick_extract_initial_state(html_content: str) -> Optional[str]:
+def extract_initial_state(html_content: str) -> Optional[str]:
     """
     快速提取HTML文件中的window.__INITIAL_STATE__
 

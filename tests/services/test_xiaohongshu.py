@@ -1,16 +1,4 @@
-import asyncio
-from unittest.mock import AsyncMock
-
-import pytest
-import pytest_asyncio
-from playwright.async_api import ElementHandle, async_playwright
-
 # from src.plugins.xiaohongshu import XiaohongshuPlugin
-from src.services.xiaohongshu.models import AuthorInfo, NoteStatistics
-from tests.plugins.mock_browser import  page, mock_page, mock_context, mock_browser
-from src.utils.file_util import read_file_with_project_root
-from tests.test_utils.fake_mock_function import fake_sleep, mock_query_selector_click
-from tests.plugins.xiaohongshu.note_card_details import NOTE_CARD_DETAILS
 
 # @pytest.fixture
 # def xhs_plugin(mocker, mock_browser):

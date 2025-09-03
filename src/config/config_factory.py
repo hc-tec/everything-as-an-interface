@@ -199,6 +199,7 @@ class ConfigFactory:
             'browser.proxy.port': 'BROWSER_PROXY_PORT',
             'browser.proxy.username': 'BROWSER_PROXY_USERNAME',
             'browser.proxy.password': 'BROWSER_PROXY_PASSWORD',
+            'browser.mute_audio': 'BROWSER_MUTE_AUDIO',
             
             # Database config
             'database.use_mongo': 'USE_MONGO',

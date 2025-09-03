@@ -13,31 +13,35 @@ from src.services.net_collection_loop import (
     NetCollectionState,
     run_network_collection,
 )
-from src.services.xiaohongshu.models import NoteDetailsItem
-from src.services.xiaohongshu.parsers import extract_initial_state, parse_details_from_network
+from src.services.bilibili.models import VideoSubtitleList, VideoSubtitleItem
 
 
-class XiaohongshuNoteExplorePageNetService(NetService[NoteDetailsItem]):
+class VideoAiSubtitleNetService(NetService[VideoSubtitleList]):
     """
-    小红书笔记详情抓取服务 - 通过监听网络实现，从 Dom 中提取 Js 对象来获取笔记数据，而非分析标签
+    Bilibili AI字幕抓取服务 - 通过监听网络实现，从 Dom 中提取 Js 对象来获取数据，而非分析标签
     """
     def __init__(self) -> None:
         super().__init__()
 
     async def attach(self, page: Page) -> None:
-        self.page = page
-        self.state = NetCollectionState[NoteDetailsItem](page=page, queue=asyncio.Queue())
+        self.state = NetCollectionState[VideoSubtitleList](page=page, queue=asyncio.Queue())
 
         # Bind NetRuleBus and start consumer via helper
         self._net_helper = NetConsumeHelper(state=self.state, delegate=self.delegate)
         await self._net_helper.bind(page, [
-            (r".*/explore/.*xsec_token.*", "response"),
+            (r".*/ai_subtitle/prod.*", "response"),
         ])
         await self._net_helper.start(default_parse_items=self._parse_items_wrapper, payload_ok=lambda _: True)
 
         await super().attach(page)
 
-    async def invoke(self, extra_params: Dict[str, Any]) -> List[NoteDetailsItem]:
+    async def detach(self) -> None:
+        self.state = None
+        await self._net_helper.stop()
+        self._net_helper = None
+        await super().detach()
+
+    async def invoke(self, extra_params: Dict[str, Any]) -> List[VideoSubtitleList]:
         if not self.page or not self.state:
             raise RuntimeError("Service not attached to a Page")
 
@@ -60,18 +64,24 @@ class XiaohongshuNoteExplorePageNetService(NetService[NoteDetailsItem]):
                                    payload: Dict[str, Any],
                                    consume_count: int,
                                    extra: Dict[str, Any],
-                                   state: Any) -> List[NoteDetailsItem]:
-        if payload is None:
-            return []
-        js_content = extract_initial_state(payload)
-        if js_content:
-            data = await self.page.evaluate(f"window.__INITIAL_STATE__ = {js_content}")
-            noteDetailMap = data["note"]["noteDetailMap"]
-            note = None
-            for key, value in noteDetailMap.items():
-                if "note" in value:
-                    note = value["note"]
-                    break
-            return parse_details_from_network(note, raw_data=self._inject_raw_data(js_content))
-        return []
-
+                                   state: Any) -> List[VideoSubtitleList]:
+        lang = payload["lang"]
+        type = payload["type"]
+        subtitle_data = payload["body"]
+        subtitles = []
+        for item in subtitle_data:
+            subtitles.append(VideoSubtitleItem(
+                content=item["content"],
+                from_=item["from"],
+                to=item["to"],
+                location=item["location"],
+                sid=item["sid"],
+            ))
+        return [
+            VideoSubtitleList(
+                subtitles=subtitles,
+                lang=lang,
+                type=type,
+                raw_data=self._inject_raw_data(payload)
+            )
+        ]

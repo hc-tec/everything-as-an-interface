@@ -1,6 +1,7 @@
 
 from __future__ import annotations
 import asyncio
+import json
 from typing import Any, Dict, List, Optional
 
 from playwright.async_api import Page
@@ -14,7 +15,7 @@ from src.services.net_collection_loop import (
     run_network_collection,
 )
 from src.services.models import CollectionItem, AuthorInfo
-
+from src.utils.request_clone_helper import NetworkRequestCloner
 
 """
 {
@@ -103,7 +104,14 @@ class CollectionListNetService(NetService[CollectionItem]):
                                    payload: Dict[str, Any],
                                    consume_count: int,
                                    extra: Dict[str, Any],
-                                   state: Any) -> List[CollectionItem]:
+                                   state: NetCollectionState) -> List[CollectionItem]:
+        # 默认拿到的收藏夹数量很少，只有20个，在这里我们克隆请求，将分页数量修改为需要的数量
+        response = state.last_response_view._original
+        # context负责提供cookie
+        cloner = await NetworkRequestCloner.from_response(response, context=self.page.context)
+        cloner.set_query_param("ps", "100") # 一次性可拿到100个收藏夹项，应该没人能有这么多吧
+        new_resp = await cloner.send(timeout_sec=20)
+        payload = json.loads(new_resp.text)
         collection_list = payload.get("data").get("list")
         if not collection_list:
             return []
