@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 
-from paddle.distributed.fleet import nranks
 
 from src.config import get_logger
 from typing import Any, Awaitable, Callable, Dict, Generic, List, Optional, TypeVar

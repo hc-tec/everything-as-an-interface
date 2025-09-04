@@ -54,7 +54,8 @@
       "paddle_ocr",
       "bilibili_collection_list",
       "bilibili_collection_videos",
-      "bilibili_video_details"
+      "bilibili_video_details",
+      "xiaohongshu_collection_list"
     ],
     "disabled_plugins": [],
     "plugin_settings": {
