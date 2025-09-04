@@ -20,45 +20,66 @@ from src.utils.request_clone_helper import NetworkRequestCloner
 """
 {
     "code": 0,
-    "message": "0",
-    "ttl": 1,
+    "success": true,
+    "msg": "",
     "data": {
-        "count": 41,
-        "list": [
+        "boards": [
             {
-                "id": 737546928,
-                "fid": 7375469,
-                "mid": 475310928,
-                "attr": 0,
-                "attr_desc": "",
-                "title": "默认收藏夹",
-                "cover": "http://i1.hdslb.com/bfs/archive/33ecbf9147f807a43730f6413ffe771aebce29f2.jpg",
-                "upper": {
-                    "mid": 475310928,
-                    "name": "ASP-SJT",
-                    "face": "https://i0.hdslb.com/bfs/face/7bad9bb7e35516f4f997b3ea8578d3730b7e5587.jpg",
-                    "jump_link": ""
+                "total": 0,
+                "user": {
+                    "images": "https://sns-avatar-qc.xhscdn.com/avatar/63aeb9050000000026012b9e.jpg?imageView2/2/w/80/format/jpg",
+                    "red_official_verified": false,
+                    "red_official_verify_type": 0,
+                    "show_red_official_verify_icon": false,
+                    "userid": "63aeb9050000000026012b9e",
+                    "nickname": "=_="
                 },
-                "cover_type": 2,
-                "intro": "",
-                "ctime": 1570167288,
-                "mtime": 1663001255,
-                "state": 0,
-                "fav_state": 0,
-                "media_count": 1332,
-                "view_count": 0,
-                "vt": 0,
-                "is_top": false,
-                "recent_fav": null,
-                "play_switch": 0,
-                "type": 0,
-                "link": "",
-                "bvid": ""
+                "guest_hidden_follow_button": false,
+                "desc": "暂无简介",
+                "fstatus": "follows",
+                "id": "68b999990000000021000d6e",
+                "illegal_info": {
+                    "desc": "",
+                    "status": 0
+                },
+                "images": [],
+                "name": "2",
+                "privacy": 0,
+                "fans": 0
             },
+            {
+                "fstatus": "follows",
+                "id": "68b85dac00000000200344ee",
+                "illegal_info": {
+                    "status": 0,
+                    "desc": ""
+                },
+                "privacy": 0,
+                "total": 1,
+                "user": {
+                    "red_official_verified": false,
+                    "red_official_verify_type": 0,
+                    "show_red_official_verify_icon": false,
+                    "userid": "63aeb9050000000026012b9e",
+                    "nickname": "=_=",
+                    "images": "https://sns-avatar-qc.xhscdn.com/avatar/63aeb9050000000026012b9e.jpg?imageView2/2/w/80/format/jpg"
+                },
+                "guest_hidden_follow_button": false,
+                "desc": "暂无简介",
+                "fans": 0,
+                "images": [
+                    "http://sns-na-i6.xhscdn.com/1040g2sg31lv2nj59l86g5o9si6unvu1co83eas0?imageView2/2/w/270/format/jpg/q/75"
+                ],
+                "name": "大撒"
+            }
+        ],
+        "board_count": 2
+    }
+}
 """
 class CollectionListNetService(NetService[CollectionItem]):
     """
-    Bilibili收藏夹列表抓取服务 - 通过监听网络实现，从 Dom 中提取 Js 对象来获取数据，而非分析标签
+    小红书收藏夹列表抓取服务 - 通过监听网络实现，从 Dom 中提取 Js 对象来获取数据，而非分析标签
     """
     def __init__(self) -> None:
         super().__init__()
@@ -69,7 +90,7 @@ class CollectionListNetService(NetService[CollectionItem]):
         # Bind NetRuleBus and start consumer via helper
         self._net_helper = NetConsumeHelper(state=self.state, delegate=self.delegate)
         await self._net_helper.bind(page, [
-            (r".*/fav/folder/created/list.*", "response"),
+            (r".*sns/web/v1/board/user.*", "response"),
         ])
         await self._net_helper.start(default_parse_items=self._parse_items_wrapper, payload_ok=lambda _: True)
 
@@ -105,28 +126,23 @@ class CollectionListNetService(NetService[CollectionItem]):
                                    consume_count: int,
                                    extra: Dict[str, Any],
                                    state: NetCollectionState) -> List[CollectionItem]:
-        # 默认拿到的收藏夹数量很少，只有20个，在这里我们克隆请求，将分页数量修改为需要的数量
-        response = state.last_response_view._original
-        # context负责提供cookie
-        cloner = await NetworkRequestCloner.from_response(response, context=self.page.context)
-        cloner.set_query_param("ps", "100") # 一次性可拿到100个收藏夹项，应该没人能有这么多吧
-        new_resp = await cloner.send(timeout_sec=20)
-        payload = json.loads(new_resp.text)
-        collection_list = payload.get("data").get("list")
+
+        collection_list = payload.get("data").get("boards")
         if not collection_list:
             return []
         ret = []
         for item in collection_list:
             id = str(item.get("id"))
-            title = item.get("title")
-            description = item.get("intro")
-            link = item.get("url")
-            item_count = item.get("media_count")
-            is_default = item.get("attr") == 0
-            creator = item.get("upper")
-            created_time = item.get("ctime")
-            updated_time = item.get("mtime")
-            cover = item.get("cover")
+            title = item.get("name")
+            description = item.get("desc")
+            link = f"https://www.xiaohongshu.com/board/{id}?source=web_user_page"
+            item_count = item.get("total")
+            is_default = False
+            creator = item.get("user")
+            created_time = None
+            updated_time = None
+            images = item.get("images")
+            cover = images[0] if images else None
 
             ret.append(
                 CollectionItem(
@@ -138,9 +154,9 @@ class CollectionListNetService(NetService[CollectionItem]):
                     item_count=item_count,
                     is_default=is_default,
                     creator=AuthorInfo(
-                        user_id=creator.get("mid"),
-                        username=creator.get("name"),
-                        avatar=creator.get("face"),
+                        user_id=creator.get("userid"),
+                        username=creator.get("nickname"),
+                        avatar=creator.get("images"),
                         gender=None,
                         is_following=None,
                         is_followed=None,
