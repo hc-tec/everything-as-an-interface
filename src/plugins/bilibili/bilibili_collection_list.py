@@ -9,6 +9,7 @@ from src.config import get_logger
 from src.core.plugin_context import PluginContext
 from src.core.task_params import TaskParams
 from src.plugins.base import BasePlugin
+from src.plugins.plugin_response import ResponseFactory
 from src.plugins.registry import register_plugin
 from src.services.bilibili.collection_list_net import CollectionListNetService
 from src.utils.params_helper import ParamsHelper
@@ -65,7 +66,7 @@ class BilibiliCollectionListPlugin(BasePlugin):
 
             self.plugin_params = ParamsHelper.build_params(BilibiliCollectionListPlugin.Params, self.task_params.extra)
 
-            logger.info("CollectionListNetService service initialized and attached")
+            logger.info(f"{self._service.__class__.__name__} service initialized and attached")
 
         except Exception as e:
             logger.error(f"Service setup failed: {e}")
@@ -101,24 +102,12 @@ class BilibiliCollectionListPlugin(BasePlugin):
         try:
             res = await self._collect()
             if res["success"]:
-                return {
-                    "success": True,
-                    "data": res["data"],
-                    "count": len(res["data"]),
-                    "plugin_id": PLUGIN_ID,
-                    "version": self.PLUGIN_VERSION,
-                }
+                return self._response.ok(res["data"])
             raise Exception(res["error"])
 
         except Exception as e:
             logger.error(f"Fetch operation failed: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "data": [],
-                "plugin_id": PLUGIN_ID,
-                "version": self.PLUGIN_VERSION,
-            }
+            return self._response.fail(error=str(e))
 
     async def _collect(self) -> Dict[str, Any]:
         if self.plugin_params.user_id is None:
@@ -138,30 +127,14 @@ class BilibiliCollectionListPlugin(BasePlugin):
             # 跳转到其他人的个人空间中
             pass
 
-        try:
-            items = await self._service.invoke(self.task_params.extra)
+        items = await self._service.invoke(self.task_params.extra)
 
-            # Convert to dictionaries for JSON serialization
-            items_data = [asdict(item) for item in items]
+        # Convert to dictionaries for JSON serialization
+        items_data = [asdict(item) for item in items]
 
-            logger.info(f"Successfully collected {len(items_data)} search results")
+        logger.info(f"Successfully collected {len(items_data)} results")
 
-            return {
-                "success": True,
-                "data": items_data,
-                "count": len(items_data),
-                "task_type": "briefs",
-            }
-
-        except Exception as e:
-            logger.error(f"Briefs collection failed: {e}")
-            return {
-                "success": False,
-                "data": None,
-                "count": 0,
-                "task_type": "briefs",
-                "error": str(e),
-            }
+        return self._response.ok(items_data)
 
 
 @register_plugin(PLUGIN_ID)

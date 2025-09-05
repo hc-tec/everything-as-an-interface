@@ -16,6 +16,7 @@ from src.core.plugin_context import PluginContext
 from src.core.task_params import TaskParams
 from src.data_sync import SyncParams, InMemoryStorage, PassiveSyncEngine, DiffResult
 from src.plugins.base import BasePlugin
+from src.plugins.plugin_response import ResponseFactory
 from src.plugins.registry import register_plugin
 from src.services.net_service import NetServiceDelegate
 from src.services.xiaohongshu.models import NoteBriefItem
@@ -134,17 +135,17 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
             # Set custom stop conditions if specified
             self._note_brief_net_service.set_stop_decider(self._note_brief_delegate.make_stop_decision)
 
-            logger.info("XiaohongshuNoteBriefPlugin service initialized and attached")
+            logger.info(f"{self._note_brief_net_service.__class__.__name__} service initialized and attached")
 
         except Exception as e:
             logger.error(f"Service setup failed: {e}")
             raise
-        logger.info("启动小红书收藏夹读取插件")
+        logger.info("启动插件")
         return await super().start()
 
     async def stop(self) -> bool:
         await self._cleanup()
-        logger.info("停止小红书收藏夹读取插件")
+        logger.info("停止插件")
         return await super().stop()
 
     async def _cleanup(self) -> None:
@@ -181,8 +182,7 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
                 diff = self._note_brief_delegate.get_diff()
                 logger.info(f"diff: {diff.stats()}")
                 full_data = self._note_brief_delegate.get_storage_data()
-                return {
-                    "success": True,
+                return self._response.ok(data={
                     "data": full_data,
                     "count": len(full_data),
                     "added": {
@@ -193,20 +193,12 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
                         "data": diff.updated,
                         "count": len(diff.updated),
                     },
-                    "plugin_id": self.PLUGIN_ID,
-                    "version": self.PLUGIN_VERSION,
-                }
+                })
             raise Exception(briefs_res["error"])
                 
         except Exception as e:
             logger.error(f"Fetch operation failed: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "data": [],
-                "plugin_id": self.PLUGIN_ID,
-                "version": self.PLUGIN_VERSION,
-            }
+            return self._response.fail(error=str(e))
 
     async def _collect_briefs(self) -> Dict[str, Any]:
         if not self._note_brief_net_service:
@@ -214,34 +206,14 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
         """Collect favorite items using the note_net service."""
         logger.info("Collecting favorites using note_brief_net service")
 
-        async def goto_favorites():
-            await self.page.click('.user, .side-bar-component')
-            await asyncio.sleep(1)
-            await self.page.click(".sub-tab-list:nth-child(2)")
-
-        try:
-            await goto_favorites()
-            items = await self._note_brief_net_service.invoke(self.task_params.extra)
-
-            # Convert to dictionaries for JSON serialization
-            items_data = [asdict(item) for item in items]
-
-            logger.info(f"Successfully collected {len(items_data)} favorite items")
-
-            return {
-                "success": True,
-                "data": items_data,
-                "count": len(items_data),
-            }
-
-        except Exception as e:
-            logger.error(f"Briefs collection failed: {e}")
-            return {
-                "success": False,
-                "data": None,
-                "count": 0,
-                "error": str(e),
-            }
+        await self.page.click('.user, .side-bar-component')
+        await asyncio.sleep(1)
+        await self.page.click(".sub-tab-list:nth-child(2)")
+        items = await self._note_brief_net_service.invoke(self.task_params.extra)
+        # Convert to dictionaries for JSON serialization
+        items_data = [asdict(item) for item in items]
+        logger.info(f"Successfully collected {len(items_data)} results")
+        return self._response.ok(data=items_data)
 
 
 @register_plugin(PLUGIN_ID)

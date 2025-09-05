@@ -69,12 +69,12 @@ class ZhihuCollectionListPlugin(BasePlugin):
         except Exception as e:
             logger.error(f"Service setup failed: {e}")
             raise
-        logger.info("启动知乎收藏夹列表插件")
+        logger.info("启动插件")
         return await super().start()
 
     async def stop(self) -> bool:
         await self._cleanup()
-        logger.info("停止知乎收藏夹列表插件")
+        logger.info("停止插件")
         return await super().stop()
 
     async def _cleanup(self) -> None:
@@ -104,26 +104,11 @@ class ZhihuCollectionListPlugin(BasePlugin):
         self._service.set_params(self.task_params.extra)
 
         try:
-            res = await self._collect()
-            if res["success"]:
-                return {
-                    "success": True,
-                    "data": res["data"],
-                    "count": len(res["data"]),
-                    "plugin_id": PLUGIN_ID,
-                    "version": self.PLUGIN_VERSION,
-                }
-            raise Exception(res["error"])
+            return await self._collect()
 
         except Exception as e:
             logger.error(f"Fetch operation failed: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "data": [],
-                "plugin_id": PLUGIN_ID,
-                "version": self.PLUGIN_VERSION,
-            }
+            return self._response.fail(error=str(e))
 
     async def _collect(self) -> Dict[str, Any]:
         if not self._service:
@@ -146,30 +131,14 @@ class ZhihuCollectionListPlugin(BasePlugin):
         await self.page.goto(collection_list_page_url)
         await asyncio.sleep(1)
 
-        try:
-            items = await self._service.invoke(self.task_params.extra)
+        items = await self._service.invoke(self.task_params.extra)
 
-            # Convert to dictionaries for JSON serialization
-            items_data = [asdict(item) for item in items]
+        # Convert to dictionaries for JSON serialization
+        items_data = [asdict(item) for item in items]
 
-            logger.info(f"Successfully collected {len(items_data)} search results")
+        logger.info(f"Successfully collected {len(items_data)} search results")
 
-            return {
-                "success": True,
-                "data": items_data,
-                "count": len(items_data),
-                "task_type": "briefs",
-            }
-
-        except Exception as e:
-            logger.error(f"Briefs collection failed: {e}")
-            return {
-                "success": False,
-                "data": None,
-                "count": 0,
-                "task_type": "briefs",
-                "error": str(e),
-            }
+        return self._response.ok(items_data)
 
 
 @register_plugin(PLUGIN_ID)

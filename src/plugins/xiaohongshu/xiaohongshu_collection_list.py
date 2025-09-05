@@ -14,6 +14,7 @@ from src.config import get_logger
 from src.core.plugin_context import PluginContext
 from src.core.task_params import TaskParams
 from src.plugins.base import BasePlugin
+from src.plugins.plugin_response import ResponseFactory
 from src.plugins.registry import register_plugin
 from src.services.xiaohongshu.collection_list_net import CollectionListNetService
 from src.services.xiaohongshu.models import NoteAccessInfo, NoteDetailsItem
@@ -51,9 +52,7 @@ class XiaohongshuCollectionListPlugin(BasePlugin):
         super().__init__()
         # Initialize services (will be attached during setup)
         self._service: Optional[CollectionListNetService] = None
-
         self._access_failed_notes: List[NoteAccessInfo] = []
-
 
     # -----------------------------
     # 生命周期
@@ -72,12 +71,12 @@ class XiaohongshuCollectionListPlugin(BasePlugin):
         except Exception as e:
             logger.error(f"Service setup failed: {e}")
             raise
-        logger.info("启动小红书详情插件")
+        logger.info("启动插件")
         return await super().start()
 
     async def stop(self) -> bool:
         await self._cleanup()
-        logger.info("停止小红书详情插件")
+        logger.info("停止插件")
         return await super().stop()
 
     async def _cleanup(self) -> None:
@@ -116,23 +115,7 @@ class XiaohongshuCollectionListPlugin(BasePlugin):
 
         except Exception as e:
             logger.error(f"Fetch operation failed: {e}", exc_info=e)
-            return {
-                "success": False,
-                "error": str(e),
-                "data": [],
-                "plugin_id": PLUGIN_ID,
-                "version": self.PLUGIN_VERSION,
-            }
-
-    async def navigate_to_note_explore_page(self,
-                                            loop_count: int,
-                                            extra: Dict[str, Any],
-                                            state: Any):
-        # 利用此回调，我们可以让网页跳转到笔记详情页
-        access_info: NoteAccessInfo = extra.get("access_info")[loop_count - 1]
-        note_explore_page = f"https://www.xiaohongshu.com/explore/{access_info.id}?xsec_token={access_info.xsec_token}&xsec_source=pc_feed"
-        await self.page.goto(note_explore_page, wait_until="load")
-        await asyncio.sleep(self.plugin_params.wait_time_sec)
+            return self._response.fail(error=str(e))
 
     @staticmethod
     async def stop_to_note_explore_page_when_all_collected(
@@ -171,24 +154,14 @@ class XiaohongshuCollectionListPlugin(BasePlugin):
         await asyncio.sleep(1)
         await self.page.click(".tertiary.left.reds-tabs-list .reds-tab-item:nth-child(2)")
 
-        try:
-            # Get details in batch
-            items = await self._service.invoke(self.task_params.extra)
+        items = await self._service.invoke(self.task_params.extra)
 
-            # Convert to dictionaries for JSON serialization
-            items_data = [asdict(item) for item in items]
+        # Convert to dictionaries for JSON serialization
+        items_data = [asdict(item) for item in items]
 
-            logger.info(f"Successfully collected {len(items_data)} search results")
+        logger.info(f"Successfully collected {len(items_data)} results")
 
-            return {
-                "success": True,
-                "data": items_data,
-                "count": len(items_data),
-            }
-            
-        except Exception as e:
-            logger.error(f"Details collection failed: {e}", exc_info=e)
-            raise e
+        return self._response.ok(data=items_data)
 
 
 @register_plugin(PLUGIN_ID)

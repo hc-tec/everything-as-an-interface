@@ -9,6 +9,7 @@ from src.config import get_logger
 from src.core.plugin_context import PluginContext
 from src.core.task_params import TaskParams
 from src.plugins.base import BasePlugin
+from src.plugins.plugin_response import ResponseFactory
 from src.plugins.registry import register_plugin
 from src.services.ai_web.yuanbao_chat import YuanbaoChatNetService
 from src.utils.params_helper import ParamsHelper
@@ -65,31 +66,25 @@ class YuanbaoChatPlugin(BasePlugin):
 
             self.plugin_params = ParamsHelper.build_params(YuanbaoChatPlugin.Params, self.task_params.extra)
 
-            logger.info("YuanbaoChatPlugin service initialized and attached")
+            logger.info(f"{self._chat_service.__class__.__name__} service initialized and attached")
 
         except Exception as e:
             logger.error(f"Service setup failed: {e}")
             raise
-        logger.info("启动AI元宝网页端插件")
+        logger.info("启动插件")
         return await super().start()
 
     async def stop(self) -> bool:
         await self._cleanup()
-        logger.info("停止AI元宝网页端插件")
+        logger.info("停止插件")
         return await super().stop()
 
     async def _cleanup(self) -> None:
         """Detach all services and cleanup resources."""
-        services = [
-            self._chat_service,
-        ]
-
-        for service in services:
-            if service:
-                try:
-                    await service.detach()
-                except Exception as e:
-                    logger.warning(f"Service detach failed: {e}")
+        try:
+            await self._chat_service.detach()
+        except Exception as e:
+            logger.warning(f"Service detach failed: {e}")
 
         logger.info("All services detached and cleaned up")
 
@@ -107,30 +102,13 @@ class YuanbaoChatPlugin(BasePlugin):
         """
 
         await self._ensure_logged_in()
-
         self._chat_service.set_params(self.task_params.extra)
-
         try:
-            res = await self._chat_with_ai()
-            if res["success"]:
-                return {
-                    "success": True,
-                    "data": res["data"],
-                    "count": len(res["data"]),
-                    "plugin_id": PLUGIN_ID,
-                    "version": self.PLUGIN_VERSION,
-                }
-            raise Exception(res["error"])
+            return await self._chat_with_ai()
 
         except Exception as e:
             logger.error(f"Fetch operation failed: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "data": [],
-                "plugin_id": PLUGIN_ID,
-                "version": self.PLUGIN_VERSION,
-            }
+            return self._response.fail(error=str(e))
     @staticmethod
     async def custom_stop_decider_three_times(loop_count, extra_params, page, state, new_batch, idle_rounds, elapsed) -> StopDecision:
         if loop_count == 3:
@@ -174,36 +152,19 @@ class YuanbaoChatPlugin(BasePlugin):
         await asyncio.sleep(0.5)
         sender = await self.page.query_selector("#yuanbao-send-btn")
         await sender.click()
-        try:
-            items = await self._chat_service.invoke(self.task_params.extra)
 
-            await self.page.reload(wait_until="load")
+        items = await self._chat_service.invoke(self.task_params.extra)
 
-            self._chat_service.set_stop_decider(self.custom_stop_decider_once)
-            self._chat_service.state.clear()
-            items = await self._chat_service.invoke(self.task_params.extra)
+        await self.page.reload(wait_until="load")
 
-            # Convert to dictionaries for JSON serialization
-            items_data = [asdict(item) for item in items]
+        self._chat_service.set_stop_decider(self.custom_stop_decider_once)
+        self._chat_service.state.clear()
+        items = await self._chat_service.invoke(self.task_params.extra)
 
-            logger.info(f"Successfully chat")
+        # Convert to dictionaries for JSON serialization
+        items_data = [asdict(item) for item in items]
 
-            return {
-                "success": True,
-                "data": items_data,
-                "count": len(items_data),
-                "task_type": "briefs",
-            }
-
-        except Exception as e:
-            logger.error(f"Briefs collection failed: {e}")
-            return {
-                "success": False,
-                "data": None,
-                "count": 0,
-                "task_type": "briefs",
-                "error": str(e),
-            }
+        return self._response.ok(items_data)
 
 
 @register_plugin(PLUGIN_ID)

@@ -15,6 +15,7 @@ from src.config import get_logger
 from src.core.plugin_context import PluginContext
 from src.core.task_params import TaskParams
 from src.plugins.base import BasePlugin
+from src.plugins.plugin_response import ResponseFactory
 from src.plugins.registry import register_plugin
 from src.services.xiaohongshu.note_search_net import XiaohongshuNoteSearchNetService
 from src.utils.params_helper import ParamsHelper
@@ -70,17 +71,17 @@ class XiaohongshuNoteSearchPlugin(BasePlugin):
 
             self.plugin_params = ParamsHelper.build_params(XiaohongshuNoteSearchPlugin.Params, self.task_params.extra)
 
-            logger.info("XiaohongshuNoteSearchPlugin service initialized and attached")
+            logger.info(f"{self._note_search_net_service.__class__.__name__} service initialized and attached")
 
         except Exception as e:
             logger.error(f"Service setup failed: {e}")
             raise
-        logger.info("启动小红书搜索插件")
+        logger.info("启动插件")
         return await super().start()
 
     async def stop(self) -> bool:
         await self._cleanup()
-        logger.info("停止小红书搜索插件")
+        logger.info("停止插件")
         return await super().stop()
 
     async def _cleanup(self) -> None:
@@ -117,24 +118,12 @@ class XiaohongshuNoteSearchPlugin(BasePlugin):
         try:
             briefs_res = await self._collect_briefs()
             if briefs_res["success"]:
-                return {
-                    "success": True,
-                    "data": briefs_res["data"],
-                    "count": len(briefs_res["data"]),
-                    "plugin_id": PLUGIN_ID,
-                    "version": self.PLUGIN_VERSION,
-                }
+                return self._response.ok(data=briefs_res["data"])
             raise Exception(briefs_res["error"])
                 
         except Exception as e:
             logger.error(f"Fetch operation failed: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "data": [],
-                "plugin_id": PLUGIN_ID,
-                "version": self.PLUGIN_VERSION,
-            }
+            return self._response.fail(error=str(e))
 
     async def _collect_briefs(self) -> Dict[str, Any]:
         if not self._note_search_net_service:
@@ -142,36 +131,19 @@ class XiaohongshuNoteSearchPlugin(BasePlugin):
         """Collect favorite items using the note_net service."""
         logger.info("Collecting favorites using note_brief_net service")
 
-        async def to_search_page():
-            search_words = self.plugin_params.search_words
-            url = f"https://www.xiaohongshu.com/search_result?keyword={search_words}&source=web_search_result_notes"
-            await self.page.goto(url, wait_until="load")
-            await asyncio.sleep(1)
+        search_words = self.plugin_params.search_words
+        url = f"https://www.xiaohongshu.com/search_result?keyword={search_words}&source=web_search_result_notes"
+        await self.page.goto(url, wait_until="load")
+        await asyncio.sleep(1)
 
-        try:
-            items = await self._note_search_net_service.invoke(self.task_params.extra)
+        items = await self._note_search_net_service.invoke(self.task_params.extra)
 
-            # Convert to dictionaries for JSON serialization
-            items_data = [asdict(item) for item in items]
+        # Convert to dictionaries for JSON serialization
+        items_data = [asdict(item) for item in items]
 
-            logger.info(f"Successfully collected {len(items_data)} search results")
+        logger.info(f"Successfully collected {len(items_data)} results")
 
-            return {
-                "success": True,
-                "data": items_data,
-                "count": len(items_data),
-                "task_type": "briefs",
-            }
-
-        except Exception as e:
-            logger.error(f"Briefs collection failed: {e}")
-            return {
-                "success": False,
-                "data": None,
-                "count": 0,
-                "task_type": "briefs",
-                "error": str(e),
-            }
+        return self._response.ok(data=items_data)
 
 
 @register_plugin(PLUGIN_ID)

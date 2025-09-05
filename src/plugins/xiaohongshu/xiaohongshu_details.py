@@ -14,6 +14,7 @@ from src.config import get_logger
 from src.core.plugin_context import PluginContext
 from src.core.task_params import TaskParams
 from src.plugins.base import BasePlugin
+from src.plugins.plugin_response import ResponseFactory
 from src.plugins.registry import register_plugin
 from src.services.xiaohongshu.models import NoteAccessInfo, NoteDetailsItem
 from src.services.xiaohongshu.note_explore_page_net import XiaohongshuNoteExplorePageNetService
@@ -79,12 +80,12 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
         except Exception as e:
             logger.error(f"Service setup failed: {e}")
             raise
-        logger.info("启动小红书详情插件")
+        logger.info("启动插件")
         return await super().start()
 
     async def stop(self) -> bool:
         await self._cleanup()
-        logger.info("停止小红书详情插件")
+        logger.info("停止插件")
         return await super().stop()
 
     async def _cleanup(self) -> None:
@@ -123,13 +124,7 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
                 
         except Exception as e:
             logger.error(f"Fetch operation failed: {e}", exc_info=e)
-            return {
-                "success": False,
-                "error": str(e),
-                "data": [],
-                "plugin_id": PLUGIN_ID,
-                "version": self.PLUGIN_VERSION,
-            }
+            return self._response.fail(error=str(e))
 
     async def navigate_to_note_explore_page(self,
                                             loop_count: int,
@@ -183,38 +178,29 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
             for item in added_briefs_items
         ]
 
-        try:
-            self._note_explore_net_service.set_delegate_on_loop_item_start(self.navigate_to_note_explore_page)
-            # Get details in batch
-            details = await self._note_explore_net_service.invoke(extra_params={
-                "access_info": note_access_info,
-                **self.task_params.extra
-            })
-            
-            # Filter out None results and convert to dictionaries
-            valid_details = [detail for detail in details if detail is not None]
-            details_data = [asdict(detail) for detail in valid_details]
-            
-            logger.info(f"Successfully collected {len(details_data)} details out of {len(added_briefs_items)} requested")
+        self._note_explore_net_service.set_delegate_on_loop_item_start(self.navigate_to_note_explore_page)
+        # Get details in batch
+        details = await self._note_explore_net_service.invoke(extra_params={
+            "access_info": note_access_info,
+            **self.task_params.extra
+        })
 
-            logger.info(f"Collect failed notes, total: {len(self._access_failed_notes)}")
-            
-            return {
-                "success": True,
-                "data": details_data,
-                "count": len(details_data),
-                "failed_notes": {
-                    "data": [asdict(access_info) for access_info in self._access_failed_notes],
-                    "count": len(self._access_failed_notes),
-                },
-                "requested_count": len(added_briefs_items),
-                "plugin_id": PLUGIN_ID,
-                "version": self.PLUGIN_VERSION,
-            }
-            
-        except Exception as e:
-            logger.error(f"Details collection failed: {e}", exc_info=e)
-            raise e
+        # Filter out None results and convert to dictionaries
+        valid_details = [detail for detail in details if detail is not None]
+        details_data = [asdict(detail) for detail in valid_details]
+
+        logger.info(f"Successfully collected {len(details_data)} details out of {len(added_briefs_items)} requested")
+
+        logger.info(f"Collect failed notes, total: {len(self._access_failed_notes)}")
+
+        return self._response.ok(data={
+            "data": details_data,
+            "count": len(details_data),
+            "failed_notes": {
+                "data": [asdict(access_info) for access_info in self._access_failed_notes],
+                "count": len(self._access_failed_notes),
+            },
+        })
 
 
 @register_plugin(PLUGIN_ID)

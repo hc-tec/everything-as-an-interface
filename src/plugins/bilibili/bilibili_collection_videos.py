@@ -11,6 +11,7 @@ from src.config import get_logger
 from src.core.plugin_context import PluginContext
 from src.core.task_params import TaskParams
 from src.plugins.base import BasePlugin
+from src.plugins.plugin_response import ResponseFactory
 from src.plugins.registry import register_plugin
 from src.services.bilibili.collection_videos_net import CollectionVideoNetService
 from src.services.collection_common import CollectionState
@@ -70,7 +71,7 @@ class BilibiliCollectionVideosPlugin(BasePlugin):
 
             self.plugin_params = ParamsHelper.build_params(BilibiliCollectionVideosPlugin.Params, self.task_params.extra)
 
-            logger.info("CollectionVideoNetService service initialized and attached")
+            logger.info(f"{self._service.__class__.__name__} service initialized and attached")
 
         except Exception as e:
             logger.error(f"Service setup failed: {e}")
@@ -104,26 +105,10 @@ class BilibiliCollectionVideosPlugin(BasePlugin):
         await self._ensure_logged_in()
         self._service.set_params(self.task_params.extra)
         try:
-            res = await self._collect()
-            if res["success"]:
-                return {
-                    "success": True,
-                    "data": res["data"],
-                    "count": len(res["data"]),
-                    "plugin_id": PLUGIN_ID,
-                    "version": self.PLUGIN_VERSION,
-                }
-            raise Exception(res["error"])
-
+            return await self._collect()
         except Exception as e:
             logger.error(f"Fetch operation failed: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "data": [],
-                "plugin_id": PLUGIN_ID,
-                "version": self.PLUGIN_VERSION,
-            }
+            return self._response.fail(error=str(e))
 
     async def _make_stop_decision(self,
                                   loop_count,
@@ -182,30 +167,14 @@ class BilibiliCollectionVideosPlugin(BasePlugin):
 
         self._service.set_stop_decider(self._make_stop_decision)
         self._service.set_delegate_on_loop_item_end(self._click_to_next_page)
-        try:
-            items = await self._service.invoke(self.task_params.extra)
+        items = await self._service.invoke(self.task_params.extra)
 
-            # Convert to dictionaries for JSON serialization
-            items_data = [asdict(item) for item in items]
+        # Convert to dictionaries for JSON serialization
+        items_data = [asdict(item) for item in items]
 
-            logger.info(f"Successfully collected {len(items_data)} search results")
+        logger.info(f"Successfully collected {len(items_data)} results")
 
-            return {
-                "success": True,
-                "data": items_data,
-                "count": len(items_data),
-                "task_type": "briefs",
-            }
-
-        except Exception as e:
-            logger.error(f"Briefs collection failed: {e}")
-            return {
-                "success": False,
-                "data": None,
-                "count": 0,
-                "task_type": "briefs",
-                "error": str(e),
-            }
+        return self._response.ok(data=items_data)
 
 
 @register_plugin(PLUGIN_ID)

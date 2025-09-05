@@ -13,6 +13,7 @@ from settings import PROJECT_ROOT
 from src.core.plugin_context import PluginContext
 from src.core.task_params import TaskParams
 from src.config.plugin_config import PluginConfig
+from src.plugins.plugin_response import ResponseFactory
 from src.utils import ValidationError
 from src.utils.file_util import write_json_with_project_root
 from src.utils.global_response_listener import add_global_response_listener
@@ -21,43 +22,6 @@ from src.utils.net_rules import ResponseView
 from src.utils.params_helper import ParamsHelper
 
 logger = get_logger(__name__)
-
-async def download_response_to_file(resp_view: ResponseView) -> None:
-    response = resp_view._original
-    # 获取响应内容（字节流转成文本）
-    body = resp_view.data()
-
-    try:
-        body = json.loads(body)
-    except Exception as e:
-        pass
-
-    # 获取请求信息
-    request = response.request
-
-    data = {
-        "url": response.url,
-        "status": response.status,
-        "request_headers": request.headers,
-        "response_headers": response.headers,
-        "body": body
-    }
-    dir_name = "unknown"
-    if response.url.find("explore") != -1:
-        # 提取小红书笔记ID
-        pattern = re.compile(r"/explore/([0-9a-f]{16,32})(?:\?|$)")
-        match = pattern.search(response.url)
-        if match:
-            dir_name = match.group(1)
-    else:
-        dir_name = re.sub(r'[\\/:*?"<>|]', "_", response.url)
-
-    os.makedirs(os.path.join(PROJECT_ROOT, "private_data"), exist_ok=True)
-    os.makedirs(os.path.join(PROJECT_ROOT, "private_data", dir_name), exist_ok=True)
-    # 保存文件（用时间戳区分）
-    format_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"private_data/{dir_name}/response_{format_time}_{time.time()}.json"
-    write_json_with_project_root(data, filename)
 
 
 class BasePlugin:
@@ -98,8 +62,8 @@ class BasePlugin:
         self.account_manager = None
         # 新增：延迟创建的登录助手
         self._login_helper = None
-        add_global_response_listener(download_response_to_file)
-    
+        self._response = ResponseFactory(self.PLUGIN_ID, self.PLUGIN_VERSION)
+
     def inject_task_params(self, params: TaskParams) -> None:
         """
         配置插件

@@ -9,6 +9,7 @@ from src.config import get_logger
 from src.core.plugin_context import PluginContext
 from src.core.task_params import TaskParams
 from src.plugins.base import BasePlugin
+from src.plugins.plugin_response import ResponseFactory
 from src.plugins.registry import register_plugin
 from src.services.ocr.paddle_ocr_service import PaddleOCRService, paddle_ocr_service
 from src.utils.params_helper import ParamsHelper
@@ -66,21 +67,10 @@ class PaddleOcrPlugin(BasePlugin):
     async def fetch(self) -> Dict[str, Any]:
         try:
             result = self._service.invoke(self.task_params.extra)
-            return {
-                "success": True,
-                "data": result,
-                "plugin_id": PLUGIN_ID,
-                "version": self.PLUGIN_VERSION,
-            }
+            return self._response.ok(result)
         except Exception as e:
             logger.error(f"Fetch operation failed: {e}", exc_info=e)
-            return {
-                "success": False,
-                "error": str(e),
-                "data": [],
-                "plugin_id": PLUGIN_ID,
-                "version": self.PLUGIN_VERSION,
-            }
+            return self._response.fail(error=str(e))
 
 
 @register_plugin(PLUGIN_ID)

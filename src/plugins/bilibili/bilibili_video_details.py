@@ -6,6 +6,7 @@ from src.config import get_logger
 from src.core.plugin_context import PluginContext
 from src.core.task_params import TaskParams
 from src.plugins.base import BasePlugin
+from src.plugins.plugin_response import ResponseFactory
 from src.plugins.registry import register_plugin
 from src.services.bilibili.video_ai_subtitle_net import VideoAiSubtitleNetService
 from src.services.bilibili.video_details_net import VideoDetailsNetService
@@ -66,7 +67,8 @@ class BilibiliVideoDetailsPlugin(BasePlugin):
 
             self.plugin_params = ParamsHelper.build_params(BilibiliVideoDetailsPlugin.Params, self.task_params.extra)
 
-            logger.info("VideoDetailsNetService service initialized and attached")
+            logger.info(f"{self._details_service.__class__.__name__} service initialized and attached")
+            logger.info(f"{self._subtitle_service.__class__.__name__} service initialized and attached")
 
         except Exception as e:
             logger.error(f"Service setup failed: {e}")
@@ -106,26 +108,15 @@ class BilibiliVideoDetailsPlugin(BasePlugin):
             details_res = await self._collect_details()
             subtitle_res = await self._collect_subtitles()
             if details_res["success"] and subtitle_res["success"]:
-                return {
-                    "success": True,
-                    "data": {
-                        "details": details_res,
-                        "subtitles": subtitle_res,
-                    },
-                    "plugin_id": PLUGIN_ID,
-                    "version": self.PLUGIN_VERSION,
-                }
+                return self._response.ok({
+                    "details": details_res,
+                    "subtitles": subtitle_res,
+                })
             raise Exception([details_res.get("error"), subtitle_res.get("error")])
 
         except Exception as e:
             logger.error(f"Fetch operation failed: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "data": [],
-                "plugin_id": PLUGIN_ID,
-                "version": self.PLUGIN_VERSION,
-            }
+            return self._response.fail(error=str(e))
 
     async def _make_stop_decision(self,
                                   loop_count,
@@ -140,65 +131,32 @@ class BilibiliVideoDetailsPlugin(BasePlugin):
         url = f"https://www.bilibili.com/video/{self.plugin_params.bvid}/?spm_id_from=333.788.recommend_more_video.0&vd_source=6b3d0e6973059f202bf441d103fce535"
         await self.page.goto(url, wait_until="load")
         self._details_service.set_stop_decider(self._make_stop_decision)
-        try:
-            items = await self._details_service.invoke(self.task_params.extra)
 
-            # Convert to dictionaries for JSON serialization
-            items_data = [asdict(item) for item in items]
+        items = await self._details_service.invoke(self.task_params.extra)
 
-            logger.info(f"Successfully collected {len(items_data)} search results")
+        # Convert to dictionaries for JSON serialization
+        items_data = [asdict(item) for item in items]
 
-            return {
-                "success": True,
-                "data": items_data,
-                "count": len(items_data),
-                "task_type": "details",
-            }
+        logger.info(f"Successfully collected {len(items_data)} results")
 
-        except Exception as e:
-            logger.error(f"collection failed: {e}")
-            return {
-                "success": False,
-                "data": None,
-                "count": 0,
-                "task_type": "details",
-                "error": str(e),
-            }
+        return self._response.ok(items_data)
 
     async def _collect_subtitles(self) -> Dict[str, Any]:
         try:
             locator = await self.page.wait_for_selector(".bpx-player-ctrl-subtitle", timeout=2000)
         except Exception as e:
-            return {
-                "success": True,
-                "error": "本视频没有AI字幕",
-                "data": None,
-                "task_type": "subtitle",
-            }
+            return self._response.fail(error="本视频没有AI字幕")
         await locator.click()
         self._subtitle_service.set_stop_decider(self._make_stop_decision)
-        try:
-            items = await self._subtitle_service.invoke(self.task_params.extra)
 
-            # Convert to dictionaries for JSON serialization
-            items_data = [asdict(item) for item in items]
+        items = await self._subtitle_service.invoke(self.task_params.extra)
 
-            logger.info(f"Successfully collected {len(items_data)} search results")
+        # Convert to dictionaries for JSON serialization
+        items_data = [asdict(item) for item in items]
 
-            return {
-                "success": True,
-                "data": items_data[0],
-                "task_type": "Subtitles",
-            }
+        logger.info(f"Successfully collected {len(items_data)} results")
 
-        except Exception as e:
-            logger.error(f"Collection failed: {e}")
-            return {
-                "success": False,
-                "data": None,
-                "task_type": "Subtitles",
-                "error": str(e),
-            }
+        return self._response.ok(items_data[0])
 
 
 @register_plugin(PLUGIN_ID)
