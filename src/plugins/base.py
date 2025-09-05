@@ -32,7 +32,7 @@ class BasePlugin:
     1. 初始化（__init__）
     2. 配置（set_params）
     3. 启动（start）
-    4. 执行/轮询（fetch/poll）
+    4. 执行（fetch）
     5. 停止（stop）
     """
     
@@ -46,6 +46,8 @@ class BasePlugin:
     PLUGIN_VERSION: str = "0.1.0"
     # 插件作者
     PLUGIN_AUTHOR: str = ""
+
+    PLUGIN_NEED_BROWSER: bool = True
     
     def __init__(self, plugin_config: Optional[PluginConfig] = None) -> None:
         self.task_params: Optional[TaskParams] = None

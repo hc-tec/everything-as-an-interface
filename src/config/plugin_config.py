@@ -63,6 +63,9 @@ class PluginConfig:
         
         if not self.enabled_plugins:  # If no specific plugins enabled, enable all
             return True
+
+        if "*" in self.enabled_plugins:
+            return True
         
         return plugin_name in self.enabled_plugins
     

@@ -32,6 +32,8 @@ class PaddleOcrPlugin(BasePlugin):
     # 插件作者
     PLUGIN_AUTHOR: str = ""
 
+    PLUGIN_NEED_BROWSER: bool = False
+
     def __init__(self) -> None:
         super().__init__()
         # Initialize services (will be attached during setup)

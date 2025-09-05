@@ -45,18 +45,7 @@
   },
   "plugins": {
     "plugins_dir": "src/plugins",
-    "enabled_plugins": [
-      "xiaohongshu_search",
-      "xiaohongshu_favorites_brief",
-      "xiaohongshu_details",
-      "yuanbao_chat",
-      "zhihu_collection_list",
-      "paddle_ocr",
-      "bilibili_collection_list",
-      "bilibili_collection_videos",
-      "bilibili_video_details",
-      "xiaohongshu_collection_list"
-    ],
+    "enabled_plugins": ["*"],
     "disabled_plugins": [],
     "plugin_settings": {
       "xiaohongshu_search": {
