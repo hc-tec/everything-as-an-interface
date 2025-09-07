@@ -26,7 +26,7 @@ class BilibiliCollectionListPlugin(BasePlugin):
 
     @dataclass
     class Params:
-        user_id: Optional[str]
+        user_id: Optional[str] = None
 
     # 平台/登录配置（供 BasePlugin 通用登录逻辑使用）
     LOGIN_URL = LOGIN_URL

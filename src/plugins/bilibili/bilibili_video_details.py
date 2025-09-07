@@ -139,7 +139,7 @@ class BilibiliVideoDetailsPlugin(BasePlugin):
 
         logger.info(f"Successfully collected {len(items_data)} results")
 
-        return self._response.ok(items_data)
+        return self._response.ok(items_data[0])
 
     async def _collect_subtitles(self) -> Dict[str, Any]:
         try:
