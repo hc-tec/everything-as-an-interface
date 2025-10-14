@@ -107,7 +107,7 @@ class BilibiliVideoDetailsPlugin(BasePlugin):
         try:
             details_res = await self._collect_details()
             subtitle_res = await self._collect_subtitles()
-            if details_res["success"] and subtitle_res["success"]:
+            if details_res["success"]:
                 return self._response.ok({
                     "details": details_res,
                     "subtitles": subtitle_res,
@@ -147,6 +147,13 @@ class BilibiliVideoDetailsPlugin(BasePlugin):
         except Exception as e:
             return self._response.fail(error="本视频没有AI字幕")
         await locator.click()
+
+        try:
+            locator = await self.page.wait_for_selector('.bpx-player-ctrl-subtitle-language-item[data-lan="ai-zh"]', timeout=2000)
+        except Exception as e:
+            return self._response.fail(error="本视频没有AI字幕")
+        await locator.click()
+
         self._subtitle_service.set_stop_decider(self._make_stop_decision)
 
         items = await self._subtitle_service.invoke(self.task_params.extra)

@@ -24,7 +24,11 @@
       "username": null,
       "password": null
     },
-    "mute_audio": true
+    "mute_audio": true,
+    "extra_args": [
+      "--start-minimized",
+      "--window-position=-32000,-32000", // 将浏览器窗口移出屏幕之外，防止干扰当前窗口工作
+    ]
   },
   // mongo还未经过测试，暂未完全支持
   "database": {

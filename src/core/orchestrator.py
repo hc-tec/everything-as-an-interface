@@ -10,6 +10,22 @@ from ..config.browser_config import BrowserConfig
 
 logger = get_logger(__name__)
 
+async def minimize_on_create(page):
+    """当页面被创建时，立即通过CDP最小化它"""
+    try:
+        client = await page.context.new_cdp_session(page)
+        # 获取所有窗口信息
+        windows = await client.send('Browser.getWindowForTarget')
+        window_id = windows['windowId']
+        # 发送最小化指令
+        await client.send('Browser.setWindowBounds', {
+            'windowId': window_id,
+            'bounds': {'windowState': 'minimized'}
+        })
+        await client.detach()
+    except Exception as e:
+        logger.warning(f"Failed to minimize window via CDP: {e}")
+
 class Orchestrator:
     def __init__(
         self,
@@ -66,7 +82,7 @@ class Orchestrator:
                 launch_kwargs["channel"] = channel
             if proxy is not None:
                 launch_kwargs["proxy"] = proxy
-                
+
             self._browser = await self._playwright.chromium.launch(**launch_kwargs)
 
     async def stop(self) -> None:
@@ -111,6 +127,9 @@ class Orchestrator:
             context_args["user_agent"] = user_agent
 
         context = await self._browser.new_context(**context_args)
+
+        # context.on('page', minimize_on_create)
+
         if extra_http_headers:
             await context.set_extra_http_headers(extra_http_headers)
         if cookie_items:

@@ -200,6 +200,7 @@ class ConfigFactory:
             'browser.proxy.username': 'BROWSER_PROXY_USERNAME',
             'browser.proxy.password': 'BROWSER_PROXY_PASSWORD',
             'browser.mute_audio': 'BROWSER_MUTE_AUDIO',
+            'browser.extra_args': 'BROWSER_EXTRA_ARGS',
             
             # Database config
             'database.use_mongo': 'USE_MONGO',
@@ -242,7 +243,7 @@ class ConfigFactory:
                 if isinstance(value, bool):
                     env_value = str(value).lower()
                 elif isinstance(value, list):
-                    env_value = ','.join(str(item) for item in value)
+                    env_value = ':'.join(str(item) for item in value)
                 else:
                     env_value = str(value)
                 

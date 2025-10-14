@@ -1,7 +1,8 @@
 
 import asyncio
+import json
 import re
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from typing import Any, Dict, Optional, List
 
 from playwright.async_api import ElementHandle
@@ -10,11 +11,14 @@ from src.common.plugin import StopDecision
 from src.config import get_logger
 from src.core.plugin_context import PluginContext
 from src.core.task_params import TaskParams
+from src.data_sync import InMemoryStorage, PassiveSyncEngine, DiffResult
 from src.plugins.base import BasePlugin
 from src.plugins.plugin_response import ResponseFactory
 from src.plugins.registry import register_plugin
 from src.services.bilibili.collection_videos_net import CollectionVideoNetService
+from src.services.bilibili.models import FavoriteVideoItem
 from src.services.collection_common import CollectionState
+from src.services.net_service import NetServiceDelegate
 from src.utils.params_helper import ParamsHelper
 
 logger = get_logger(__name__)
@@ -24,14 +28,63 @@ LOGIN_URL = f"{BASE_URL}"
 
 PLUGIN_ID = "bilibili_collection_videos"
 
+class BriefUpdateDelegate(NetServiceDelegate[FavoriteVideoItem]):
+
+    def __init__(self, params: Dict[str, Any]):
+        self.storage = InMemoryStorage()
+        self.task_params = params
+
+        self.sync_engine = PassiveSyncEngine(storage=self.storage)
+        self.stop_decision = StopDecision(should_stop=False, reason=None, details=None)
+        self._diff = DiffResult(added=[], updated=[], deleted=[])
+
+        self.sync_engine.parse_params(params)
+
+    async def load_storage_from_data(self, data: Dict[str, Any]):
+        try:
+            await self.storage.upsert_many(data)
+            logger.debug(f"Loaded data, Data count: {len(data)}")
+        except Exception as e:
+            logger.error(f"Failed to load data: {e}")
+
+    def get_storage_data(self):
+        items = list(self.storage.get_items())
+        return items
+
+    def get_diff(self) -> DiffResult:
+        return self._diff
+
+    async def on_items_collected(self, items: List[FavoriteVideoItem],
+                                 consume_count: int,
+                                 extra: Dict[str, Any],
+                                 state: Any) \
+            -> List[FavoriteVideoItem]:
+        diff, decision = await self.sync_engine.process_batch([asdict(item) for item in items])
+        logger.debug("added: %s", len(diff.added))
+        logger.debug("updated: %s", len(diff.updated))
+        logger.debug("deleted: %s", len(diff.deleted))
+        logger.debug("should_stop: %s, %s", decision.should_stop, decision.reason)
+
+        self.stop_decision = decision
+        self._diff.added.extend(diff.added)
+        self._diff.updated.extend(diff.updated)
+        self._diff.deleted.extend(diff.deleted)
+        return items
+
+    def make_stop_decision(self, loop_count, extra_params, page, state, new_batch, idle_rounds, elapsed) -> StopDecision:
+        return self.stop_decision
+
+
 
 class BilibiliCollectionVideosPlugin(BasePlugin):
 
     @dataclass
     class Params:
         collection_id: Optional[str] # 传入需要获取的收藏夹ID列表
+        storage_data: Optional[str] = field(default_factory=lambda : [])
         user_id: Optional[str] = None
         total_page: Optional[int] = None
+        fingerprint_fields: Optional[list[str]] = None
 
     # 平台/登录配置（供 BasePlugin 通用登录逻辑使用）
     LOGIN_URL = LOGIN_URL
@@ -58,6 +111,7 @@ class BilibiliCollectionVideosPlugin(BasePlugin):
         self.plugin_params: Optional[BilibiliCollectionVideosPlugin.Params] = None
         # Initialize services (will be attached during setup)
         self._service: Optional[CollectionVideoNetService] = None
+        self._update_delegate: Optional[BriefUpdateDelegate] = None
 
     # -----------------------------
     # 生命周期
@@ -68,6 +122,12 @@ class BilibiliCollectionVideosPlugin(BasePlugin):
             self._service = CollectionVideoNetService()
             # Attach all services to the page
             await self._service.attach(self.page)
+
+            # Initialize Delegates
+            self._update_delegate = BriefUpdateDelegate(self.task_params.extra)
+
+            # Set Delegates to Services
+            self._service.set_delegate_on_items_collected(self._update_delegate.on_items_collected)
 
             self.plugin_params = ParamsHelper.build_params(BilibiliCollectionVideosPlugin.Params, self.task_params.extra)
 
@@ -105,6 +165,8 @@ class BilibiliCollectionVideosPlugin(BasePlugin):
         await self._ensure_logged_in()
         self._service.set_params(self.task_params.extra)
         try:
+            if not isinstance(self.plugin_params.storage_data, list):
+                await self._update_delegate.load_storage_from_data(json.loads(self.plugin_params.storage_data))
             return await self._collect()
         except Exception as e:
             logger.error(f"Fetch operation failed: {e}")
@@ -116,6 +178,8 @@ class BilibiliCollectionVideosPlugin(BasePlugin):
                                   page,
                                   state: CollectionState,
                                   *args, **kwargs):
+        if self._update_delegate.stop_decision.should_stop:
+            return self._update_delegate.stop_decision
         if loop_count >= self.plugin_params.total_page:
             return StopDecision(should_stop=True, reason="Reach max collection count")
         return StopDecision(should_stop=False, reason="Don't reach max collection count")
@@ -174,7 +238,21 @@ class BilibiliCollectionVideosPlugin(BasePlugin):
 
         logger.info(f"Successfully collected {len(items_data)} results")
 
-        return self._response.ok(data=items_data)
+        diff = self._update_delegate.get_diff()
+        logger.info(f"diff: {diff.stats()}")
+        full_data = self._update_delegate.get_storage_data()
+        return self._response.ok(data={
+            "data": full_data,
+            "count": len(full_data),
+            "added": {
+                "data": diff.added,
+                "count": len(diff.added),
+            },
+            "updated": {
+                "data": diff.updated,
+                "count": len(diff.updated),
+            },
+        })
 
 
 @register_plugin(PLUGIN_ID)

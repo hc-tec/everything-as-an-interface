@@ -85,6 +85,7 @@ class BrowserConfig:
     downloads_path: Optional[str] = field(default_factory=lambda: os.getenv("BROWSER_DOWNLOADS_PATH"))
     mute_auto: bool = field(default_factory=lambda: os.getenv("BROWSER_MUTE_AUDIO", "false").lower() == "true")
     extra_http_headers: Dict[str, str] = field(default_factory=dict)
+    extra_args: list = field(default_factory=lambda : os.getenv("BROWSER_EXTRA_ARGS", []))
     
     def get_launch_options(self) -> Dict[str, Any]:
         """Get browser launch options for Playwright."""
@@ -107,6 +108,10 @@ class BrowserConfig:
         
         if self.downloads_path:
             options["downloads_path"] = self.downloads_path
+
+        if self.extra_args:
+            extra_args = self.extra_args.split(":")
+            options["args"].extend(extra_args)
         
         proxy_dict = self.proxy.to_dict()
         if proxy_dict:
