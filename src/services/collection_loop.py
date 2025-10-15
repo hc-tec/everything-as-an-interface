@@ -11,7 +11,7 @@ from playwright.async_api import Page
 from .collection_common import scroll_page_once as _scroll_page_once
 from src.utils.metrics import metrics
 from ..common.plugin import StopDecision
-from src.services.collection_common import CollectionState, ExitCondition, MaxItemsExit, TimeoutExit, IdleRoundsExit
+from src.services.collection_common import CollectionState, ExitCondition, MaxItemsExit, TimeoutExit, IdleRoundsExit, ScrollBottomReachedExit
 
 T = TypeVar("T")
 
@@ -55,6 +55,14 @@ async def run_generic_collection(
         MaxItemsExit(max_items),
         IdleRoundsExit(max_idle_rounds),
     ]
+
+    # Add ScrollBottomReachedExit only for infinite scroll (not for pager mode)
+    # This detects when scrolling no longer changes page height
+    scroll_mode = (extra_params or {}).get("scroll_mode")
+    if scroll_mode != "pager":
+        # Default threshold is 2 consecutive scrolls with no height change
+        max_no_scroll_rounds = (extra_params or {}).get("max_no_scroll_rounds", 2)
+        exit_condition_list.append(ScrollBottomReachedExit(max_consecutive=max_no_scroll_rounds))
 
     if goto_first:
         await goto_first()
@@ -149,6 +157,21 @@ async def run_generic_collection(
             else:
                 await _scroll_page_once(page, pause_ms=scroll_pause_ms)
             metrics.inc("collect.scrolls")
+
+            # Detect scroll height changes for bottom detection
+            # Only applicable for infinite scroll, not for pager mode
+            try:
+                current_height = await page.evaluate("document.documentElement.scrollHeight")
+                if state.last_scroll_height is not None:
+                    if current_height == state.last_scroll_height:
+                        state.consecutive_no_height_change += 1
+                        logger.debug(f"Scroll height unchanged: {current_height}, consecutive count: {state.consecutive_no_height_change}")
+                    else:
+                        state.consecutive_no_height_change = 0
+                        logger.debug(f"Scroll height changed: {state.last_scroll_height} -> {current_height}")
+                state.last_scroll_height = current_height
+            except Exception as e:
+                logger.debug(f"Failed to detect scroll height: {e}")
 
         if delegate.on_loop_item_end:
             await delegate.on_loop_item_end(loop_count, extra_params, state)

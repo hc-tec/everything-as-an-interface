@@ -252,7 +252,11 @@ class SyncParams:
 
 现在你已经了解了如何配置和使用不同的插件！根据你的具体需求选择合适的插件和配置参数即可开始使用万物皆接口系统。
 
+## 📚 插件文档
 
+- **[插件 API 完整参考](./docs/plugins_api_reference.md)** - 所有插件的详细参数、返回值和使用示例
+- **[插件快速参考表](./docs/plugins_quick_reference.md)** - 快速查找插件ID、方法名和关键参数
+- **[小红书详情插件v3.0迁移指南](./docs/xiaohongshu_details_v3_migration.md)** - 从v2.0升级到v3.0的指南
 
 # 如果你是开发者，想要更进一步了解系统
 你需要先了解项目的整体架构如何

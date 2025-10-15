@@ -2,21 +2,20 @@
 Xiaohongshu Details Plugin V2 - Service-based Architecture
 
 This plugin orchestrates calls to Xiaohongshu services to collect detailed note information.
+Now supports single note detail retrieval.
 """
 
 import asyncio
-import json
 from dataclasses import asdict, dataclass
 from typing import Any, Dict, List, Optional
 
-from src.common.plugin import StopDecision
 from src.config import get_logger
 from src.core.plugin_context import PluginContext
 from src.core.task_params import TaskParams
 from src.plugins.base import BasePlugin
 from src.plugins.plugin_response import ResponseFactory
 from src.plugins.registry import register_plugin
-from src.services.xiaohongshu.models import NoteAccessInfo, NoteDetailsItem
+from src.services.xiaohongshu.models import NoteDetailsItem
 from src.services.xiaohongshu.note_explore_page_net import XiaohongshuNoteExplorePageNetService
 from src.utils.params_helper import ParamsHelper
 
@@ -32,17 +31,18 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
 
     @dataclass
     class Params:
-        brief_data: str = "{}"
-        wait_time_sec: int = 10
+        note_id: str = ""
+        xsec_token: str = ""
+        wait_time_sec: int = 3
 
     # 每个插件必须定义唯一的插件ID
     PLUGIN_ID: str = PLUGIN_ID
     # 插件名称
     PLUGIN_NAME: str = __name__
     # 插件版本
-    PLUGIN_VERSION: str = "2.0.0"
+    PLUGIN_VERSION: str = "3.0.0"
     # 插件描述
-    PLUGIN_DESCRIPTION: str = f"Xiaohongshu automation plugin (service-based v{PLUGIN_VERSION})"
+    PLUGIN_DESCRIPTION: str = f"Xiaohongshu single note detail plugin (service-based v{PLUGIN_VERSION})"
     # 插件作者
     PLUGIN_AUTHOR: str = ""
 
@@ -58,8 +58,6 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
         self.plugin_params: Optional[XiaohongshuNoteDetailPlugin.Params] = None
         # Initialize services (will be attached during setup)
         self._note_explore_net_service: Optional[XiaohongshuNoteExplorePageNetService] = None
-
-        self._access_failed_notes: List[NoteAccessInfo] = []
 
 
     # -----------------------------
@@ -106,101 +104,62 @@ class XiaohongshuNoteDetailPlugin(BasePlugin):
     async def fetch(self) -> Dict[str, Any]:
         """
         Main fetch method that orchestrates data collection using services.
-        
+
         Returns:
-            Dictionary containing collected data and metadata
+            Dictionary containing single note detail data
         """
 
         await self._ensure_logged_in()
         self._note_explore_net_service.set_params(self.task_params.extra)
 
         try:
-            brief_data = self.plugin_params.brief_data
-            brief_data = json.loads(brief_data)
-            if brief_data.get("count") > 0:
-                diff = brief_data["data"]
-                return await self._collect_details(diff)
-            raise Exception(brief_data.get("error"))
-                
+            # Validate input parameters
+            if not self.plugin_params.note_id:
+                raise ValueError("note_id is required")
+            if not self.plugin_params.xsec_token:
+                raise ValueError("xsec_token is required")
+
+            # Collect single note detail
+            return await self._collect_single_detail()
+
         except Exception as e:
             logger.error(f"Fetch operation failed: {e}", exc_info=e)
             return self._response.fail(error=str(e))
 
-    async def navigate_to_note_explore_page(self,
-                                            loop_count: int,
-                                            extra: Dict[str, Any],
-                                            state: Any):
-        # 利用此回调，我们可以让网页跳转到笔记详情页
-        access_info: NoteAccessInfo = extra.get("access_info")[loop_count - 1]
-        note_explore_page = f"https://www.xiaohongshu.com/explore/{access_info.id}?xsec_token={access_info.xsec_token}&xsec_source=pc_feed"
-        await self.page.goto(note_explore_page, wait_until="load")
-        await asyncio.sleep(self.plugin_params.wait_time_sec)
-
-    @staticmethod
-    async def stop_to_note_explore_page_when_all_collected(
-            loop_count,
-            extra_params,
-            page,
-            state,
-            new_batch,
-            idle_rounds,
-            elapsed):
-        is_all_collected = loop_count >= len(extra_params.get("access_info"))
-        if is_all_collected:
-            return StopDecision(should_stop=True, reason="All notes collected", details=None)
-        return StopDecision(should_stop=False, reason=None, details=None)
-
-    # 通过此函数将访问失败的笔记ID记下来
-    async def on_items_collected(self, items: List[NoteDetailsItem],
-                                 consume_count: int,
-                                 extra: Dict[str, Any],
-                                 state: Any) -> List[NoteDetailsItem]:
-        if not items:
-            access_info = extra.get("access_info")[consume_count - 1]
-            self._access_failed_notes.append(access_info)
-        return items
-
-    async def _collect_details(self, added: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Collect detailed information for specified note IDs."""
+    async def _collect_single_detail(self) -> Dict[str, Any]:
+        """Collect detailed information for a single specified note."""
         if not self._note_explore_net_service:
             raise RuntimeError("Services not initialized. Call setup() first.")
 
-        added_briefs_items = added
-        if added_briefs_items is None or len(added_briefs_items) == 0:
-            raise ValueError("No added notes found")
-        
-        logger.info(f"Collecting details for {len(added_briefs_items)} notes")
-        self._note_explore_net_service.set_stop_decider(self.stop_to_note_explore_page_when_all_collected)
-        self._note_explore_net_service.set_delegate_on_items_collected(self.on_items_collected)
-        # 小红书进入笔记详情，必须得有两个参数，一个是 id，另一个是 xsec_token
-        note_access_info = [
-            NoteAccessInfo(id=item["id"], xsec_token=item["xsec_token"])
-            for item in added_briefs_items
-        ]
+        note_id = self.plugin_params.note_id
+        xsec_token = self.plugin_params.xsec_token
 
-        self._note_explore_net_service.set_delegate_on_loop_item_start(self.navigate_to_note_explore_page)
-        # Get details in batch
+        logger.info(f"Collecting detail for note: {note_id}")
+
+        # Navigate to note explore page
+        note_explore_page = f"https://www.xiaohongshu.com/explore/{note_id}?xsec_token={xsec_token}&xsec_source=pc_feed"
+        logger.info(f"Navigating to: {note_explore_page}")
+
+        await self.page.goto(note_explore_page, wait_until="load")
+        await asyncio.sleep(self.plugin_params.wait_time_sec)
+
+        # Invoke service to collect detail (expects single item in response)
         details = await self._note_explore_net_service.invoke(extra_params={
-            "access_info": note_access_info,
             **self.task_params.extra
         })
 
-        # Filter out None results and convert to dictionaries
-        valid_details = [detail for detail in details if detail is not None]
-        details_data = [asdict(detail) for detail in valid_details]
+        # Check if we got a result
+        if not details or len(details) == 0:
+            logger.warning(f"Failed to collect detail for note: {note_id}")
+            return self._response.fail(error=f"No detail data returned for note {note_id}")
 
-        logger.info(f"Successfully collected {len(details_data)} details out of {len(added_briefs_items)} requested")
+        # Get the first (and should be only) detail
+        detail = details[0]
+        detail_data = asdict(detail)
 
-        logger.info(f"Collect failed notes, total: {len(self._access_failed_notes)}")
+        logger.info(f"Successfully collected detail for note: {note_id}")
 
-        return self._response.ok(data={
-            "data": details_data,
-            "count": len(details_data),
-            "failed_notes": {
-                "data": [asdict(access_info) for access_info in self._access_failed_notes],
-                "count": len(self._access_failed_notes),
-            },
-        })
+        return self._response.ok(data=detail_data)
 
 
 @register_plugin(PLUGIN_ID)

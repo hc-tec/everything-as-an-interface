@@ -96,5 +96,5 @@ class XiaohongshuNoteBriefNetService(NetService[NoteBriefItem]):
                     )
                 )
             except Exception as e:
-                logger.error(f"解析笔记信息出错：{str(e)}")
+                logger.error(f"note parse error：{str(e)}")
         return results

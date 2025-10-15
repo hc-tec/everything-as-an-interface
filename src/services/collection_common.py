@@ -21,6 +21,9 @@ class CollectionState(Generic[T]):
     page: Page
     items: List[T] = []
     stop_decider: Optional[StopDecider[T]] = None
+    # Scroll height tracking for bottom detection
+    last_scroll_height: Optional[int] = None
+    consecutive_no_height_change: int = 0
 
     def __init__(self, page: Page, items=None, stop_decider: Optional[StopDecider[T]] = None):
         if items is None:
@@ -28,9 +31,13 @@ class CollectionState(Generic[T]):
         self.page = page
         self.items = items
         self.stop_decider = stop_decider
+        self.last_scroll_height = None
+        self.consecutive_no_height_change = 0
 
     def clear(self):
         self.items = []
+        self.last_scroll_height = None
+        self.consecutive_no_height_change = 0
 
 async def scroll_page_once(page: Page, *, pause_ms: int = 800) -> bool:
     """Scroll the page once and return True if the scroll height increased."""
@@ -99,3 +106,47 @@ class IdleRoundsExit(ExitCondition, Generic[T]):
             return StopDecision(should_stop=True, reason="max_idle_rounds",
                                 details={"max_idle_rounds": self.max_idle_rounds})
         return StopDecision(should_stop=False, reason="not max_items", details={})
+
+
+class ScrollBottomReachedExit(ExitCondition, Generic[T]):
+    """Exit condition for detecting when scrolling reaches page bottom.
+
+    This condition detects when the page scroll height stops changing after
+    consecutive scroll attempts, indicating the bottom has been reached.
+
+    Note: This is only applicable for infinite scroll / waterfall layouts.
+    For paginated content, use IdleRoundsExit instead.
+    """
+    def __init__(self, max_consecutive: int = 2):
+        """Initialize the exit condition.
+
+        Args:
+            max_consecutive: Maximum number of consecutive scrolls with no height
+                           change before considering bottom reached. Default is 2.
+        """
+        self.max_consecutive = max_consecutive
+
+    async def should_exit(self,
+                    loop_count: int,
+                    extra_params: Dict[str, Any],
+                    page: Page,
+                    state: Any,
+                    new_batch: List[T],
+                    idle_rounds: int,
+                    elapsed: float) -> StopDecision:
+        """Check if scroll bottom has been reached.
+
+        Returns:
+            StopDecision indicating whether to stop and reason.
+        """
+        if hasattr(state, 'consecutive_no_height_change'):
+            if state.consecutive_no_height_change >= self.max_consecutive:
+                return StopDecision(
+                    should_stop=True,
+                    reason="scroll_bottom_reached",
+                    details={
+                        "consecutive_no_height_change": state.consecutive_no_height_change,
+                        "threshold": self.max_consecutive
+                    }
+                )
+        return StopDecision(should_stop=False, reason="not at bottom", details={})

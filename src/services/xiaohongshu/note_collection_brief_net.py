@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import asyncio
-from src.config import get_logger
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from playwright.async_api import Page
 
+from src.config import get_logger
+from src.services.models import AuthorInfo, NoteStatistics
 from src.services.net_collection_loop import (
     NetCollectionState,
     run_network_collection,
@@ -13,25 +14,24 @@ from src.services.net_collection_loop import (
 from src.services.net_consume_helpers import NetConsumeHelper
 from src.services.net_service import NetService
 from src.services.scroll_helper import ScrollHelper
-from src.services.xiaohongshu.models import NoteBriefItem, AuthorInfo, NoteStatistics
+from src.services.xiaohongshu.models import NoteBriefItem
 
 logger = get_logger(__name__)
 
-class XiaohongshuNoteSearchNetService(NetService[NoteBriefItem]):
+class XiaohongshuNoteCollectionBriefNetService(NetService[NoteBriefItem]):
     """
-    小红书瀑布流笔记抓取服务 - 通过监听网络实现，而非解析 Dom
+    小红书收藏夹笔记抓取服务 - 通过监听网络实现，而非解析 Dom
     """
     def __init__(self) -> None:
         super().__init__()
 
     async def attach(self, page: Page) -> None:
-        self.page = page
         self.state = NetCollectionState[NoteBriefItem](page=page, queue=asyncio.Queue())
 
         # Bind NetRuleBus and start consumer via helper
         self._net_helper = NetConsumeHelper(state=self.state, delegate=self.delegate)
         await self._net_helper.bind(page, [
-            (r".*/search/notes", "response"),
+            (r".*/sns/web/v1/board/note/*", "response"),
         ])
         await self._net_helper.start(default_parse_items=self._parse_items_wrapper)
 
@@ -42,7 +42,12 @@ class XiaohongshuNoteSearchNetService(NetService[NoteBriefItem]):
             raise RuntimeError("Service not attached to a Page")
 
         pause = self._service_params.scroll_pause_ms
-        on_scroll = ScrollHelper.build_on_scroll(self.page, service_params=self._service_params, pause_ms=pause, extra=extra_params)
+        on_scroll = ScrollHelper.build_on_scroll(
+            self.page,
+            service_params=self._service_params,
+            pause_ms=pause,
+            extra=extra_params
+        )
 
         items = await run_network_collection(
             self.state,
@@ -57,32 +62,28 @@ class XiaohongshuNoteSearchNetService(NetService[NoteBriefItem]):
                                    payload: Dict[str, Any],
                                    consume_count: int,
                                    extra: Dict[str, Any],
-                                   state: Any
-                                   ) -> List[NoteBriefItem]:
-        items_payload = payload.get("data").get("items", [])
+                                   state: Any) -> List[NoteBriefItem]:
+        items_payload = payload.get("data").get("notes", [])
         results: List[NoteBriefItem] = []
         for note_item in items_payload or []:
             try:
-                if note_item["model_type"] != "note":
-                    continue
-                id = note_item["id"]
+                id = note_item["note_id"]
+                title = note_item.get("display_title")
                 xsec_token = note_item.get("xsec_token")
-                note_card = note_item["note_card"]
-                title = note_card.get("display_title")
-                user = note_card.get("user", {})
+                user = note_item.get("user", {})
                 author_info = AuthorInfo(
-                    username=user.get("nickname"),
+                    username=user.get("nick_name"),
                     avatar=user.get("avatar"),
                     user_id=user.get("user_id"),
                     xsec_token=user.get("xsec_token")
                 )
-                interact = note_card.get("interact_info", {})
+                interact = note_item.get("interact_info", {})
                 statistic = NoteStatistics(
                     like_num=str(interact.get("liked_count", 0)),
                     collect_num=str(interact.get("collected_count", 0)),
-                    chat_num=str(interact.get("comment_count", 0))
+                    chat_num=str(interact.get("comment_count", 0)),
                 )
-                cover_image = note_card.get("cover", {}).get("url_default")
+                cover_image = note_item.get("cover", {}).get("url_default")
                 results.append(
                     NoteBriefItem(
                         id=id,
@@ -91,7 +92,7 @@ class XiaohongshuNoteSearchNetService(NetService[NoteBriefItem]):
                         author_info=author_info,
                         statistic=statistic,
                         cover_image=cover_image,
-                        raw_data=self._inject_raw_data(note_item)
+                        raw_data=self._inject_raw_data(note_item),
                     )
                 )
             except Exception as e:

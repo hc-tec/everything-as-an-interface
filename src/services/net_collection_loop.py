@@ -62,8 +62,7 @@ async def run_network_collection(
     extra_params: Optional[Dict[str, Any]] = None,
     goto_first: Optional[Callable[[], Awaitable[None]]] = None,
     on_scroll: Optional[Callable[[], Awaitable[None]]] = None,
-    on_tick_start: Optional[Callable[[int, Dict[str, Any]], Awaitable[None]]] = None,
-    network_timeout: float = 5.0,
+    network_timeout: Optional[float] = None,
     delegate: CollectionLoopDelegate=CollectionLoopDelegate(),
 ) -> List[T]:
     """Run a unified network-driven collection loop using the generic engine.
@@ -71,14 +70,26 @@ async def run_network_collection(
     This function assumes external code populates state.items and state.queue is
     set when new items arrive (e.g., via NetRuleBus consumer). It converts that
     contract into a generic on_tick callback that waits for the event.
+
+    Args:
+        state: Network collection state containing queue and items
+        cfg: Service configuration parameters
+        extra_params: Additional parameters to pass through
+        goto_first: Optional callback to navigate to first page
+        on_scroll: Optional custom scroll callback
+        network_timeout: Timeout in seconds for network response. If None, uses cfg.response_timeout_sec
+        delegate: Collection loop delegate for lifecycle hooks
     """
 
+    # Use cfg.response_timeout_sec if network_timeout not explicitly provided
+    timeout = network_timeout if network_timeout is not None else cfg.response_timeout_sec
+
     async def on_tick() -> Optional[int]:
-        # Wait for event with a short timeout to allow idle detection
+        # Wait for event with timeout to allow idle detection
         try:
-            await state.queue.get()
+            await asyncio.wait_for(state.queue.get(), timeout=timeout)
         except asyncio.TimeoutError:
-            logger.debug("network collection timed out")
+            logger.debug("network collection timed out after %.2f seconds", timeout)
             return 0
         finally:
             try:
