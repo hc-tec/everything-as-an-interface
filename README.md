@@ -121,6 +121,7 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 ```
+Cookie管理: 首次使用任何插件都需要手动登录以保存Cookie。后续运行可以直接使用 cookie_ids 复用已保存的登录状态。cookie_ids可在登录后在日志输出中看到，目前还未对cookie做管理上的优化！
 
 ### 配置说明
 
