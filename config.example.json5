@@ -53,11 +53,11 @@
     "disabled_plugins": [],
     "plugin_settings": {
       "xiaohongshu_search": {
-        "max_results": 100,
-        "timeout": 30
+//        "max_results": 100,
+//        "timeout": 30
       },
       "xiaohongshu_brief": {
-        "batch_size": 20
+//        "batch_size": 20
       }
     },
     // 自动发现会从src/plugins扫描递归所有.py文件导入插件

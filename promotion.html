@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>万物皆接口</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #F3F4F6; /* very light gray */
+        }
+
+        /* 强制截图比例和居中的框架 */
+        .mobile-frame {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .content-card {
+            aspect-ratio: 9 / 16;
+            height: 844px; /* 固定高度以保证渲染一致性 */
+            background-color: #ffffff;
+            border-radius: 2rem;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 页面容器和切换动画 */
+        .page-container {
+            flex-grow: 1;
+            position: relative;
+        }
+
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 2.5rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            transform: translateY(10px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .page.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        /* 渐变标题样式 */
+        .title-gradient {
+            background-image: linear-gradient(to right, #4f46e5, #9333ea);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* 高亮文本样式 */
+        .highlight {
+            background-image: linear-gradient(to right, #10b981, #2563eb);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 700;
+        }
+
+        /* 导航和页码指示器样式 */
+        .navigation {
+            padding: 1.5rem 2.5rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .nav-button {
+            background-color: #f3f4f6;
+            color: #4b5563;
+            border-radius: 9999px;
+            width: 3rem;
+            height: 3rem;
+            transition: all 0.2s;
+        }
+
+        .nav-button:hover {
+            background-color: #e5e7eb;
+        }
+
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: #f3f4f6;
+        }
+
+        #page-indicator .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #d1d5db;
+            transition: all 0.3s;
+        }
+
+        #page-indicator .dot.active {
+            background-color: #4f46e5;
+            transform: scale(1.25);
+        }
+
+        /* 引用块样式 */
+        .quote-block {
+            border-left-width: 4px;
+            border-image: linear-gradient(to bottom, #4f46e5, #9333ea) 1;
+            background-color: #f9fafb;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mobile-frame">
+        <div class="content-card">
+
+            <!-- 内容页面容器 -->
+            <main class="page-container">
+
+                <!-- Page 1: 封面 & 痛点 -->
+                <section class="page active" data-page="1">
+                    <div class="text-center w-full">
+                        <h1 class="text-4xl font-bold title-gradient leading-tight mb-6">
+                            万物皆接口
+                        </h1>
+                        <h2 class="text-2xl font-semibold text-gray-700 mb-12">
+                            别让你的收藏夹“积灰”了！<br/>未来十年，我们玩的是<br>“信息乐高”
+                        </h2>
+
+                        <div class="space-y-4 text-left">
+                            <div class="flex items-start p-4 bg-gray-50 rounded-xl border border-gray-200">
+                                <i class="fa-solid fa-circle-xmark text-red-400 text-xl mt-1 mr-4"></i>
+                                <p class="text-gray-600">
+                                    B站深度视频，<span class="font-bold text-gray-800">收藏了等于看了？</span>
+                                </p>
+                            </div>
+                            <div class="flex items-start p-4 bg-gray-50 rounded-xl border border-gray-200">
+                                <i class="fa-solid fa-circle-xmark text-red-400 text-xl mt-1 mr-4"></i>
+                                <p class="text-gray-600">
+                                    小红书种草的露营地，<span class="font-bold text-gray-800">真到周末就忘了？</span>
+                                </p>
+                            </div>
+                            <div class="flex items-start p-4 bg-gray-50 rounded-xl border border-gray-200">
+                                <i class="fa-solid fa-circle-xmark text-red-400 text-xl mt-1 mr-4"></i>
+                                <p class="text-gray-600">
+                                    知乎高赞长文，想着“以后再看”，<span class="font-bold text-gray-800">就再也没看？</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Page 2: 问题 & 核心概念 -->
+                <section class="page" data-page="2">
+                    <div class="text-center w-full">
+                         <h2 class="text-2xl font-bold text-gray-800 mb-8">信息孤岛，价值沉睡</h2>
+                         <p class="text-lg text-gray-600 leading-relaxed mb-12">
+                            我们收藏时有多爽，想找时就有多崩溃。信息散落在各个APP里，高价值内容成了<span class="font-semibold text-purple-600">“沉睡的数据”</span>。
+                         </p>
+
+                        <div class="quote-block w-full">
+                             <h3 class="flex items-center justify-center text-xl font-bold text-gray-800 mb-4">
+                                <i class="fa-solid fa-lightbulb text-purple-500 mr-3"></i>
+                                全新概念：万物皆接口
+                            </h3>
+                            <p class="text-center text-gray-700 leading-relaxed">
+                               给每个APP、每个网站都装上一个<span class="font-bold text-purple-600">“万能插座”</span>。任何你看到的信息，都能被程序自动<span class="highlight">读取、整理和调用</span>。
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Page 3: 核心任务 1 & 2 -->
+                <section class="page" data-page="3">
+                    <div class="w-full">
+                        <h2 class="text-2xl font-bold text-center text-gray-800 mb-8">专属AI助理的四类核心任务</h2>
+                        <div class="space-y-6">
+                            <div class="p-5 bg-blue-50 border border-blue-200 rounded-2xl">
+                                <h3 class="font-bold text-lg text-blue-800 mb-2 flex items-center">
+                                    <i class="fa-solid fa-tower-broadcast w-6 mr-2"></i>
+                                    1. 信息监控类：做你的情报员
+                                </h3>
+                                <p class="text-blue-700 text-base leading-relaxed">
+                                    你关注的UP主更新了？AI立刻生成300字摘要，让你30秒判断值不值得看。
+                                </p>
+                            </div>
+                             <div class="p-5 bg-green-50 border border-green-200 rounded-2xl">
+                                <h3 class="font-bold text-lg text-green-800 mb-2 flex items-center">
+                                    <i class="fa-solid fa-magnifying-glass-chart w-6 mr-2"></i>
+                                    2. 数据分析类：AI帮你“刷”笔记
+                                </h3>
+                                <p class="text-green-700 text-base leading-relaxed">
+                                    自动分析上千篇露营笔记，总结出<span class="font-bold">【Top 5 目的地】、【必带装备】和【避坑指南】</span>。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Page 4: 核心任务 3 & 4 -->
+                <section class="page" data-page="4">
+                    <div class="w-full">
+                         <h2 class="text-2xl font-bold text-center text-gray-800 mb-8">专属AI助理的四类核心任务</h2>
+                         <div class="space-y-6">
+                             <div class="p-5 bg-red-50 border border-red-200 rounded-2xl">
+                                <h3 class="font-bold text-lg text-red-800 mb-2 flex items-center">
+                                    <i class="fa-solid fa-triangle-exclamation w-6 mr-2"></i>
+                                    3. 预警触发类：做你的雷达
+                                </h3>
+                                <p class="text-red-700 text-base leading-relaxed">
+                                    设定关键词，全天候监控热搜，一旦触发立刻为你收集各方解读，让你先人一步。
+                                </p>
+                            </div>
+                             <div class="p-5 bg-purple-50 border border-purple-200 rounded-2xl">
+                                <h3 class="font-bold text-lg text-purple-800 mb-2 flex items-center">
+                                    <i class="fa-solid fa-rocket w-6 mr-2"></i>
+                                    4. 效率操作类：把重复劳动交给AI
+                                </h3>
+                                <p class="text-purple-700 text-base leading-relaxed">
+                                    7x24小时帮你盯着心仪好物，一旦降价或补货，<span class="font-bold">立刻微信通知你下单！</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Page 5: 愿景 -->
+                <section class="page" data-page="5">
+                    <div class="text-center w-full">
+                         <i class="fa-solid fa-cubes text-6xl title-gradient mb-6"></i>
+                         <h2 class="text-3xl font-bold text-gray-800 mb-6">
+                            我们是信息世界的<br>“乐高大师”
+                        </h2>
+                        <p class="text-lg text-gray-600 leading-relaxed mb-10">
+                           我们正在将一个个信息孤岛，连接成一个你可以随心所欲组合、自动运转的智能网络。
+                        </p>
+                        <p class="text-xl font-bold text-gray-800 leading-relaxed">
+                           当万物皆为接口，你将不再是APP被动的使用者，而是整个数字世界的<span class="highlight">“编排者”</span>。
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Page 6: 开源邀请 -->
+                <section class="page" data-page="6">
+                    <div class="w-full text-center">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">一个邀请：</h2>
+                        <h3 class="text-2xl font-semibold title-gradient mb-8">成为“信息乐高”的共建者</h3>
+                        <p class="text-gray-600 leading-relaxed mb-6 text-left">
+                            这个宏大的构想，需要每一位“乐高大师”的参与。我作为个人开发者已完成初步接口，但未来还有无数APP等待连接。
+                        </p>
+                        <p class="text-gray-600 leading-relaxed mb-8 text-left">
+                           因此，我将此项目<span class="font-bold text-purple-600">完全开源</span>，并真诚地邀请你加入我们！
+                        </p>
+                        <div class="bg-gray-900 text-white p-4 rounded-lg font-mono text-left text-sm break-all">
+                            <i class="fa-brands fa-github mr-2"></i>
+                            <span>https://github.com/hc-tec/everything-as-an-interface</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Page 7: 互动 & CTA -->
+                <section class="page" data-page="7">
+                    <div class="text-center w-full bg-gray-50 p-8 rounded-3xl">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-6">
+                             <i class="fa-solid fa-comments-question"></i>
+                             灵魂拷问
+                        </h2>
+                        <p class="text-lg text-gray-700 leading-relaxed mb-8">
+                             如果可以，你最想为哪个APP装上“万能插座”？最想实现什么脑洞功能？
+                        </p>
+                         <p class="font-semibold text-purple-600 text-xl">
+                           在评论区分享你的想法，<br>我们一起把想象变为现实！
+                        </p>
+                    </div>
+                    <div class="text-center mt-6 text-gray-400 text-xs leading-relaxed">
+                        #万物皆接口 #信息乐高 #自动化革命 #AI赋能 #开源项目
+                    </div>
+                </section>
+
+            </main>
+
+            <!-- 导航 -->
+            <footer class="navigation">
+                <div class="flex items-center justify-between">
+                    <button id="prev-btn" class="nav-button">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <div id="page-indicator" class="flex items-center space-x-2">
+                        <!-- JS will generate dots here -->
+                    </div>
+                    <button id="next-btn" class="nav-button">
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const pages = document.querySelectorAll('.page');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const pageIndicator = document.getElementById('page-indicator');
+            const totalPages = pages.length;
+            let currentPage = 1;
+
+            // 初始化页码指示器
+            function initIndicator() {
+                for (let i = 0; i < totalPages; i++) {
+                    const dot = document.createElement('div');
+                    dot.classList.add('dot');
+                    dot.dataset.page = i + 1;
+                    pageIndicator.appendChild(dot);
+                }
+            }
+
+            // 更新页面和按钮状态
+            function updatePage() {
+                // 更新页面显示
+                pages.forEach(page => {
+                    page.classList.remove('active');
+                    if (parseInt(page.dataset.page) === currentPage) {
+                        page.classList.add('active');
+                    }
+                });
+
+                // 更新页码指示器
+                const dots = pageIndicator.querySelectorAll('.dot');
+                dots.forEach(dot => {
+                    dot.classList.remove('active');
+                     if (parseInt(dot.dataset.page) === currentPage) {
+                        dot.classList.add('active');
+                    }
+                });
+
+                // 更新按钮禁用状态
+                prevBtn.disabled = currentPage === 1;
+                nextBtn.disabled = currentPage === totalPages;
+            }
+
+            // 事件监听
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    updatePage();
+                }
+            });
+
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    updatePage();
+                }
+            });
+
+            // 初始化
+            initIndicator();
+            updatePage();
+        });
+    </script>
+</body>
+</html>
+
+

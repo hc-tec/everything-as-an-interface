@@ -7,6 +7,7 @@ while delegating specific tasks to specialized services.
 """
 
 import asyncio
+import json
 import re
 from dataclasses import asdict, dataclass
 from typing import Any, Dict, List, Optional
@@ -222,7 +223,8 @@ class XiaohongshuNoteBriefPlugin(BasePlugin):
 
         try:
             # 加载存储数据到对应的 delegate
-            await active_delegate.load_storage_from_data(self.task_params.extra.get("storage_data", []))
+            if not isinstance(self.plugin_params.storage_data, list):
+                await active_delegate.load_storage_from_data(json.loads(self.plugin_params.storage_data))
             briefs_res = await self._collect_briefs()
             if briefs_res["success"]:
                 # 从对应的 delegate 获取数据
