@@ -76,49 +76,50 @@ WARNING:root:Warning: Failed to load config file D:\everything-as-an-interface2\
 
 ```python
 import asyncio
-from client_sdk.rpc_client import EAIRPCClient
+from client_sdk.rpc_client_async import EAIRPCClient
 from client_sdk.params import TaskParams
 
+
 async def main():
-  # 创建RPC客户端
-  client = EAIRPCClient(
-    base_url="http://127.0.0.1:8008",  # 服务程序IP+端口
-    api_key="testkey",  # 与服务程序约定的API密钥
-    webhook_host="127.0.0.1",  # webhook订阅服务监听地址
-    webhook_port=0,  # webhook订阅服务端口
-  )
-
-  try:
-    # 启动客户端
-    await client.start()
-    print("✅ RPC客户端已启动")
-    
-    # 🤖 与AI聊天
-    print("\n🤖 与AI元宝聊天...")
-    chat_result = await client.chat_with_yuanbao(
-        ask_question="你好，我是小星星",
-        conversation_id=None,
-        task_params=TaskParams(
-            cookie_ids=["819969a2-9e59-46f5-b0ca-df2116d9c2a0"],
-            close_page_when_task_finished=True,
-        ),
+    # 创建RPC客户端
+    client = EAIRPCClient(
+        base_url="http://127.0.0.1:8008",  # 服务程序IP+端口
+        api_key="testkey",  # 与服务程序约定的API密钥
+        webhook_host="127.0.0.1",  # webhook订阅服务监听地址
+        webhook_port=0,  # webhook订阅服务端口
     )
-    if chat_result["success"]:
-        print(f"AI回复: {chat_result.get('data')[0].get('last_model_message', 'N/A')}")
-    else:
-        print(chat_result["error"])
 
-  except Exception as e:
-    print(f"❌ 错误: {e}")
+    try:
+        # 启动客户端
+        await client.start()
+        print("✅ RPC客户端已启动")
 
-  finally:
-    # 停止客户端
-    await client.stop()
-    print("\n✅ RPC客户端已停止")
+        # 🤖 与AI聊天
+        print("\n🤖 与AI元宝聊天...")
+        chat_result = await client.chat_with_yuanbao(
+            ask_question="你好，我是小星星",
+            conversation_id=None,
+            task_params=TaskParams(
+                cookie_ids=["819969a2-9e59-46f5-b0ca-df2116d9c2a0"],
+                close_page_when_task_finished=True,
+            ),
+        )
+        if chat_result["success"]:
+            print(f"AI回复: {chat_result.get('data')[0].get('last_model_message', 'N/A')}")
+        else:
+            print(chat_result["error"])
+
+    except Exception as e:
+        print(f"❌ 错误: {e}")
+
+    finally:
+        # 停止客户端
+        await client.stop()
+        print("\n✅ RPC客户端已停止")
 
 
 if __name__ == "__main__":
-  asyncio.run(main())
+    asyncio.run(main())
 ```
 
 ### 配置说明
@@ -351,3 +352,12 @@ class SyncParams:
 3. 为新功能添加测试
 4. 确保所有测试通过
 5. 提交 Pull Request
+
+
+## 💬 支持
+
+- **问题反馈**：[GitHub Issues](https://github.com/hc-tec/everything-as-an-interface/issues)
+- **讨论**：[GitHub Discussions](https://github.com/hc-tec/everything-as-an-interface/discussions)
+- **QQ群(220696175)**：点击链接加入群聊【万物皆接口 | 技术交流】：http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=cgp4HF4_LqQ88uwHrj2ZLP44Ry6UT__g&authKey=lZliuXyKSf8MGIR32Y2Y8RxhUrZskFr8voM0wxqFYVleFKdgB2RccA1yLSt8fuO7&noverify=0&group_code=220696175
+
+---

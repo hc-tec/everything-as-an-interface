@@ -103,7 +103,7 @@ v2.0.0
 #### 使用示例
 
 ```python
-from client_sdk.rpc_client import EAIRPCClient
+from client_sdk.rpc_client_async import EAIRPCClient
 from client_sdk.params import TaskParams, ServiceParams, SyncParams
 
 client = EAIRPCClient(base_url="http://127.0.0.1:8008", api_key="testkey")

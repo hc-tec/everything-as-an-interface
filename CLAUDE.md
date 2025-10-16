@@ -212,7 +212,7 @@ Use `ScrollHelper` for scraping rendered page elements:
 RPC clients connect to the server and invoke plugins:
 
 ```python
-from client_sdk.rpc_client import EAIRPCClient
+from client_sdk.rpc_client_async import EAIRPCClient
 from client_sdk.params import TaskParams, ServiceParams
 
 client = EAIRPCClient(
@@ -222,7 +222,8 @@ client = EAIRPCClient(
 await client.start()
 
 # Call plugin methods directly
-result = await client.{plugin_method}(
+result = await client.
+{plugin_method}(
     task_params=TaskParams(cookie_ids=["uuid"]),
     service_params=ServiceParams(max_items=100)
 )
