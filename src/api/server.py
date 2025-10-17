@@ -45,7 +45,12 @@ async def lifespan(app: FastAPI):
     system.scheduler.set_orchestrator(orchestrator)
 
     # Initialize webhook components
-    dispatcher = WebhookDispatcher()
+    webhook_config = system.config.get("webhooks", {})
+    dispatcher = WebhookDispatcher(
+        concurrency=webhook_config.get("concurrency", 4),
+        request_timeout_sec=webhook_config.get("request_timeout_sec", 100.0),
+        max_chunk_size_bytes=webhook_config.get("max_chunk_size_bytes", 800_000)
+    )
     await dispatcher.start()
 
     # Initialize webhook subscription store (decoupled from core)

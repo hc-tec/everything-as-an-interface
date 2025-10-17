@@ -64,5 +64,12 @@
     "auto_discover": true,
     "reload_on_change": false,
     "max_concurrent_plugins": 5
+  },
+  "webhooks": {
+    "concurrency": 4,
+    "request_timeout_sec": 100.0,
+    // Maximum chunk size in bytes (800KB default to stay under 1MB server limits)
+    "max_chunk_size_bytes": 800000,
+    "max_retries": 5
   }
 }
