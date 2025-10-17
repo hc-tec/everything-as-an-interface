@@ -9,6 +9,7 @@ from .database_config import DatabaseConfig
 from .browser_config import BrowserConfig
 from .plugin_config import PluginConfig
 from .logging_config import LoggingConfig
+from .webhook_config import WebhookConfig
 
 
 class ConfigFactory:
@@ -58,16 +59,25 @@ class ConfigFactory:
     @staticmethod
     def create_plugin_config() -> PluginConfig:
         """Create a new PluginConfig instance.
-        
+
         Returns:
             PluginConfig instance
         """
         return PluginConfig()
-    
+
+    @staticmethod
+    def create_webhook_config() -> WebhookConfig:
+        """Create a new WebhookConfig instance.
+
+        Returns:
+            WebhookConfig instance
+        """
+        return WebhookConfig()
+
     @staticmethod
     def create_all_configs() -> dict:
         """Create all configuration instances.
-        
+
         Returns:
             Dictionary containing all config instances
         """
@@ -77,6 +87,7 @@ class ConfigFactory:
             "database": ConfigFactory.create_database_config(),
             "logging": ConfigFactory.create_logging_config(),
             "plugin": ConfigFactory.create_plugin_config(),
+            "webhook": ConfigFactory.create_webhook_config(),
         }
     
     @staticmethod
@@ -228,6 +239,12 @@ class ConfigFactory:
             'plugins.auto_discover': 'PLUGIN_AUTO_DISCOVER',
             'plugins.enabled_plugins': 'ENABLED_PLUGINS',
             'plugins.disabled_plugins': 'DISABLED_PLUGINS',
+
+            # Webhook config
+            'webhooks.concurrency': 'WEBHOOK_CONCURRENCY',
+            'webhooks.request_timeout_sec': 'WEBHOOK_TIMEOUT_SEC',
+            'webhooks.max_chunk_size_bytes': 'WEBHOOK_MAX_CHUNK_SIZE',
+            'webhooks.max_retries': 'WEBHOOK_MAX_RETRIES',
         }
         
         def set_nested_value(data: dict, key_path: str) -> None:
@@ -288,6 +305,7 @@ class ConfigFactory:
     _browser_config: Optional[BrowserConfig] = None
     _plugin_config: Optional[PluginConfig] = None
     _logging_config: Optional[LoggingConfig] = None
+    _webhook_config: Optional[WebhookConfig] = None
     
     def __new__(cls) -> 'ConfigFactory':
         """Ensure singleton behavior."""
@@ -379,17 +397,28 @@ class ConfigFactory:
     @property
     def logging(self) -> LoggingConfig:
         """Get logging configuration.
-        
+
         Returns:
             LoggingConfig instance
         """
         if self._logging_config is None:
             self._logging_config = LoggingConfig()
         return self._logging_config
-    
+
+    @property
+    def webhook(self) -> WebhookConfig:
+        """Get webhook configuration.
+
+        Returns:
+            WebhookConfig instance
+        """
+        if self._webhook_config is None:
+            self._webhook_config = WebhookConfig()
+        return self._webhook_config
+
     def reload_all(self) -> None:
         """Reload all configurations.
-        
+
         This will force recreation of all config objects on next access,
         useful for picking up configuration changes.
         """
@@ -398,6 +427,7 @@ class ConfigFactory:
         self._browser_config = None
         self._plugin_config = None
         self._logging_config = None
+        self._webhook_config = None
         self._load_config_file()
     
     def get_env_summary(self) -> dict:

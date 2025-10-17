@@ -56,6 +56,7 @@ class EverythingAsInterface:
         self.database_config = configs["database"]
         self.logging_config = configs["logging"]
         self.plugin_config = configs["plugin"]
+        self.webhook_config = configs["webhook"]
         
         # 验证配置
         self.config_factory.validate_params(self.app_config)
