@@ -3,7 +3,7 @@
     "environment": "development",
     "debug": true,
     // master_key 用来对cookies进行加密，加密原理使用的是对称加密，请保管好！
-    "master_key": "your-master-key-here",
+    "master_key": "123",
     "accounts_path": "./accounts",
     "data_path": "./data",
     "temp_path": "./temp"
